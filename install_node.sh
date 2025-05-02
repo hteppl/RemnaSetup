@@ -165,8 +165,8 @@ fi
 exit
 ROOT_EOF
 
-echo "0 * * * * truncate -s 0 /var/lib/marzban-node/access.log" > /tmp/crontab_tmp
-echo "0 * * * * truncate -s 0 /var/lib/marzban-node/error.log" >> /tmp/crontab_tmp
+echo "0 * * * * truncate -s 0 /var/lib/toblock/access.log" > /tmp/crontab_tmp
+echo "0 * * * * truncate -s 0 /var/lib/toblock/error.log" >> /tmp/crontab_tmp
 
 crontab /tmp/crontab_tmp
 
