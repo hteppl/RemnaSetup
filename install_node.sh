@@ -145,17 +145,10 @@ rm /tmp/tblocker-install.sh
 
 if [[ -f /opt/tblocker/config.yaml ]]; then
 
-    awk 'BEGIN {FS=OFS=": "} /LogFile/ {$2="\"/var/lib/toblock/access.log\""} 1' /opt/tblocker/config.yaml > /tmp/config_tmp.yaml
-    mv /tmp/config_tmp.yaml /opt/tblocker/config.yaml
-
-    awk 'BEGIN {FS=OFS=": "} /UsernameRegex/ {$2="\"email: (\\\\S+)\""} 1' /opt/tblocker/config.yaml > /tmp/config_tmp.yaml
-    mv /tmp/config_tmp.yaml /opt/tblocker/config.yaml
-
-    awk -v token="$ADMIN_BOT_TOKEN" 'BEGIN {FS=OFS=": "} /AdminBotToken/ {$2="\""token"\""} 1' /opt/tblocker/config.yaml > /tmp/config_tmp.yaml
-    mv /tmp/config_tmp.yaml /opt/tblocker/config.yaml
-
-    awk -v chatid="$ADMIN_CHAT_ID" 'BEGIN {FS=OFS=": "} /AdminChatID/ {$2="\""chatid"\""} 1' /opt/tblocker/config.yaml > /tmp/config_tmp.yaml
-    mv /tmp/config_tmp.yaml /opt/tblocker/config.yaml
+    sed -i 's|^LogFile:.*$|LogFile: "/var/lib/toblock/access.log"|' /opt/tblocker/config.yaml
+    sed -i 's|^UsernameRegex:.*$|UsernameRegex: "email: (\\S+)"|' /opt/tblocker/config.yaml
+    sed -i "s|^AdminBotToken:.*$|AdminBotToken: \"$ADMIN_BOT_TOKEN\"|" /opt/tblocker/config.yaml
+    sed -i "s|^AdminChatID:.*$|AdminChatID: \"$ADMIN_CHAT_ID\"|" /opt/tblocker/config.yaml
 else
     echo "Ошибка: Файл /opt/tblocker/config.yaml не найден."
     exit 1
