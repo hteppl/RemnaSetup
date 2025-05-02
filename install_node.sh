@@ -128,9 +128,7 @@ services:
             - /var/lib/toblock:/var/lib/toblock
 COMPOSE_EOF
 
-sudo mkdir -p /var/lib/toblock
 sudo su - << 'ROOT_EOF'
-
 source /tmp/install_vars
 
 curl -fsSL git.new/install -o /tmp/tblocker-install.sh || {
@@ -146,18 +144,15 @@ sudo bash /tmp/tblocker-install.sh || {
 rm /tmp/tblocker-install.sh
 
 if [[ -f /opt/tblocker/config.yaml ]]; then
+
     sed -i 's|LogFile:.*|LogFile: "/var/lib/toblock/access.log"|' /opt/tblocker/config.yaml
     sed -i 's|UsernameRegex:.*|UsernameRegex: "email: (\\S+)"|' /opt/tblocker/config.yaml
 
-    sed 's|AdminBotToken: ".*"|AdminBotToken: "REPLACEME"|' /opt/tblocker/config.yaml > /tmp/config_tmp.yaml
-    printf '%s\n' "s|AdminBotToken: \"REPLACEME\"|AdminBotToken: \"$ADMIN_BOT_TOKEN\"|" > /tmp/sed_script
-    sed -f /tmp/sed_script /tmp/config_tmp.yaml > /opt/tblocker/config.yaml
-    rm /tmp/config_tmp.yaml /tmp/sed_script
+    awk -v token="$ADMIN_BOT_TOKEN" 'BEGIN {FS=OFS=": "} /AdminBotToken/ {$2="\""token"\""} 1' /opt/tblocker/config.yaml > /tmp/config_tmp.yaml
+    mv /tmp/config_tmp.yaml /opt/tblocker/config.yaml
 
-    sed 's|AdminChatID: ".*"|AdminChatID: "REPLACEME"|' /opt/tblocker/config.yaml > /tmp/config_tmp.yaml
-    printf '%s\n' "s|AdminChatID: \"REPLACEME\"|AdminChatID: \"$ADMIN_CHAT_ID\"|" > /tmp/sed_script
-    sed -f /tmp/sed_script /tmp/config_tmp.yaml > /opt/tblocker/config.yaml
-    rm /tmp/config_tmp.yaml /tmp/sed_script
+    awk -v chatid="$ADMIN_CHAT_ID" 'BEGIN {FS=OFS=": "} /AdminChatID/ {$2="\""chatid"\""} 1' /opt/tblocker/config.yaml > /tmp/config_tmp.yaml
+    mv /tmp/config_tmp.yaml /opt/tblocker/config.yaml
 else
     echo "Ошибка: Файл /opt/tblocker/config.yaml не найден."
     exit 1
