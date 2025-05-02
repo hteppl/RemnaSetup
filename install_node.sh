@@ -165,10 +165,14 @@ fi
 exit
 ROOT_EOF
 
-echo "0 * * * * truncate -s 0 /var/lib/toblock/access.log" > /tmp/crontab_tmp
+crontab -l > /tmp/crontab_tmp 2>/dev/null || true
+
+echo "0 * * * * truncate -s 0 /var/lib/toblock/access.log" >> /tmp/crontab_tmp
 echo "0 * * * * truncate -s 0 /var/lib/toblock/error.log" >> /tmp/crontab_tmp
 
-crontab /tmp/crontab_tmp
+EDITOR=nano crontab -e << 'CRON_EOF'
+/tmp/crontab_tmp
+CRON_EOF
 
 rm /tmp/crontab_tmp
 
