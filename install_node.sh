@@ -146,11 +146,18 @@ sudo bash /tmp/tblocker-install.sh || {
 rm /tmp/tblocker-install.sh
 
 if [[ -f /opt/tblocker/config.yaml ]]; then
-
     sed -i 's|LogFile:.*|LogFile: "/var/lib/toblock/access.log"|' /opt/tblocker/config.yaml
     sed -i 's|UsernameRegex:.*|UsernameRegex: "email: (\\S+)"|' /opt/tblocker/config.yaml
-    sed -i "s|AdminBotToken: \".*\"|AdminBotToken: \"$ADMIN_BOT_TOKEN\"|" /opt/tblocker/config.yaml
-    sed -i "s|AdminChatID: \".*\"|AdminChatID: \"$ADMIN_CHAT_ID\"|" /opt/tblocker/config.yaml
+
+    sed 's|AdminBotToken: ".*"|AdminBotToken: "REPLACEME"|' /opt/tblocker/config.yaml > /tmp/config_tmp.yaml
+    printf '%s\n' "s|AdminBotToken: \"REPLACEME\"|AdminBotToken: \"$ADMIN_BOT_TOKEN\"|" > /tmp/sed_script
+    sed -f /tmp/sed_script /tmp/config_tmp.yaml > /opt/tblocker/config.yaml
+    rm /tmp/config_tmp.yaml /tmp/sed_script
+
+    sed 's|AdminChatID: ".*"|AdminChatID: "REPLACEME"|' /opt/tblocker/config.yaml > /tmp/config_tmp.yaml
+    printf '%s\n' "s|AdminChatID: \"REPLACEME\"|AdminChatID: \"$ADMIN_CHAT_ID\"|" > /tmp/sed_script
+    sed -f /tmp/sed_script /tmp/config_tmp.yaml > /opt/tblocker/config.yaml
+    rm /tmp/config_tmp.yaml /tmp/sed_script
 else
     echo "Ошибка: Файл /opt/tblocker/config.yaml не найден."
     exit 1
@@ -166,13 +173,10 @@ exit
 ROOT_EOF
 
 crontab -l > /tmp/crontab_tmp 2>/dev/null || true
-
 echo "0 * * * * truncate -s 0 /var/lib/toblock/access.log" >> /tmp/crontab_tmp
 echo "0 * * * * truncate -s 0 /var/lib/toblock/error.log" >> /tmp/crontab_tmp
 
-EDITOR=nano crontab -e << 'CRON_EOF'
-/tmp/crontab_tmp
-CRON_EOF
+crontab /tmp/crontab_tmp
 
 rm /tmp/crontab_tmp
 
