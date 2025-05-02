@@ -136,7 +136,7 @@ curl -fsSL git.new/install -o /tmp/tblocker-install.sh || {
     exit 1
 }
 
-sudo bash /tmp/tblocker-install.sh || {
+printf "\n\n\n" | sudo bash /tmp/tblocker-install.sh || {
     echo "Ошибка: Не удалось выполнить скрипт tblocker."
     exit 1
 }
@@ -161,12 +161,8 @@ else
     exit 1
 fi
 
-if systemctl list-units --full -all | grep -q tblocker.service; then
-    systemctl restart tblocker.service
-else
-    echo "Ошибка: Сервис tblocker.service не найден."
-    exit 1
-fi
+sudo systemctl restart tblocker.service
+
 exit
 ROOT_EOF
 
