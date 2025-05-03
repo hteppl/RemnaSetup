@@ -328,9 +328,9 @@ CADDY_EOF"
   mkdir -p /var/www/site
   mkdir -p /var/www/site/assets
 
-  curl -sL "https://raw.githubusercontent.com/Capybara-z/RemnaSetup/refs/heads/main/files/index.html" -o /var/www/site/index.html
-  curl -sL "https://raw.githubusercontent.com/Capybara-z/RemnaSetup/refs/heads/main/files/assets/main.js" -o /var/www/site/assets/main.js
-  curl -sL "https://raw.githubusercontent.com/Capybara-z/RemnaSetup/refs/heads/main/files/assets/style.css" -o /var/www/site/assets/style.css
+  curl -sL "https://raw.githubusercontent.com/Capybara-z/remnanode/refs/heads/main/files/index.html" -o /var/www/site/index.html
+  curl -sL "https://raw.githubusercontent.com/Capybara-z/remnanode/refs/heads/main/files/assets/main.js" -o /var/www/site/assets/main.js
+  curl -sL "https://raw.githubusercontent.com/Capybara-z/remnanode/refs/heads/main/files/assets/style.css" -o /var/www/site/assets/style.css
 
   sudo systemctl reload caddy
 }
@@ -523,7 +523,7 @@ COMPOSE_EOF
   sudo docker compose up -d
   sudo docker compose down
   sudo rm -rf /opt/remnawave/subscription/app-config.json
-  curl -sL "https://raw.githubusercontent.com/Capybara-z/RemnaSetup/refs/heads/main/files/app-config.json" -o /opt/remnawave/subscription/app-config.json
+  curl -sL "https://raw.githubusercontent.com/Capybara-z/RemnaNode/refs/heads/main/files/app-config.json" -o /opt/remnawave/subscription/app-config.json
   sudo docker compose up -d
   
   echo "Установка страницы подписок завершена!"
@@ -796,6 +796,50 @@ install_full_remnawave() {
   
   rm /tmp/install_vars
   echo "Полная установка Remnawave завершена!"
+}
+
+request_full_data() {
+  echo "=== ВАЖНО: Введите данные для настройки Remnanode. Скрипт продолжит выполнение после ввода всех данных ==="
+  echo
+  while true; do
+    read -p "Введите доменное имя сервера (например, noda1.domain.com): " DOMAIN < /dev/tty
+    if [[ -n "$DOMAIN" ]]; then
+      break
+    fi
+    echo "Доменное имя не может быть пустым. Пожалуйста, введите значение."
+  done
+  echo "DOMAIN=$DOMAIN" >> "$TEMP_VARS_FILE"
+
+  read -p "Введите порт маскировки (по умолчанию 8443): " MONITOR_PORT < /dev/tty
+  MONITOR_PORT=${MONITOR_PORT:-8443}
+  echo "MONITOR_PORT=$MONITOR_PORT" >> "$TEMP_VARS_FILE"
+
+  while true; do
+    read -p "Введите SSL_CERT (можно получить при добавлении ноды в панели): " SSL_CERT_FULL < /dev/tty
+    if [[ -n "$SSL_CERT_FULL" ]]; then
+      break
+    fi
+    echo "SSL_CERT не может быть пустым. Пожалуйста, введите значение."
+  done
+  echo "SSL_CERT_FULL=$SSL_CERT_FULL" >> "$TEMP_VARS_FILE"
+
+  while true; do
+    read -p "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений): " ADMIN_BOT_TOKEN < /dev/tty
+    if [[ -n "$ADMIN_BOT_TOKEN" ]]; then
+      break
+    fi
+    echo "Токен бота не может быть пустым. Пожалуйста, введите значение."
+  done
+  echo "ADMIN_BOT_TOKEN=$ADMIN_BOT_TOKEN" >> "$TEMP_VARS_FILE"
+
+  while true; do
+    read -p "Введите Telegram ID админа для Tblocker: " ADMIN_CHAT_ID < /dev/tty
+    if [[ -n "$ADMIN_CHAT_ID" ]]; then
+      break
+    fi
+    echo "Telegram ID админа не может быть пустым. Пожалуйста, введите значение."
+  done
+  echo "ADMIN_CHAT_ID=$ADMIN_CHAT_ID" >> "$TEMP_VARS_FILE"
 }
 
 while true; do
