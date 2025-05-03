@@ -8,77 +8,181 @@ fi
 TEMP_VARS_FILE="/tmp/install_vars"
 > "$TEMP_VARS_FILE"
 
-echo "=== ВАЖНО: Введите данные для настройки. Скрипт продолжит выполнение после ввода всех данных ==="
+display_menu() {
+  clear
+  echo -e "\033[1;32m"
+  echo -e "┌────────────────────────────────────────────────────────────┐"
+  echo -e "│███████╗ ██████╗ ██╗      ██████╗ ██████╗  ██████╗ ████████╗│"
+  echo -e "│██╔════╝██╔═══██╗██║     ██╔═══██╗██╔══██╗██╔═══██╗╚══██╔══╝│"
+  echo -e "│███████╗██║   ██║██║     ██║   ██║██████╔╝██║   ██║   ██║   │"
+  echo -e "│╚════██║██║   ██║██║     ██║   ██║██╔══██╗██║   ██║   ██║   │"
+  echo -e "│███████║╚██████╔╝███████╗╚██████╔╝██████╔╝╚██████╔╝   ██║   │"
+  echo -e "│╚══════╝ ╚═════╝ ╚══════╝ ╚═════╝ ╚═════╝  ╚═════╝    ╚═╝   │"
+  echo -e "└────────────────────────────────────────────────────────────┘"
+  echo -e "\033[0m"
+  echo -e "\033[1;33mGitHub: https://github.com/Vladless/Solo_bot/tree/main\033[0m"
+  echo -e "\033[1;33mVersion: v1.0\033[0m"
+  echo
+  echo -e "\033[1;36m┌────────────────────────┐\033[0m"
+  echo -e "\033[1;36m│     Меню установки     │\033[0m"
+  echo -e "\033[1;36m└────────────────────────┘\033[0m"
+  echo -e "\033[1;34m1. Полная установка (Remnanode + Caddy + tblocker + BBR)\033[0m"
+  echo -e "\033[1;34m2. Только Caddy с маскировкой\033[0m"
+  echo -e "\033[1;34m3. Только tblocker\033[0m"
+  echo -e "\033[1;34m4. Только настройка BBR\033[0m"
+  echo -e "\033[1;31m0. Выход\033[0m"
+  echo
+  read -p "Введите номер опции (0-4): " OPTION < /dev/tty
+  echo
+}
 
-read -p "Введите доменное имя сервера (например, noda1.domain.com): " DOMAIN < /dev/tty
-if [[ -z "$DOMAIN" ]]; then
+check_docker() {
+  if command -v docker >/dev/null 2>&1; then
+    echo "Docker уже установлен, пропускаем установку."
+    return 0
+  else
+    return 1
+  fi
+}
+
+check_caddy() {
+  if command -v caddy >/dev/null 2>&1 && [ -f /etc/caddy/Caddyfile ]; then
+    echo "Caddy уже установлен и настроен, пропускаем установку."
+    return 0
+  else
+    return 1
+  fi
+}
+
+check_tblocker() {
+  if [ -f /opt/tblocker/config.yaml ] && systemctl list-units --full -all | grep -q tblocker.service; then
+    echo "tblocker уже установлен, пропускаем установку."
+    return 0
+  else
+    return 1
+  fi
+}
+
+check_remnanode() {
+  if sudo docker ps -q --filter "name=remnanode" | grep -q .; then
+    echo "remnanode уже настроен и запущен, пропускаем установку."
+    return 0
+  else
+    return 1
+  fi
+}
+
+check_bbr() {
+  if sysctl net.ipv4.tcp_congestion_control | grep -q bbr; then
+    echo "BBR уже настроен, пропускаем установку."
+    return 0
+  else
+    return 1
+  fi
+}
+
+request_full_data() {
+  echo "=== ВАЖНО: Введите данные для настройки. Скрипт продолжит выполнение после ввода всех данных ==="
+  echo
+  read -p "Введите доменное имя сервера (например, noda1.domain.com): " DOMAIN < /dev/tty
+  if [[ -z "$DOMAIN" ]]; then
     echo "Доменное имя не может быть пустым."
     exit 1
-fi
-echo "DOMAIN=$DOMAIN" >> "$TEMP_VARS_FILE"
+  fi
+  echo "DOMAIN=$DOMAIN" >> "$TEMP_VARS_FILE"
 
-read -p "Введите порт маскировки (по умолчанию 8443): " MONITOR_PORT < /dev/tty
-if [[ "$MONITOR_PORT" != "7443" && "$MONITOR_PORT" != "8443" ]]; then
+  read -p "Введите порт маскировки (по умолчанию 8443): " MONITOR_PORT < /dev/tty
+  if [[ "$MONITOR_PORT" != "7443" && "$MONITOR_PORT" != "8443" ]]; then
     echo "Неверный порт. Будет использован порт 8443 по умолчанию."
     MONITOR_PORT=8443
-fi
-echo "MONITOR_PORT=$MONITOR_PORT" >> "$TEMP_VARS_FILE"
+  fi
+  echo "MONITOR_PORT=$MONITOR_PORT" >> "$TEMP_VARS_FILE"
 
-read -p "Введите APP_PORT (по умолчанию 3001): " APP_PORT < /dev/tty
-APP_PORT=${APP_PORT:-3001}
-echo "APP_PORT=$APP_PORT" >> "$TEMP_VARS_FILE"
+  read -p "Введите APP_PORT (по умолчанию 3001): " APP_PORT < /dev/tty
+  APP_PORT=${APP_PORT:-3001}
+  echo "APP_PORT=$APP_PORT" >> "$TEMP_VARS_FILE"
 
-read -p "Введите SSL_CERT (можно получить при добавлении ноды в панели): " SSL_CERT_FULL < /dev/tty
-if [[ -z "$SSL_CERT_FULL" ]]; then
+  read -p "Введите SSL_CERT (можно получить при добавлении ноды в панели): " SSL_CERT_FULL < /dev/tty
+  if [[ -z "$SSL_CERT_FULL" ]]; then
     echo "SSL_CERT не может быть пустым."
     exit 1
-fi
-echo "SSL_CERT_FULL=$SSL_CERT_FULL" >> "$TEMP_VARS_FILE"
+  fi
+  echo "SSL_CERT_FULL=$SSL_CERT_FULL" >> "$TEMP_VARS_FILE"
 
-read -p "Введите токен бота для tblocker: " ADMIN_BOT_TOKEN < /dev/tty
-if [[ -z "$ADMIN_BOT_TOKEN" ]]; then
+  read -p "Введите токен бота для tblocker: " ADMIN_BOT_TOKEN < /dev/tty
+  if [[ -z "$ADMIN_BOT_TOKEN" ]]; then
     echo "Токен бота не может быть пустым."
     exit 1
-fi
-echo "ADMIN_BOT_TOKEN=$ADMIN_BOT_TOKEN" >> "$TEMP_VARS_FILE"
+  fi
+  echo "ADMIN_BOT_TOKEN=$ADMIN_BOT_TOKEN" >> "$TEMP_VARS_FILE"
 
-read -p "Введите Telegram ID админа для tblocker: " ADMIN_CHAT_ID < /dev/tty
-if [[ -z "$ADMIN_CHAT_ID" ]]; then
+  read -p "Введите Telegram ID админа для tblocker: " ADMIN_CHAT_ID < /dev/tty
+  if [[ -z "$ADMIN_CHAT_ID" ]]; then
     echo "Telegram ID админа не может быть пустым."
     exit 1
-fi
-echo "ADMIN_CHAT_ID=$ADMIN_CHAT_ID" >> "$TEMP_VARS_FILE"
+  fi
+  echo "ADMIN_CHAT_ID=$ADMIN_CHAT_ID" >> "$TEMP_VARS_FILE"
+}
 
-echo "=== Все данные введены, начинаем установку ==="
+request_caddy_data() {
+  echo "=== ВАЖНО: Введите данные для настройки Caddy. Скрипт продолжит выполнение после ввода всех данных ==="
+  echo
+  read -p "Введите доменное имя сервера (например, noda1.domain.com): " DOMAIN < /dev/tty
+  if [[ -z "$DOMAIN" ]]; then
+    echo "Доменное имя не может быть пустым."
+    exit 1
+  fi
+  echo "DOMAIN=$DOMAIN" >> "$TEMP_VARS_FILE"
 
-source "$TEMP_VARS_FILE"
+  read -p "Введите порт маскировки (по умолчанию 8443): " MONITOR_PORT < /dev/tty
+  if [[ "$MONITOR_PORT" != "7443" && "$MONITOR_PORT" != "8443" ]]; then
+    echo "Неверный порт. Будет использован порт 8443 по умолчанию."
+    MONITOR_PORT=8443
+  fi
+  echo "MONITOR_PORT=$MONITOR_PORT" >> "$TEMP_VARS_FILE"
+}
 
-sudo apt update -y
-sudo apt install -y ca-certificates curl gnupg lsb-release
+request_tblocker_data() {
+  echo "=== ВАЖНО: Введите данные для настройки tblocker. Скрипт продолжит выполнение после ввода всех данных ==="
+  echo
+  read -p "Введите токен бота для tblocker: " ADMIN_BOT_TOKEN < /dev/tty
+  if [[ -z "$ADMIN_BOT_TOKEN" ]]; then
+    echo "Токен бота не может быть пустым."
+    exit 1
+  fi
+  echo "ADMIN_BOT_TOKEN=$ADMIN_BOT_TOKEN" >> "$TEMP_VARS_FILE"
 
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+  read -p "Введите Telegram ID админа для tblocker: " ADMIN_CHAT_ID < /dev/tty
+  if [[ -z "$ADMIN_CHAT_ID" ]]; then
+    echo "Telegram ID админа не может быть пустым."
+    exit 1
+  fi
+  echo "ADMIN_CHAT_ID=$ADMIN_CHAT_ID" >> "$TEMP_VARS_FILE"
+}
 
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+install_docker() {
+  echo "Установка Docker..."
+  sudo curl -fsSL https://get.docker.com | sh || {
+    echo "Ошибка: Не удалось установить Docker."
+    exit 1
+  }
+}
 
-sudo apt update -y
-sudo apt install -y docker-ce docker-ce-cli containerd.io
-sudo apt install -y docker-compose-plugin
+install_bbr() {
+  echo "Настройка TCP BBR..."
+  sudo sh -c 'modprobe tcp_bbr && sysctl net.ipv4.tcp_available_congestion_control && sysctl -w net.ipv4.tcp_congestion_control=bbr && echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf && sysctl -p'
+}
 
-sudo usermod -aG docker "$USER"
+install_caddy() {
+  echo "Установка Caddy..."
+  sudo apt install -y curl debian-keyring debian-archive-keyring apt-transport-https
+  curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --yes --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+  curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+  sudo apt update -y
+  sudo apt install -y caddy
 
-newgrp docker << 'DOCKER_EOF'
-source /tmp/install_vars
-
-sudo sh -c 'modprobe tcp_bbr && sysctl net.ipv4.tcp_available_congestion_control && sysctl -w net.ipv4.tcp_congestion_control=bbr && echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf && sysctl -p'
-
-sudo apt install -y curl debian-keyring debian-archive-keyring apt-transport-https
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
-sudo apt update -y
-sudo apt install -y caddy
-
-CADDY_CONFIG="/etc/caddy/Caddyfile"
-sudo bash -c "cat > \"$CADDY_CONFIG\" <<CADDY_EOF
+  CADDY_CONFIG="/etc/caddy/Caddyfile"
+  sudo bash -c "cat > \"$CADDY_CONFIG\" <<CADDY_EOF
 $DOMAIN:$MONITOR_PORT {
     @local {
         remote_ip 127.0.0.1 ::1
@@ -96,25 +200,30 @@ $DOMAIN:$MONITOR_PORT {
 }
 CADDY_EOF"
 
-sudo chmod -R 777 /opt
-sudo chmod -R 777 /var
+  sudo chmod -R 777 /opt
+  sudo chmod -R 777 /var
 
-mkdir -p /var/www/site
-mkdir -p /var/www/site/assets
+  mkdir -p /var/www/site
+  mkdir -p /var/www/site/assets
 
-curl -sL "https://raw.githubusercontent.com/Capybara-z/remnanode/refs/heads/main/files/index.html" -o /var/www/site/index.html
-curl -sL "https://raw.githubusercontent.com/Capybara-z/remnanode/refs/heads/main/files/assets/main.js" -o /var/www/site/assets/main.js
-curl -sL "https://raw.githubusercontent.com/Capybara-z/remnanode/refs/heads/main/files/assets/style.css" -o /var/www/site/assets/style.css
+  curl -sL "https://raw.githubusercontent.com/Capybara-z/remnanode/refs/heads/main/files/index.html" -o /var/www/site/index.html
+  curl -sL "https://raw.githubusercontent.com/Capybara-z/remnanode/refs/heads/main/files/assets/main.js" -o /var/www/site/assets/main.js
+  curl -sL "https://raw.githubusercontent.com/Capybara-z/remnanode/refs/heads/main/files/assets/style.css" -o /var/www/site/assets/style.css
 
-sudo systemctl reload caddy
+  sudo systemctl reload caddy
+}
 
-mkdir -p /opt/remnanode
-cd /opt/remnanode
+install_remnanode() {
+  echo "Установка remnanode..."
+  sudo chmod -R 777 /opt
+  sudo chmod -R 777 /var
+  mkdir -p /opt/remnanode
+  cd /opt/remnanode
 
-echo "APP_PORT=$APP_PORT" > .env
-echo "$SSL_CERT_FULL" >> .env
+  echo "APP_PORT=$APP_PORT" > .env
+  echo "$SSL_CERT_FULL" >> .env
 
-cat > docker-compose.yml <<COMPOSE_EOF
+  cat > docker-compose.yml <<COMPOSE_EOF
 services:
     remnanode:
         container_name: remnanode
@@ -128,7 +237,18 @@ services:
             - /var/lib/toblock:/var/lib/toblock
 COMPOSE_EOF
 
-sudo su - << 'ROOT_EOF'
+  sudo docker compose up -d || {
+    echo "Ошибка: Не удалось запустить remnanode. Убедитесь, что Docker настроен корректно."
+    exit 1
+  }
+}
+
+install_tblocker() {
+  echo "Установка tblocker..."
+  sudo chmod -R 777 /opt
+  sudo chmod -R 777 /var
+  sudo mkdir -p /var/lib/toblock
+  sudo su - << 'ROOT_EOF'
 source /tmp/install_vars
 
 curl -fsSL git.new/install -o /tmp/tblocker-install.sh || {
@@ -136,7 +256,7 @@ curl -fsSL git.new/install -o /tmp/tblocker-install.sh || {
     exit 1
 }
 
-printf "\n\n\n" | sudo bash /tmp/tblocker-install.sh || {
+printf "\n\n\n" | bash /tmp/tblocker-install.sh || {
     echo "Ошибка: Не удалось выполнить скрипт tblocker."
     exit 1
 }
@@ -144,7 +264,6 @@ printf "\n\n\n" | sudo bash /tmp/tblocker-install.sh || {
 rm /tmp/tblocker-install.sh
 
 if [[ -f /opt/tblocker/config.yaml ]]; then
-
     sed -i 's|^LogFile:.*$|LogFile: "/var/lib/toblock/access.log"|' /opt/tblocker/config.yaml
     sed -i 's|^UsernameRegex:.*$|UsernameRegex: "email: (\\S+)"|' /opt/tblocker/config.yaml
     sed -i "s|^AdminBotToken:.*$|AdminBotToken: \"$ADMIN_BOT_TOKEN\"|" /opt/tblocker/config.yaml
@@ -154,22 +273,92 @@ else
     exit 1
 fi
 
-sudo systemctl restart tblocker.service
-
 exit
 ROOT_EOF
 
-crontab -l > /tmp/crontab_tmp 2>/dev/null || true
-echo "0 * * * * truncate -s 0 /var/lib/toblock/access.log" >> /tmp/crontab_tmp
-echo "0 * * * * truncate -s 0 /var/lib/toblock/error.log" >> /tmp/crontab_tmp
+  sudo systemctl restart tblocker.service
+}
 
-crontab /tmp/crontab_tmp
+setup_crontab() {
+  echo "Настройка crontab..."
+  crontab -l > /tmp/crontab_tmp 2>/dev/null || true
+  echo "0 * * * * truncate -s 0 /var/lib/toblock/access.log" >> /tmp/crontab_tmp
+  echo "0 * * * * truncate -s 0 /var/lib/toblock/error.log" >> /tmp/crontab_tmp
 
-rm /tmp/crontab_tmp
+  crontab /tmp/crontab_tmp
+  rm /tmp/crontab_tmp
+}
 
-cd /opt/remnanode
-docker compose up -d
-docker compose logs -f
+display_menu
 
-rm /tmp/install_vars
-DOCKER_EOF
+if [[ -z "$OPTION" ]]; then
+  echo "Опция не выбрана. Выход из программы."
+  exit 1
+fi
+
+case $OPTION in
+  0)
+    echo "Выход из программы."
+    exit 0
+    ;;
+  1)
+    request_full_data
+    source "$TEMP_VARS_FILE"
+    sudo apt update -y
+    if ! check_bbr; then
+      install_bbr
+    fi
+    if ! check_caddy; then
+      install_caddy
+    fi
+    setup_crontab
+    if ! check_docker; then install_docker; fi
+    if ! check_remnanode; then
+      install_remnanode
+    fi
+    if ! check_tblocker; then
+      install_tblocker
+    fi
+    rm /tmp/install_vars
+    echo "Установка завершена!"
+    cd /opt/remnanode
+    sudo docker compose logs -f
+    ;;
+  2)
+    request_caddy_data
+    source "$TEMP_VARS_FILE"
+    sudo apt update -y
+    if ! check_bbr; then
+      install_bbr
+    fi
+    if ! check_caddy; then
+      install_caddy
+    fi
+    rm /tmp/install_vars
+    echo "Установка завершена!"
+    ;;
+  3)
+    request_tblocker_data
+    source "$TEMP_VARS_FILE"
+    sudo apt update -y
+    if ! check_tblocker; then
+      install_tblocker
+    fi
+    setup_crontab
+    rm /tmp/install_vars
+    echo "Установка завершена!"
+    ;;
+  4)
+    sudo apt update -y
+    source "$TEMP_VARS_FILE"
+    if ! check_bbr; then
+      install_bbr
+    fi
+    rm /tmp/install_vars
+    echo "Установка завершена!"
+    ;;
+  *)
+    echo "Неверная опция. Выберите 0, 1, 2, 3 или 4."
+    exit 1
+    ;;
+esac
