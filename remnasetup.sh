@@ -815,6 +815,16 @@ request_full_data() {
   echo "MONITOR_PORT=$MONITOR_PORT" >> "$TEMP_VARS_FILE"
 
   while true; do
+    read -p "Введите APP_PORT (по умолчанию 3001): " APP_PORT < /dev/tty
+    APP_PORT=${APP_PORT:-3001}
+    if [[ -n "$APP_PORT" ]]; then
+      break
+    fi
+    echo "APP_PORT не может быть пустым. Пожалуйста, введите значение."
+  done
+  echo "APP_PORT=$APP_PORT" >> "$TEMP_VARS_FILE"
+
+  while true; do
     read -p "Введите SSL_CERT (можно получить при добавлении ноды в панели): " SSL_CERT_FULL < /dev/tty
     if [[ -n "$SSL_CERT_FULL" ]]; then
       break
