@@ -59,7 +59,7 @@ display_remnanode_menu() {
   echo -e "\033[1;36m└────────────────────────┘\033[0m"
   echo -e "\033[1;34m1. Полная установка (Remnanode + Caddy + Tblocker + BBR)\033[0m"
   echo -e "\033[1;34m2. Только Remnanode\033[0m"
-  echo -e "\033[1;34m3. Только Caddy + маскировка\033[0m"
+  echo -e "\033[1;34m3. Только Caddy + self-style\033[0m"
   echo -e "\033[1;34m4. Только Tblocker\033[0m"
   echo -e "\033[1;34m5. Только BBR\033[0m"
   echo -e "\033[1;34m6. Обновить Remnanode\033[0m"
@@ -233,7 +233,7 @@ request_caddy_data() {
   fi
   echo "DOMAIN=$DOMAIN" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите порт маскировки (по умолчанию 8443): " MONITOR_PORT < /dev/tty
+  read -p "Введите порт self-style (по умолчанию 8443): " MONITOR_PORT < /dev/tty
   MONITOR_PORT=${MONITOR_PORT:-8443}
   echo "MONITOR_PORT=$MONITOR_PORT" >> "$TEMP_VARS_FILE"
 }
