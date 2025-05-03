@@ -10,7 +10,7 @@ TEMP_VARS_FILE="/tmp/install_vars"
 
 display_menu() {
   clear
-  echo -e "\033[1;32m"
+  echo -e "\033[38;5;208m"
   echo -e "┌────────────────────────────────────────────────────────────┐"
   echo -e "│███████╗ ██████╗ ██╗      ██████╗ ██████╗  ██████╗ ████████╗│"
   echo -e "│██╔════╝██╔═══██╗██║     ██╔═══██╗██╔══██╗██╔═══██╗╚══██╔══╝│"
@@ -26,13 +26,15 @@ display_menu() {
   echo -e "\033[1;36m┌────────────────────────┐\033[0m"
   echo -e "\033[1;36m│     Меню установки     │\033[0m"
   echo -e "\033[1;36m└────────────────────────┘\033[0m"
-  echo -e "\033[1;34m1. Полная установка (Remnanode + Caddy + tblocker + BBR)\033[0m"
-  echo -e "\033[1;34m2. Только Caddy с маскировкой\033[0m"
-  echo -e "\033[1;34m3. Только tblocker\033[0m"
-  echo -e "\033[1;34m4. Только настройка BBR\033[0m"
+  echo -e "\033[1;34m1. Полная установка (Remnanode + Caddy + Tblocker + BBR)\033[0m"
+  echo -e "\033[1;34m2. Только Remnanode\033[0m"
+  echo -e "\033[1;34m3. Только Caddy + маскировка\033[0m"
+  echo -e "\033[1;34m4. Только Tblocker\033[0m"
+  echo -e "\033[1;34m5. Только BBR\033[0m"
+  echo -e "\033[1;34m6. Обновить Remnanode\033[0m"
   echo -e "\033[1;31m0. Выход\033[0m"
   echo
-  read -p "Введите номер опции (0-4): " OPTION < /dev/tty
+  read -p "Введите номер опции (0-6): " OPTION < /dev/tty
   echo
 }
 
@@ -56,7 +58,7 @@ check_caddy() {
 
 check_tblocker() {
   if [ -f /opt/tblocker/config.yaml ] && systemctl list-units --full -all | grep -q tblocker.service; then
-    echo "tblocker уже установлен, пропускаем установку."
+    echo "Tblocker уже установлен, пропускаем установку."
     return 0
   else
     return 1
@@ -65,7 +67,7 @@ check_tblocker() {
 
 check_remnanode() {
   if sudo docker ps -q --filter "name=remnanode" | grep -q .; then
-    echo "remnanode уже настроен и запущен, пропускаем установку."
+    echo "Remnanode уже настроен и запущен, пропускаем установку."
     return 0
   else
     return 1
@@ -109,14 +111,14 @@ request_full_data() {
   fi
   echo "SSL_CERT_FULL=$SSL_CERT_FULL" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите токен бота для tblocker: " ADMIN_BOT_TOKEN < /dev/tty
+  read -p "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений): " ADMIN_BOT_TOKEN < /dev/tty
   if [[ -z "$ADMIN_BOT_TOKEN" ]]; then
     echo "Токен бота не может быть пустым."
     exit 1
   fi
   echo "ADMIN_BOT_TOKEN=$ADMIN_BOT_TOKEN" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите Telegram ID админа для tblocker: " ADMIN_CHAT_ID < /dev/tty
+  read -p "Введите Telegram ID админа для Tblocker: " ADMIN_CHAT_ID < /dev/tty
   if [[ -z "$ADMIN_CHAT_ID" ]]; then
     echo "Telegram ID админа не может быть пустым."
     exit 1
@@ -143,16 +145,16 @@ request_caddy_data() {
 }
 
 request_tblocker_data() {
-  echo "=== ВАЖНО: Введите данные для настройки tblocker. Скрипт продолжит выполнение после ввода всех данных ==="
+  echo "=== ВАЖНО: Введите данные для настройки Tblocker. Скрипт продолжит выполнение после ввода всех данных ==="
   echo
-  read -p "Введите токен бота для tblocker: " ADMIN_BOT_TOKEN < /dev/tty
+  read -p "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений): " ADMIN_BOT_TOKEN < /dev/tty
   if [[ -z "$ADMIN_BOT_TOKEN" ]]; then
     echo "Токен бота не может быть пустым."
     exit 1
   fi
   echo "ADMIN_BOT_TOKEN=$ADMIN_BOT_TOKEN" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите Telegram ID админа для tblocker: " ADMIN_CHAT_ID < /dev/tty
+  read -p "Введите Telegram ID админа для Tblocker: " ADMIN_CHAT_ID < /dev/tty
   if [[ -z "$ADMIN_CHAT_ID" ]]; then
     echo "Telegram ID админа не может быть пустым."
     exit 1
@@ -214,10 +216,11 @@ CADDY_EOF"
 }
 
 install_remnanode() {
-  echo "Установка remnanode..."
+  echo "Установка Remnanode..."
   sudo chmod -R 777 /opt
   sudo chmod -R 777 /var
   mkdir -p /opt/remnanode
+  sudo chown $USER:$USER /opt/remnanode
   cd /opt/remnanode
 
   echo "APP_PORT=$APP_PORT" > .env
@@ -238,13 +241,13 @@ services:
 COMPOSE_EOF
 
   sudo docker compose up -d || {
-    echo "Ошибка: Не удалось запустить remnanode. Убедитесь, что Docker настроен корректно."
+    echo "Ошибка: Не удалось запустить Remnanode. Убедитесь, что Docker настроен корректно."
     exit 1
   }
 }
 
 install_tblocker() {
-  echo "Установка tblocker..."
+  echo "Установка Tblocker..."
   sudo chmod -R 777 /opt
   sudo chmod -R 777 /var
   sudo mkdir -p /var/lib/toblock
@@ -252,12 +255,12 @@ install_tblocker() {
 source /tmp/install_vars
 
 curl -fsSL git.new/install -o /tmp/tblocker-install.sh || {
-    echo "Ошибка: Не удалось скачать скрипт tblocker."
+    echo "Ошибка: Не удалось скачать скрипт Tblocker."
     exit 1
 }
 
 printf "\n\n\n" | bash /tmp/tblocker-install.sh || {
-    echo "Ошибка: Не удалось выполнить скрипт tblocker."
+    echo "Ошибка: Не удалось выполнить скрипт Tblocker."
     exit 1
 }
 
@@ -277,6 +280,23 @@ exit
 ROOT_EOF
 
   sudo systemctl restart tblocker.service
+}
+
+update_remnanode() {
+  echo "Обновление Remnanode..."
+  if [ ! -d "/opt/remnanode" ]; then
+    echo "Ошибка: Директория /opt/remnanode не существует. Установите Remnanode перед обновлением."
+    exit 1
+  fi
+  if ! command -v docker >/dev/null 2>&1; then
+    echo "Ошибка: Docker не установлен. Установите Docker перед обновлением Remnanode."
+    exit 1
+  fi
+  cd /opt/remnanode
+  sudo docker compose down && sudo docker compose pull && sudo docker compose up -d || {
+    echo "Ошибка: Не удалось обновить Remnanode."
+    exit 1
+  }
 }
 
 setup_crontab() {
@@ -325,6 +345,19 @@ case $OPTION in
     sudo docker compose logs -f
     ;;
   2)
+    request_full_data
+    source "$TEMP_VARS_FILE"
+    sudo apt update -y
+    if ! check_docker; then install_docker; fi
+    if ! check_remnanode; then
+      install_remnanode
+    fi
+    rm /tmp/install_vars
+    echo "Установка завершена!"
+    cd /opt/remnanode
+    sudo docker compose logs -f
+    ;;
+  3)
     request_caddy_data
     source "$TEMP_VARS_FILE"
     sudo apt update -y
@@ -337,7 +370,7 @@ case $OPTION in
     rm /tmp/install_vars
     echo "Установка завершена!"
     ;;
-  3)
+  4)
     request_tblocker_data
     source "$TEMP_VARS_FILE"
     sudo apt update -y
@@ -348,7 +381,7 @@ case $OPTION in
     rm /tmp/install_vars
     echo "Установка завершена!"
     ;;
-  4)
+  5)
     sudo apt update -y
     source "$TEMP_VARS_FILE"
     if ! check_bbr; then
@@ -357,8 +390,14 @@ case $OPTION in
     rm /tmp/install_vars
     echo "Установка завершена!"
     ;;
+  6)
+    update_remnanode
+    echo "Обновление завершено!"
+    cd /opt/remnanode
+    sudo docker compose logs -f
+    ;;
   *)
-    echo "Неверная опция. Выберите 0, 1, 2, 3 или 4."
+    echo "Неверная опция. Выберите 0, 1, 2, 3, 4, 5 или 6."
     exit 1
     ;;
 esac
