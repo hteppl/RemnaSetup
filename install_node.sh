@@ -328,9 +328,9 @@ CADDY_EOF"
   mkdir -p /var/www/site
   mkdir -p /var/www/site/assets
 
-  curl -sL "https://raw.githubusercontent.com/Capybara-z/remnanode/refs/heads/main/files/index.html" -o /var/www/site/index.html
-  curl -sL "https://raw.githubusercontent.com/Capybara-z/remnanode/refs/heads/main/files/assets/main.js" -o /var/www/site/assets/main.js
-  curl -sL "https://raw.githubusercontent.com/Capybara-z/remnanode/refs/heads/main/files/assets/style.css" -o /var/www/site/assets/style.css
+  curl -sL "https://raw.githubusercontent.com/Capybara-z/RemnaSetup/refs/heads/main/files/index.html" -o /var/www/site/index.html
+  curl -sL "https://raw.githubusercontent.com/Capybara-z/RemnaSetup/refs/heads/main/files/assets/main.js" -o /var/www/site/assets/main.js
+  curl -sL "https://raw.githubusercontent.com/Capybara-z/RemnaSetup/refs/heads/main/files/assets/style.css" -o /var/www/site/assets/style.css
 
   sudo systemctl reload caddy
 }
@@ -523,7 +523,7 @@ COMPOSE_EOF
   sudo docker compose up -d
   sudo docker compose down
   sudo rm -rf /opt/remnawave/subscription/app-config.json
-  curl -sL "https://raw.githubusercontent.com/Capybara-z/RemnaNode/refs/heads/main/files/app-config.json" -o /opt/remnawave/subscription/app-config.json
+  curl -sL "https://raw.githubusercontent.com/Capybara-z/RemnaSetup/refs/heads/main/files/app-config.json" -o /opt/remnawave/subscription/app-config.json
   sudo docker compose up -d
   
   echo "Установка страницы подписок завершена!"
