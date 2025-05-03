@@ -17,4 +17,4 @@
 Для установки выполните следующую команду:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/Capybara-z/remnanode/main/install_node.sh | sudo bash
+bash -c 'curl -sL https://raw.githubusercontent.com/Capybara-z/RemnaNode/refs/heads/main/install_node.sh -o /tmp/install_node.sh && chmod +x /tmp/install_node.sh && sudo /tmp/install_node.sh'
