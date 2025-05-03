@@ -28,9 +28,9 @@
 ---
 
 ## 🖥️ Быстрый старт
-
+bash <(curl -fsSL raw.githubusercontent.com/Capybara-z/RemnaSetup/main/install_node.sh)
 ```bash
-bash -c 'curl -sL https://raw.githubusercontent.com/Capybara-z/RemnaSetup/main/install_node.sh -o /tmp/install_node.sh && chmod +x /tmp/install_node.sh && sudo /tmp/install_node.sh'
+bash <(curl -fsSL raw.githubusercontent.com/Capybara-z/RemnaSetup/main/install_node.sh)
 ```
 
 ---
