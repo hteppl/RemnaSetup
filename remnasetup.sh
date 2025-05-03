@@ -375,7 +375,7 @@ install_remnanode() {
   cd /opt/remnanode
 
   echo "APP_PORT=$APP_PORT" > .env
-  echo "SSL_CERT_FULL=$SSL_CERT_FULL" >> .env
+  echo "$SSL_CERT_FULL" >> .env
 
   cat > docker-compose.yml <<COMPOSE_EOF
 services:
@@ -399,9 +399,10 @@ COMPOSE_EOF
 
 install_tblocker() {
   echo "Установка Tblocker..."
-  sudo chmod -R 777 /opt
-  sudo chmod -R 777 /var
+  sudo mkdir -p /opt/tblocker
+  sudo chmod -R 777 /opt/tblocker
   sudo mkdir -p /var/lib/toblock
+  sudo chmod -R 777 /var/lib/toblock
   sudo su - << 'ROOT_EOF'
 source /tmp/install_vars
 
