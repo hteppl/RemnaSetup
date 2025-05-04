@@ -1013,10 +1013,12 @@ while true; do
             if [[ "$SKIP_CADDY" != "1" ]]; then
               install_caddy
             fi
-            setup_crontab
-            if ! check_docker; then install_docker; fi
-            if [[ "$SKIP_REMNANODE" != "1" ]] && ! check_remnanode; then
-              install_remnanode
+            if [[ "$SKIP_REMNANODE" != "1" ]]; then
+              setup_crontab
+              if ! check_docker; then install_docker; fi
+              if ! check_remnanode; then
+                install_remnanode
+              fi
             fi
             if [[ "$SKIP_TBLOCKER" != "1" ]] && ! check_tblocker; then
               install_tblocker
