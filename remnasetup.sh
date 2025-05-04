@@ -62,10 +62,11 @@ display_remnanode_menu() {
   echo -e "\033[1;34m3. Только Caddy + self-style\033[0m"
   echo -e "\033[1;34m4. Только Tblocker\033[0m"
   echo -e "\033[1;34m5. Только BBR\033[0m"
-  echo -e "\033[1;34m6. Обновить Remnanode\033[0m"
-  echo -e "\033[1;34m7. Назад\033[0m"
+  echo -e "\033[1;34m6. Установить WARP\033[0m"
+  echo -e "\033[1;34m7. Обновить Remnanode\033[0m"
+  echo -e "\033[1;34m8. Назад\033[0m"
   echo
-  read -p "Введите номер опции (1-7): " REMNANODE_OPTION < /dev/tty
+  read -p "Введите номер опции (1-8): " REMNANODE_OPTION < /dev/tty
   echo
 }
 
@@ -223,18 +224,39 @@ request_full_wave_data() {
   echo "JWT_API_TOKENS_SECRET=$JWT_API_TOKENS_SECRET" >> "$TEMP_VARS_FILE"
 }
 
-request_caddy_data() {
-  echo "=== ВАЖНО: Введите данные для настройки Caddy. Скрипт продолжит выполнение после ввода всех данных ==="
-  echo
-  read -p "Введите доменное имя сервера (например, noda1.domain.com): " DOMAIN < /dev/tty
-  if [[ -z "$DOMAIN" ]]; then
-    echo "Доменное имя не может быть пустым."
-    exit 1
-  fi
+request_caddy_data_full() {
+  SKIP_CADDY=0
+  while true; do
+    read -p "Введите доменное имя сервера (например, noda1.domain.com, n для пропуска): " DOMAIN < /dev/tty
+    if [[ "$DOMAIN" == "n" || "$DOMAIN" == "N" ]]; then
+      read -p "Вы точно хотите пропустить установку Caddy? (y/n): " CONFIRM < /dev/tty
+      if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+        SKIP_CADDY=1
+        return
+      else
+        continue
+      fi
+    elif [[ -n "$DOMAIN" ]]; then
+      break
+    fi
+    echo "Доменное имя не может быть пустым. Пожалуйста, введите значение."
+  done
   echo "DOMAIN=$DOMAIN" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите порт self-style (по умолчанию 8443): " MONITOR_PORT < /dev/tty
-  MONITOR_PORT=${MONITOR_PORT:-8443}
+  while true; do
+    read -p "Введите порт self-style (по умолчанию 8443, n для пропуска): " MONITOR_PORT < /dev/tty
+    if [[ "$MONITOR_PORT" == "n" || "$MONITOR_PORT" == "N" ]]; then
+      read -p "Вы точно хотите пропустить установку Caddy? (y/n): " CONFIRM < /dev/tty
+      if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+        SKIP_CADDY=1
+        return
+      else
+        continue
+      fi
+    fi
+    MONITOR_PORT=${MONITOR_PORT:-8443}
+    break
+  done
   echo "MONITOR_PORT=$MONITOR_PORT" >> "$TEMP_VARS_FILE"
 }
 
@@ -264,22 +286,61 @@ request_caddy_wave_data() {
   echo "SUB_PORT=$SUB_PORT" >> "$TEMP_VARS_FILE"
 }
 
-request_tblocker_data() {
-  echo "=== ВАЖНО: Введите данные для настройки Tblocker. Скрипт продолжит выполнение после ввода всех данных ==="
-  echo
-  read -p "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений): " ADMIN_BOT_TOKEN < /dev/tty
-  if [[ -z "$ADMIN_BOT_TOKEN" ]]; then
-    echo "Токен бота не может быть пустым."
-    exit 1
-  fi
+request_tblocker_data_full() {
+  SKIP_TBLOCKER=0
+  while true; do
+    read -p "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений, n для пропуска): " ADMIN_BOT_TOKEN < /dev/tty
+    if [[ "$ADMIN_BOT_TOKEN" == "n" || "$ADMIN_BOT_TOKEN" == "N" ]]; then
+      read -p "Вы точно хотите пропустить установку Tblocker? (y/n): " CONFIRM < /dev/tty
+      if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+        SKIP_TBLOCKER=1
+        return
+      else
+        continue
+      fi
+    elif [[ -n "$ADMIN_BOT_TOKEN" ]]; then
+      break
+    fi
+    echo "Токен бота не может быть пустым. Пожалуйста, введите значение."
+  done
   echo "ADMIN_BOT_TOKEN=$ADMIN_BOT_TOKEN" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите Telegram ID админа для Tblocker: " ADMIN_CHAT_ID < /dev/tty
-  if [[ -z "$ADMIN_CHAT_ID" ]]; then
-    echo "Telegram ID админа не может быть пустым."
-    exit 1
-  fi
+  while true; do
+    read -p "Введите Telegram ID админа для Tblocker (n для пропуска): " ADMIN_CHAT_ID < /dev/tty
+    if [[ "$ADMIN_CHAT_ID" == "n" || "$ADMIN_CHAT_ID" == "N" ]]; then
+      read -p "Вы точно хотите пропустить установку Tblocker? (y/n): " CONFIRM < /dev/tty
+      if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+        SKIP_TBLOCKER=1
+        return
+      else
+        continue
+      fi
+    elif [[ -n "$ADMIN_CHAT_ID" ]]; then
+      break
+    fi
+    echo "Telegram ID админа не может быть пустым. Пожалуйста, введите значение."
+  done
   echo "ADMIN_CHAT_ID=$ADMIN_CHAT_ID" >> "$TEMP_VARS_FILE"
+}
+
+request_bbr_data_full() {
+  SKIP_BBR=0
+  while true; do
+    read -p "Включить BBR? (y/n, n для пропуска): " BBR_ANSWER < /dev/tty
+    if [[ "$BBR_ANSWER" == "n" || "$BBR_ANSWER" == "N" ]]; then
+      read -p "Вы точно хотите пропустить установку BBR? (y/n): " CONFIRM < /dev/tty
+      if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+        SKIP_BBR=1
+        return
+      else
+        continue
+      fi
+    elif [[ "$BBR_ANSWER" == "y" || "$BBR_ANSWER" == "Y" ]]; then
+      SKIP_BBR=0
+      break
+    fi
+    echo "Пожалуйста, введите y или n."
+  done
 }
 
 install_docker() {
@@ -816,6 +877,16 @@ request_full_data() {
   echo "MONITOR_PORT=$MONITOR_PORT" >> "$TEMP_VARS_FILE"
 
   while true; do
+    read -p "Введите порт для WARP (1000-65535, по умолчанию 40000): " WARP_PORT < /dev/tty
+    WARP_PORT=${WARP_PORT:-40000}
+    if [[ "$WARP_PORT" =~ ^[0-9]+$ ]] && [ "$WARP_PORT" -ge 1000 ] && [ "$WARP_PORT" -le 65535 ]; then
+      break
+    fi
+    echo "Порт должен быть числом от 1000 до 65535."
+  done
+  echo "WARP_PORT=$WARP_PORT" >> "$TEMP_VARS_FILE"
+
+  while true; do
     read -p "Введите APP_PORT (по умолчанию 3001): " APP_PORT < /dev/tty
     APP_PORT=${APP_PORT:-3001}
     if [[ -n "$APP_PORT" ]]; then
@@ -851,6 +922,51 @@ request_full_data() {
     echo "Telegram ID админа не может быть пустым. Пожалуйста, введите значение."
   done
   echo "ADMIN_CHAT_ID=$ADMIN_CHAT_ID" >> "$TEMP_VARS_FILE"
+}
+
+install_warp() {
+  echo "Установка WARP (WireProxy)..."
+  if [ -z "$WARP_PORT" ]; then
+    while true; do
+      read -p "Введите порт для WARP (1000-65535, по умолчанию 40000): " WARP_PORT < /dev/tty
+      WARP_PORT=${WARP_PORT:-40000}
+      if [[ "$WARP_PORT" =~ ^[0-9]+$ ]] && [ "$WARP_PORT" -ge 1000 ] && [ "$WARP_PORT" -le 65535 ]; then
+        break
+      else
+        echo "Порт должен быть числом от 1000 до 65535."
+      fi
+    done
+  fi
+
+  wget -N https://gitlab.com/fscarmen/warp/-/raw/main/menu.sh
+  (
+    echo 1      # English
+    echo 1      # Run script
+    echo "$WARP_PORT"
+    echo 1      # Free account
+  ) | bash menu.sh w
+}
+
+request_warp_data() {
+  SKIP_WARP=0
+  while true; do
+    read -p "Введите порт для WARP (1000-65535, по умолчанию 40000, n для пропуска): " WARP_PORT < /dev/tty
+    if [[ "$WARP_PORT" == "n" || "$WARP_PORT" == "N" ]]; then
+      read -p "Вы точно хотите пропустить установку WARP? (y/n): " CONFIRM < /dev/tty
+      if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+        SKIP_WARP=1
+        return
+      else
+        continue
+      fi
+    fi
+    WARP_PORT=${WARP_PORT:-40000}
+    if [[ "$WARP_PORT" =~ ^[0-9]+$ ]] && [ "$WARP_PORT" -ge 1000 ] && [ "$WARP_PORT" -le 65535 ]; then
+      break
+    fi
+    echo "Порт должен быть числом от 1000 до 65535."
+  done
+  echo "WARP_PORT=$WARP_PORT" >> "$TEMP_VARS_FILE"
 }
 
 while true; do
@@ -935,12 +1051,19 @@ while true; do
         case $REMNANODE_OPTION in
           1)
             request_full_data
+            request_warp_data
+            request_caddy_data_full
+            request_tblocker_data_full
+            request_bbr_data_full
             source "$TEMP_VARS_FILE"
             sudo apt update -y
-            if ! check_bbr; then
+            if [[ "$SKIP_WARP" != "1" ]]; then
+              install_warp
+            fi
+            if [[ "$SKIP_BBR" != "1" ]]; then
               install_bbr
             fi
-            if ! check_caddy; then
+            if [[ "$SKIP_CADDY" != "1" ]]; then
               install_caddy
             fi
             setup_crontab
@@ -948,7 +1071,7 @@ while true; do
             if ! check_remnanode; then
               install_remnanode
             fi
-            if ! check_tblocker; then
+            if [[ "$SKIP_TBLOCKER" != "1" ]] && ! check_tblocker; then
               install_tblocker
             fi
             rm /tmp/install_vars
@@ -970,7 +1093,7 @@ while true; do
             sudo docker compose logs -f
             ;;
           3)
-            request_caddy_data
+            request_caddy_data_full
             source "$TEMP_VARS_FILE"
             sudo apt update -y
             if ! check_bbr; then
@@ -984,7 +1107,7 @@ while true; do
             exit 0
             ;;
           4)
-            request_tblocker_data
+            request_tblocker_data_full
             source "$TEMP_VARS_FILE"
             sudo apt update -y
             if ! check_tblocker; then
@@ -1005,12 +1128,17 @@ while true; do
             echo "Установка завершена!"
             ;;
           6)
+            install_warp
+            echo "Установка WARP завершена!"
+            sudo apt update -y
+            ;;
+          7)
             update_remnanode
             echo "Обновление завершено!"
             cd /opt/remnanode
             sudo docker compose logs -f
             ;;
-          7)
+          8)
             break
             ;;
           *)
