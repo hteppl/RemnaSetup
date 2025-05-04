@@ -22,8 +22,26 @@ fi
 TEMP_VARS_FILE="/tmp/install_vars"
 > "$TEMP_VARS_FILE"
 
-display_main_menu() {
-  clear
+print_header() {
+  echo -e "${MAGENTA}────────────────────────────────────────────────────────────${RESET}"
+  echo -e "\033[1;32m"
+  echo -e "┌───────────────────────────────────────────────────────────────────┐"
+  echo -e "│  ██████╗ █████╗ ██████╗ ██╗   ██╗██████╗  █████╗ ██████╗  █████╗  │"
+  echo -e "│ ██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝██╔══██╗██╔══██╗██╔══██╗██╔══██╗ │"
+  echo -e "│ ██║     ███████║██████╔╝ ╚████╔╝ ██████╔╝███████║██████╔╝███████║ │"
+  echo -e "│ ██║     ██╔══██║██╔═══╝   ╚██╔╝  ██╔══██╗██╔══██║██╔══██╗██╔══██║ │"
+  echo -e "│ ╚██████╗██║  ██║██║        ██║   ██████╔╝██║  ██║██║  ██║██║  ██║ │"
+  echo -e "│  ╚═════╝╚═╝  ╚═╝╚═╝        ╚═╝   ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝ │"
+  echo -e "└───────────────────────────────────────────────────────────────────┘"
+  echo -e "\033[0m"
+  echo -e "${MAGENTA}────────────────────────────────────────────────────────────${RESET}"
+  echo -e "${GREEN}RemnaSetup by capybara${RESET}"
+  echo -e "${CYAN}Проект: https://github.com/Capybara-z/RemnaSetup${RESET}"
+  echo -e "${YELLOW}Контакты: @KaTTuBaRa${RESET}"
+  echo
+  echo -e "${MAGENTA}────────────────────────────────────────────────────────────${RESET}"
+  echo -e "${YELLOW}Сделано при поддержке проекта:"
+  echo -e "${MAGENTA}────────────────────────────────────────────────────────────${RESET}"
   echo -e "\033[38;5;208m"
   echo -e "┌────────────────────────────────────────────────────────────┐"
   echo -e "│███████╗ ██████╗ ██╗      ██████╗ ██████╗  ██████╗ ████████╗│"
@@ -34,15 +52,20 @@ display_main_menu() {
   echo -e "│╚══════╝ ╚═════╝ ╚══════╝ ╚═════╝ ╚═════╝  ╚═════╝    ╚═╝   │"
   echo -e "└────────────────────────────────────────────────────────────┘"
   echo -e "\033[0m"
-  echo -e "\033[1;33mGitHub: https://github.com/Vladless/Solo_bot/tree/main\033[0m"
-  echo -e "\033[1;33mVersion: v1.4\033[0m"
+  echo -e "${MAGENTA}────────────────────────────────────────────────────────────${RESET}"
+  echo -e "${CYAN}GitHub SoloBot: https://github.com/Vladless/Solo_bot${RESET}"
+  echo -e "${YELLOW}Контакты: @Vladless${RESET}"
+  echo -e "${MAGENTA}────────────────────────────────────────────────────────────${RESET}"
   echo
-  echo -e "\033[1;36m┌────────────────────────┐\033[0m"
-  echo -e "\033[1;36m│     Главное меню       │\033[0m"
-  echo -e "\033[1;36m└────────────────────────┘\033[0m"
-  echo -e "\033[1;34m1. Установка/настройка Remnawave\033[0m"
-  echo -e "\033[1;34m2. Установка/настройка Remnanode\033[0m"
-  echo -e "\033[1;31m0. Выход\033[0m"
+}
+
+display_main_menu() {
+  clear
+  print_header
+  echo -e "${CYAN}Главное меню:${RESET}"
+  echo -e "${BLUE}1. Установка/настройка Remnawave${RESET}"
+  echo -e "${BLUE}2. Установка/настройка Remnanode${RESET}"
+  echo -e "${RED}0. Выход${RESET}"
   echo
   question "Введите номер опции (0-2): "
   read MAIN_OPTION < /dev/tty
@@ -51,17 +74,16 @@ display_main_menu() {
 
 display_remnawave_menu() {
   clear
-  echo -e "\033[1;36m┌────────────────────────┐\033[0m"
-  echo -e "\033[1;36m│     Меню Remnawave     │\033[0m"
-  echo -e "\033[1;36m└────────────────────────┘\033[0m"
-  echo -e "\033[1;34m1. Полная установка (Remnawave + Страница подписок + Caddy)\033[0m"
-  echo -e "\033[1;34m2. Установка Remnawave\033[0m"
-  echo -e "\033[1;34m3. Установка Страницы подписок\033[0m"
-  echo -e "\033[1;34m4. Установка Caddy\033[0m"
-  echo -e "\033[1;34m5. Обновление (Remnawave + Страницы подписок)\033[0m"
-  echo -e "\033[1;34m6. Обновление Remnawave\033[0m"
-  echo -e "\033[1;34m7. Обновление Страницы подписок\033[0m"
-  echo -e "\033[1;34m8. Назад\033[0m"
+  print_header
+  echo -e "${CYAN}Меню Remnawave:${RESET}"
+  echo -e "${BLUE}1. Полная установка (Remnawave + Страница подписок + Caddy)${RESET}"
+  echo -e "${BLUE}2. Установка Remnawave${RESET}"
+  echo -e "${BLUE}3. Установка Страницы подписок${RESET}"
+  echo -e "${BLUE}4. Установка Caddy${RESET}"
+  echo -e "${BLUE}5. Обновление (Remnawave + Страницы подписок)${RESET}"
+  echo -e "${BLUE}6. Обновление Remnawave${RESET}"
+  echo -e "${BLUE}7. Обновление Страницы подписок${RESET}"
+  echo -e "${BLUE}8. Назад${RESET}"
   echo
   question "Введите номер опции (1-8): "
   read REMNAWAVE_OPTION < /dev/tty
@@ -70,17 +92,16 @@ display_remnawave_menu() {
 
 display_remnanode_menu() {
   clear
-  echo -e "\033[1;36m┌────────────────────────┐\033[0m"
-  echo -e "\033[1;36m│     Меню Remnanode     │\033[0m"
-  echo -e "\033[1;36m└────────────────────────┘\033[0m"
-  echo -e "\033[1;34m1. Полная установка (Remnanode + Caddy + Tblocker + BBR + WARP)\033[0m"
-  echo -e "\033[1;34m2. Только Remnanode\033[0m"
-  echo -e "\033[1;34m3. Только Caddy + self-style\033[0m"
-  echo -e "\033[1;34m4. Только Tblocker\033[0m"
-  echo -e "\033[1;34m5. Только BBR\033[0m"
-  echo -e "\033[1;34m6. Установить WARP\033[0m"
-  echo -e "\033[1;34m7. Обновить Remnanode\033[0m"
-  echo -e "\033[1;34m8. Назад\033[0m"
+  print_header
+  echo -e "${CYAN}Меню Remnanode:${RESET}"
+  echo -e "${BLUE}1. Полная установка (Remnanode + Caddy + Tblocker + BBR + WARP)${RESET}"
+  echo -e "${BLUE}2. Только Remnanode${RESET}"
+  echo -e "${BLUE}3. Только Caddy + self-style${RESET}"
+  echo -e "${BLUE}4. Только Tblocker${RESET}"
+  echo -e "${BLUE}5. Только BBR${RESET}"
+  echo -e "${BLUE}6. Установить WARP${RESET}"
+  echo -e "${BLUE}7. Обновить Remnanode${RESET}"
+  echo -e "${BLUE}8. Назад${RESET}"
   echo
   question "Введите номер опции (1-8): "
   read REMNANODE_OPTION < /dev/tty
