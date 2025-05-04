@@ -984,7 +984,14 @@ request_warp_data() {
 
 install_warp() {
     local WARP_PORT="$1"
-    echo -e "\nУстановка WARP (WireProxy)..."
+    info "Установка WARP (WireProxy)..."
+
+    if ! command -v expect >/dev/null 2>&1; then
+        info "Устанавливается пакет expect для автоматизации установки WARP..."
+        sudo apt update -y
+        sudo apt install -y expect
+    fi
+
     wget -N https://gitlab.com/fscarmen/warp/-/raw/main/menu.sh -O menu.sh
     chmod +x menu.sh
 
@@ -997,7 +1004,7 @@ expect "Choose:" { send "1\r" }
 expect eof
 EOF
     rm -f menu.sh
-    echo -e "WARP установлен!"
+    success "WARP установлен!"
 }
 
 while true; do
