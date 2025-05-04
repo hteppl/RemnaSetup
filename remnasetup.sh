@@ -1174,6 +1174,7 @@ while true; do
             install_warp "$WARP_PORT"
             echo "Установка WARP завершена!"
             sudo apt update -y
+            rm /tmp/install_vars
             echo "Установка завершена!"
             exit 0
             ;;
