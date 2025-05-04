@@ -993,6 +993,7 @@ while true; do
             setup_crontab
             rm /tmp/install_vars
             echo "Установка завершена!"
+            exit 0
             ;;
           5)
             sudo apt update -y
