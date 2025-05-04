@@ -35,7 +35,7 @@ display_main_menu() {
   echo -e "└────────────────────────────────────────────────────────────┘"
   echo -e "\033[0m"
   echo -e "\033[1;33mGitHub: https://github.com/Vladless/Solo_bot/tree/main\033[0m"
-  echo -e "\033[1;33mVersion: v1.3\033[0m"
+  echo -e "\033[1;33mVersion: v1.4\033[0m"
   echo
   echo -e "\033[1;36m┌────────────────────────┐\033[0m"
   echo -e "\033[1;36m│     Главное меню       │\033[0m"
