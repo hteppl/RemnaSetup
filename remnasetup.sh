@@ -420,7 +420,7 @@ rm /tmp/tblocker-install.sh
 
 if [[ -f /opt/tblocker/config.yaml ]]; then
     sed -i 's|^LogFile:.*$|LogFile: "/var/lib/toblock/access.log"|' /opt/tblocker/config.yaml
-    sed -i 's|^UsernameRegex:.*$|UsernameRegex: "email: (\\S+)"|' /opt/tblocker/config.yaml
+    sed -i 's|^UsernameRegex:.*$|UsernameRegex: "email: (\\\\S+)"|' /opt/tblocker/config.yaml
     sed -i "s|^AdminBotToken:.*$|AdminBotToken: \"$ADMIN_BOT_TOKEN\"|" /opt/tblocker/config.yaml
     sed -i "s|^AdminChatID:.*$|AdminChatID: \"$ADMIN_CHAT_ID\"|" /opt/tblocker/config.yaml
 else
