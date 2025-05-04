@@ -1170,6 +1170,7 @@ while true; do
             echo "Установка завершена!"
             ;;
           6)
+            request_warp_data
             install_warp "$WARP_PORT"
             echo "Установка WARP завершена!"
             sudo apt update -y
