@@ -21,7 +21,7 @@ display_main_menu() {
   echo -e "└────────────────────────────────────────────────────────────┘"
   echo -e "\033[0m"
   echo -e "\033[1;33mGitHub: https://github.com/Vladless/Solo_bot/tree/main\033[0m"
-  echo -e "\033[1;33mVersion: v1.2\033[0m"
+  echo -e "\033[1;33mVersion: v1.3\033[0m"
   echo
   echo -e "\033[1;36m┌────────────────────────┐\033[0m"
   echo -e "\033[1;36m│     Главное меню       │\033[0m"
@@ -57,7 +57,7 @@ display_remnanode_menu() {
   echo -e "\033[1;36m┌────────────────────────┐\033[0m"
   echo -e "\033[1;36m│     Меню Remnanode     │\033[0m"
   echo -e "\033[1;36m└────────────────────────┘\033[0m"
-  echo -e "\033[1;34m1. Полная установка (Remnanode + Caddy + Tblocker + BBR)\033[0m"
+  echo -e "\033[1;34m1. Полная установка (Remnanode + Caddy + Tblocker + BBR + WARP)\033[0m"
   echo -e "\033[1;34m2. Только Remnanode\033[0m"
   echo -e "\033[1;34m3. Только Caddy + self-style\033[0m"
   echo -e "\033[1;34m4. Только Tblocker\033[0m"
@@ -326,18 +326,13 @@ request_tblocker_data_full() {
 request_bbr_data_full() {
   SKIP_BBR=0
   while true; do
-    read -p "Включить BBR? (y/n, n для пропуска): " BBR_ANSWER < /dev/tty
+    read -p "Требуется установка BBR? (y/n, n для пропуска): " BBR_ANSWER < /dev/tty
     if [[ "$BBR_ANSWER" == "n" || "$BBR_ANSWER" == "N" ]]; then
-      read -p "Вы точно хотите пропустить установку BBR? (y/n): " CONFIRM < /dev/tty
-      if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
-        SKIP_BBR=1
-        return
-      else
-        continue
-      fi
+      SKIP_BBR=1
+      return
     elif [[ "$BBR_ANSWER" == "y" || "$BBR_ANSWER" == "Y" ]]; then
       SKIP_BBR=0
-      break
+      return
     fi
     echo "Пожалуйста, введите y или n."
   done
@@ -860,91 +855,40 @@ install_full_remnawave() {
   echo "Полная установка Remnawave завершена!"
 }
 
-request_full_data() {
-  echo "=== ВАЖНО: Введите данные для настройки Remnanode. Скрипт продолжит выполнение после ввода всех данных ==="
-  echo
+request_remnanode_data_full() {
+  SKIP_REMNANODE=0
   while true; do
-    read -p "Введите доменное имя сервера (например, noda1.domain.com): " DOMAIN < /dev/tty
-    if [[ -n "$DOMAIN" ]]; then
-      break
+    read -p "Введите APP_PORT (по умолчанию 3001, n для пропуска): " APP_PORT < /dev/tty
+    if [[ "$APP_PORT" == "n" || "$APP_PORT" == "N" ]]; then
+      read -p "Вы точно хотите пропустить установку Remnanode и Docker? (y/n): " CONFIRM < /dev/tty
+      if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+        SKIP_REMNANODE=1
+        return
+      else
+        continue
+      fi
     fi
-    echo "Доменное имя не может быть пустым. Пожалуйста, введите значение."
-  done
-  echo "DOMAIN=$DOMAIN" >> "$TEMP_VARS_FILE"
-
-  read -p "Введите порт маскировки (по умолчанию 8443): " MONITOR_PORT < /dev/tty
-  MONITOR_PORT=${MONITOR_PORT:-8443}
-  echo "MONITOR_PORT=$MONITOR_PORT" >> "$TEMP_VARS_FILE"
-
-  while true; do
-    read -p "Введите порт для WARP (1000-65535, по умолчанию 40000): " WARP_PORT < /dev/tty
-    WARP_PORT=${WARP_PORT:-40000}
-    if [[ "$WARP_PORT" =~ ^[0-9]+$ ]] && [ "$WARP_PORT" -ge 1000 ] && [ "$WARP_PORT" -le 65535 ]; then
-      break
-    fi
-    echo "Порт должен быть числом от 1000 до 65535."
-  done
-  echo "WARP_PORT=$WARP_PORT" >> "$TEMP_VARS_FILE"
-
-  while true; do
-    read -p "Введите APP_PORT (по умолчанию 3001): " APP_PORT < /dev/tty
     APP_PORT=${APP_PORT:-3001}
-    if [[ -n "$APP_PORT" ]]; then
-      break
-    fi
-    echo "APP_PORT не может быть пустым. Пожалуйста, введите значение."
+    break
   done
   echo "APP_PORT=$APP_PORT" >> "$TEMP_VARS_FILE"
 
   while true; do
-    read -p "Введите SSL_CERT (можно получить при добавлении ноды в панели): " SSL_CERT_FULL < /dev/tty
-    if [[ -n "$SSL_CERT_FULL" ]]; then
+    read -p "Введите SSL_CERT (можно получить при добавлении ноды в панели, n для пропуска): " SSL_CERT_FULL < /dev/tty
+    if [[ "$SSL_CERT_FULL" == "n" || "$SSL_CERT_FULL" == "N" ]]; then
+      read -p "Вы точно хотите пропустить установку Remnanode и Docker? (y/n): " CONFIRM < /dev/tty
+      if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+        SKIP_REMNANODE=1
+        return
+      else
+        continue
+      fi
+    elif [[ -n "$SSL_CERT_FULL" ]]; then
       break
     fi
     echo "SSL_CERT не может быть пустым. Пожалуйста, введите значение."
   done
   echo "SSL_CERT_FULL=$SSL_CERT_FULL" >> "$TEMP_VARS_FILE"
-
-  while true; do
-    read -p "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений): " ADMIN_BOT_TOKEN < /dev/tty
-    if [[ -n "$ADMIN_BOT_TOKEN" ]]; then
-      break
-    fi
-    echo "Токен бота не может быть пустым. Пожалуйста, введите значение."
-  done
-  echo "ADMIN_BOT_TOKEN=$ADMIN_BOT_TOKEN" >> "$TEMP_VARS_FILE"
-
-  while true; do
-    read -p "Введите Telegram ID админа для Tblocker: " ADMIN_CHAT_ID < /dev/tty
-    if [[ -n "$ADMIN_CHAT_ID" ]]; then
-      break
-    fi
-    echo "Telegram ID админа не может быть пустым. Пожалуйста, введите значение."
-  done
-  echo "ADMIN_CHAT_ID=$ADMIN_CHAT_ID" >> "$TEMP_VARS_FILE"
-}
-
-install_warp() {
-  echo "Установка WARP (WireProxy)..."
-  if [ -z "$WARP_PORT" ]; then
-    while true; do
-      read -p "Введите порт для WARP (1000-65535, по умолчанию 40000): " WARP_PORT < /dev/tty
-      WARP_PORT=${WARP_PORT:-40000}
-      if [[ "$WARP_PORT" =~ ^[0-9]+$ ]] && [ "$WARP_PORT" -ge 1000 ] && [ "$WARP_PORT" -le 65535 ]; then
-        break
-      else
-        echo "Порт должен быть числом от 1000 до 65535."
-      fi
-    done
-  fi
-
-  wget -N https://gitlab.com/fscarmen/warp/-/raw/main/menu.sh
-  (
-    echo 1      # English
-    echo 1      # Run script
-    echo "$WARP_PORT"
-    echo 1      # Free account
-  ) | bash menu.sh w
 }
 
 request_warp_data() {
@@ -1050,9 +994,9 @@ while true; do
         
         case $REMNANODE_OPTION in
           1)
-            request_full_data
-            request_warp_data
             request_caddy_data_full
+            request_remnanode_data_full
+            request_warp_data
             request_tblocker_data_full
             request_bbr_data_full
             source "$TEMP_VARS_FILE"
@@ -1068,7 +1012,7 @@ while true; do
             fi
             setup_crontab
             if ! check_docker; then install_docker; fi
-            if ! check_remnanode; then
+            if [[ "$SKIP_REMNANODE" != "1" ]] && ! check_remnanode; then
               install_remnanode
             fi
             if [[ "$SKIP_TBLOCKER" != "1" ]] && ! check_tblocker; then
@@ -1080,7 +1024,7 @@ while true; do
             sudo docker compose logs -f
             ;;
           2)
-            request_full_data
+            request_remnanode_data_full
             source "$TEMP_VARS_FILE"
             sudo apt update -y
             if ! check_docker; then install_docker; fi
