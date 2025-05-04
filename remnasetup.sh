@@ -1,5 +1,19 @@
 #!/bin/bash
 
+RED='\033[1;31m'
+GREEN='\033[1;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[1;34m'
+CYAN='\033[1;36m'
+MAGENTA='\033[1;35m'
+RESET='\033[0m'
+
+info()    { echo -e "${CYAN}$*${RESET}"; }
+success() { echo -e "${GREEN}$*${RESET}"; }
+warn()    { echo -e "${YELLOW}$*${RESET}"; }
+error()   { echo -e "${RED}$*${RESET}"; }
+question(){ echo -e -n "${BLUE}$*${RESET}"; }
+
 if ! sudo -l &>/dev/null; then
   echo "У пользователя нет прав sudo. Пожалуйста, предоставьте права или запустите от root."
   exit 1
@@ -21,7 +35,7 @@ display_main_menu() {
   echo -e "└────────────────────────────────────────────────────────────┘"
   echo -e "\033[0m"
   echo -e "\033[1;33mGitHub: https://github.com/Vladless/Solo_bot/tree/main\033[0m"
-  echo -e "\033[1;33mVersion: v1.2\033[0m"
+  echo -e "\033[1;33mVersion: v1.4\033[0m"
   echo
   echo -e "\033[1;36m┌────────────────────────┐\033[0m"
   echo -e "\033[1;36m│     Главное меню       │\033[0m"
@@ -30,7 +44,8 @@ display_main_menu() {
   echo -e "\033[1;34m2. Установка/настройка Remnanode\033[0m"
   echo -e "\033[1;31m0. Выход\033[0m"
   echo
-  read -p "Введите номер опции (0-2): " MAIN_OPTION < /dev/tty
+  question "Введите номер опции (0-2): "
+  read MAIN_OPTION < /dev/tty
   echo
 }
 
@@ -48,7 +63,8 @@ display_remnawave_menu() {
   echo -e "\033[1;34m7. Обновление Страницы подписок\033[0m"
   echo -e "\033[1;34m8. Назад\033[0m"
   echo
-  read -p "Введите номер опции (1-8): " REMNAWAVE_OPTION < /dev/tty
+  question "Введите номер опции (1-8): "
+  read REMNAWAVE_OPTION < /dev/tty
   echo
 }
 
@@ -57,21 +73,23 @@ display_remnanode_menu() {
   echo -e "\033[1;36m┌────────────────────────┐\033[0m"
   echo -e "\033[1;36m│     Меню Remnanode     │\033[0m"
   echo -e "\033[1;36m└────────────────────────┘\033[0m"
-  echo -e "\033[1;34m1. Полная установка (Remnanode + Caddy + Tblocker + BBR)\033[0m"
+  echo -e "\033[1;34m1. Полная установка (Remnanode + Caddy + Tblocker + BBR + WARP)\033[0m"
   echo -e "\033[1;34m2. Только Remnanode\033[0m"
   echo -e "\033[1;34m3. Только Caddy + self-style\033[0m"
   echo -e "\033[1;34m4. Только Tblocker\033[0m"
   echo -e "\033[1;34m5. Только BBR\033[0m"
-  echo -e "\033[1;34m6. Обновить Remnanode\033[0m"
-  echo -e "\033[1;34m7. Назад\033[0m"
+  echo -e "\033[1;34m6. Установить WARP\033[0m"
+  echo -e "\033[1;34m7. Обновить Remnanode\033[0m"
+  echo -e "\033[1;34m8. Назад\033[0m"
   echo
-  read -p "Введите номер опции (1-7): " REMNANODE_OPTION < /dev/tty
+  question "Введите номер опции (1-8): "
+  read REMNANODE_OPTION < /dev/tty
   echo
 }
 
 check_docker() {
   if command -v docker >/dev/null 2>&1; then
-    echo "Docker уже установлен, пропускаем установку."
+    info "Docker уже установлен, пропускаем установку."
     return 0
   else
     return 1
@@ -132,87 +150,106 @@ check_subscription_page() {
   fi
 }
 
+check_warp() {
+  if pgrep -f wireproxy >/dev/null 2>&1; then
+    echo "WARP (WireProxy) уже установлен и запущен, пропускаем установку."
+    return 0
+  else
+    return 1
+  fi
+}
+
 request_full_wave_data() {
   echo "=== ВАЖНО: Введите данные для настройки Remnawave. Скрипт продолжит выполнение после ввода всех данных ==="
   echo
   
   while true; do
-    read -p "Введите домен панели (например, panel.domain.com): " PANEL_DOMAIN < /dev/tty
+    question "Введите домен панели (например, panel.domain.com): "
+    read PANEL_DOMAIN < /dev/tty
     if [[ -n "$PANEL_DOMAIN" ]]; then
       break
     fi
-    echo "Домен панели не может быть пустым. Пожалуйста, введите значение."
+    warn "Домен панели не может быть пустым. Пожалуйста, введите значение."
   done
   echo "PANEL_DOMAIN=$PANEL_DOMAIN" >> "$TEMP_VARS_FILE"
 
   while true; do
-    read -p "Введите домен подписок (например, sub.domain.com): " SUB_DOMAIN < /dev/tty
+    question "Введите домен подписок (например, sub.domain.com): "
+    read SUB_DOMAIN < /dev/tty
     if [[ -n "$SUB_DOMAIN" ]]; then
       break
     fi
-    echo "Домен подписок не может быть пустым. Пожалуйста, введите значение."
+    warn "Домен подписок не может быть пустым. Пожалуйста, введите значение."
   done
   echo "SUB_DOMAIN=$SUB_DOMAIN" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите порт панели (по умолчанию 3000): " PANEL_PORT < /dev/tty
+  question "Введите порт панели (по умолчанию 3000): "
+  read PANEL_PORT < /dev/tty
   PANEL_PORT=${PANEL_PORT:-3000}
   echo "PANEL_PORT=$PANEL_PORT" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите порт подписок (по умолчанию 3010): " SUB_PORT < /dev/tty
+  question "Введите порт подписок (по умолчанию 3010): "
+  read SUB_PORT < /dev/tty
   SUB_PORT=${SUB_PORT:-3010}
   echo "SUB_PORT=$SUB_PORT" >> "$TEMP_VARS_FILE"
 
   while true; do
-    read -p "Введите логин для метрик: " METRICS_USER < /dev/tty
+    question "Введите логин для метрик: "
+    read METRICS_USER < /dev/tty
     if [[ -n "$METRICS_USER" ]]; then
       break
     fi
-    echo "Логин для метрик не может быть пустым. Пожалуйста, введите значение."
+    warn "Логин для метрик не может быть пустым. Пожалуйста, введите значение."
   done
   echo "METRICS_USER=$METRICS_USER" >> "$TEMP_VARS_FILE"
 
   while true; do
-    read -p "Введите пароль для метрик: " METRICS_PASS < /dev/tty
+    question "Введите пароль для метрик: "
+    read METRICS_PASS < /dev/tty
     if [[ -n "$METRICS_PASS" ]]; then
       break
     fi
-    echo "Пароль для метрик не может быть пустым. Пожалуйста, введите значение."
+    warn "Пароль для метрик не может быть пустым. Пожалуйста, введите значение."
   done
   echo "METRICS_PASS=$METRICS_PASS" >> "$TEMP_VARS_FILE"
 
   while true; do
-    read -p "Введите имя пользователя базы данных: " DB_USER < /dev/tty
+    question "Введите имя пользователя базы данных: "
+    read DB_USER < /dev/tty
     if [[ -n "$DB_USER" ]]; then
       break
     fi
-    echo "Имя пользователя базы данных не может быть пустым. Пожалуйста, введите значение."
+    warn "Имя пользователя базы данных не может быть пустым. Пожалуйста, введите значение."
   done
   echo "DB_USER=$DB_USER" >> "$TEMP_VARS_FILE"
 
   while true; do
-    read -p "Введите пароль пользователя базы данных: " DB_PASS < /dev/tty
+    question "Введите пароль пользователя базы данных: "
+    read DB_PASS < /dev/tty
     if [[ -n "$DB_PASS" ]]; then
       break
     fi
-    echo "Пароль пользователя базы данных не может быть пустым. Пожалуйста, введите значение."
+    warn "Пароль пользователя базы данных не может быть пустым. Пожалуйста, введите значение."
   done
   echo "DB_PASS=$DB_PASS" >> "$TEMP_VARS_FILE"
 
   while true; do
-    read -p "Введите имя проекта: " PROJECT_NAME < /dev/tty
+    question "Введите имя проекта: "
+    read PROJECT_NAME < /dev/tty
     if [[ -n "$PROJECT_NAME" ]]; then
       break
     fi
-    echo "Имя проекта не может быть пустым. Пожалуйста, введите значение."
+    warn "Имя проекта не может быть пустым. Пожалуйста, введите значение."
   done
   echo "PROJECT_NAME=$PROJECT_NAME" >> "$TEMP_VARS_FILE"
 
   while true; do
-    read -p "Введите описание страницы подписки: " SUB_DESCRIPTION < /dev/tty
+    question "Введите описание страницы подписки: "
+    read SUB_DESCRIPTION < /dev/tty
     if [[ -n "$SUB_DESCRIPTION" ]]; then
       break
     fi
-    echo "Описание не может быть пустым. Пожалуйста, введите значение."
+    warn "Описание не может быть пустым. Пожалуйста, введите значение."
   done
   echo "SUB_DESCRIPTION=$SUB_DESCRIPTION" >> "$TEMP_VARS_FILE"
 
@@ -223,69 +260,139 @@ request_full_wave_data() {
   echo "JWT_API_TOKENS_SECRET=$JWT_API_TOKENS_SECRET" >> "$TEMP_VARS_FILE"
 }
 
-request_caddy_data() {
-  echo "=== ВАЖНО: Введите данные для настройки Caddy. Скрипт продолжит выполнение после ввода всех данных ==="
-  echo
-  read -p "Введите доменное имя сервера (например, noda1.domain.com): " DOMAIN < /dev/tty
-  if [[ -z "$DOMAIN" ]]; then
-    echo "Доменное имя не может быть пустым."
-    exit 1
-  fi
+request_caddy_data_full() {
+  SKIP_CADDY=0
+
+  while true; do
+    question "Введите доменное имя сервера (например, noda1.domain.com, n для пропуска): "
+    read DOMAIN < /dev/tty
+    if [[ "$DOMAIN" == "n" || "$DOMAIN" == "N" ]]; then
+      question "Вы точно хотите пропустить установку Caddy? (y/n): "
+      read CONFIRM < /dev/tty
+      if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+        SKIP_CADDY=1
+        return
+      else
+        continue
+      fi
+    elif [[ -n "$DOMAIN" ]]; then
+      break
+    fi
+    warn "Доменное имя не может быть пустым. Пожалуйста, введите значение."
+  done
   echo "DOMAIN=$DOMAIN" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите порт self-style (по умолчанию 8443): " MONITOR_PORT < /dev/tty
-  MONITOR_PORT=${MONITOR_PORT:-8443}
+  while true; do
+    question "Введите порт self-style (по умолчанию 8443, n для пропуска): "
+    read MONITOR_PORT < /dev/tty
+    if [[ "$MONITOR_PORT" == "n" || "$MONITOR_PORT" == "N" ]]; then
+      question "Вы точно хотите пропустить установку Caddy? (y/n): "
+      read CONFIRM < /dev/tty
+      if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+        SKIP_CADDY=1
+        return
+      else
+        continue
+      fi
+    fi
+    MONITOR_PORT=${MONITOR_PORT:-8443}
+    break
+  done
   echo "MONITOR_PORT=$MONITOR_PORT" >> "$TEMP_VARS_FILE"
 }
 
 request_caddy_wave_data() {
   echo "=== ВАЖНО: Введите данные для настройки Caddy для Remnawave ==="
   echo
-  read -p "Введите домен панели (например, panel.domain.com): " PANEL_DOMAIN < /dev/tty
+  question "Введите домен панели (например, panel.domain.com): "
+  read PANEL_DOMAIN < /dev/tty
   if [[ -z "$PANEL_DOMAIN" ]]; then
     echo "Домен панели не может быть пустым."
     exit 1
   fi
   echo "PANEL_DOMAIN=$PANEL_DOMAIN" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите домен подписок (например, sub.domain.com): " SUB_DOMAIN < /dev/tty
+  question "Введите домен подписок (например, sub.domain.com): "
+  read SUB_DOMAIN < /dev/tty
   if [[ -z "$SUB_DOMAIN" ]]; then
     echo "Домен подписок не может быть пустым."
     exit 1
   fi
   echo "SUB_DOMAIN=$SUB_DOMAIN" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите порт панели (по умолчанию 3000): " PANEL_PORT < /dev/tty
+  question "Введите порт панели (по умолчанию 3000): "
+  read PANEL_PORT < /dev/tty
   PANEL_PORT=${PANEL_PORT:-3000}
   echo "PANEL_PORT=$PANEL_PORT" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите порт подписок (по умолчанию 3010): " SUB_PORT < /dev/tty
+  question "Введите порт подписок (по умолчанию 3010): "
+  read SUB_PORT < /dev/tty
   SUB_PORT=${SUB_PORT:-3010}
   echo "SUB_PORT=$SUB_PORT" >> "$TEMP_VARS_FILE"
 }
 
-request_tblocker_data() {
-  echo "=== ВАЖНО: Введите данные для настройки Tblocker. Скрипт продолжит выполнение после ввода всех данных ==="
-  echo
-  read -p "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений): " ADMIN_BOT_TOKEN < /dev/tty
-  if [[ -z "$ADMIN_BOT_TOKEN" ]]; then
-    echo "Токен бота не может быть пустым."
-    exit 1
-  fi
+request_tblocker_data_full() {
+  SKIP_TBLOCKER=0
+
+  while true; do
+    question "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений, n для пропуска): "
+    read ADMIN_BOT_TOKEN < /dev/tty
+    if [[ "$ADMIN_BOT_TOKEN" == "n" || "$ADMIN_BOT_TOKEN" == "N" ]]; then
+      question "Вы точно хотите пропустить установку Tblocker? (y/n): "
+      read CONFIRM < /dev/tty
+      if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+        SKIP_TBLOCKER=1
+        return
+      else
+        continue
+      fi
+    elif [[ -n "$ADMIN_BOT_TOKEN" ]]; then
+      break
+    fi
+    warn "Токен бота не может быть пустым. Пожалуйста, введите значение."
+  done
   echo "ADMIN_BOT_TOKEN=$ADMIN_BOT_TOKEN" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите Telegram ID админа для Tblocker: " ADMIN_CHAT_ID < /dev/tty
-  if [[ -z "$ADMIN_CHAT_ID" ]]; then
-    echo "Telegram ID админа не может быть пустым."
-    exit 1
-  fi
+  while true; do
+    question "Введите Telegram ID админа для Tblocker (n для пропуска): "
+    read ADMIN_CHAT_ID < /dev/tty
+    if [[ "$ADMIN_CHAT_ID" == "n" || "$ADMIN_CHAT_ID" == "N" ]]; then
+      question "Вы точно хотите пропустить установку Tblocker? (y/n): "
+      read CONFIRM < /dev/tty
+      if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+        SKIP_TBLOCKER=1
+        return
+      else
+        continue
+      fi
+    elif [[ -n "$ADMIN_CHAT_ID" ]]; then
+      break
+    fi
+    warn "Telegram ID админа не может быть пустым. Пожалуйста, введите значение."
+  done
   echo "ADMIN_CHAT_ID=$ADMIN_CHAT_ID" >> "$TEMP_VARS_FILE"
 }
 
+request_bbr_data_full() {
+  SKIP_BBR=0
+  while true; do
+    question "Требуется установка BBR? (y/n, n для пропуска): "
+    read BBR_ANSWER < /dev/tty
+    if [[ "$BBR_ANSWER" == "n" || "$BBR_ANSWER" == "N" ]]; then
+      SKIP_BBR=1
+      return
+    elif [[ "$BBR_ANSWER" == "y" || "$BBR_ANSWER" == "Y" ]]; then
+      SKIP_BBR=0
+      return
+    fi
+    warn "Пожалуйста, введите y или n."
+  done
+}
+
 install_docker() {
-  echo "Установка Docker..."
+  info "Установка Docker..."
   sudo curl -fsSL https://get.docker.com | sh || {
-    echo "Ошибка: Не удалось установить Docker."
+    error "Ошибка: Не удалось установить Docker."
     exit 1
   }
 }
@@ -464,25 +571,29 @@ setup_crontab() {
 request_subscription_data() {
   echo "=== ВАЖНО: Введите данные для настройки страницы подписок ==="
   echo
-  read -p "Введите домен панели (например, panel.domain.com): " PANEL_DOMAIN < /dev/tty
+  question "Введите домен панели (например, panel.domain.com): "
+  read PANEL_DOMAIN < /dev/tty
   if [[ -z "$PANEL_DOMAIN" ]]; then
     echo "Домен панели не может быть пустым."
     exit 1
   fi
   echo "PANEL_DOMAIN=$PANEL_DOMAIN" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите порт подписок (по умолчанию 3010): " SUB_PORT < /dev/tty
+  question "Введите порт подписок (по умолчанию 3010): "
+  read SUB_PORT < /dev/tty
   SUB_PORT=${SUB_PORT:-3010}
   echo "SUB_PORT=$SUB_PORT" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите имя проекта: " PROJECT_NAME < /dev/tty
+  question "Введите имя проекта: "
+  read PROJECT_NAME < /dev/tty
   if [[ -z "$PROJECT_NAME" ]]; then
     echo "Имя проекта не может быть пустым."
     exit 1
   fi
   echo "PROJECT_NAME=$PROJECT_NAME" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите описание страницы подписки: " SUB_DESCRIPTION < /dev/tty
+  question "Введите описание страницы подписки: "
+  read SUB_DESCRIPTION < /dev/tty
   if [[ -z "$SUB_DESCRIPTION" ]]; then
     echo "Описание не может быть пустым."
     exit 1
@@ -560,18 +671,21 @@ update_subscription_page() {
 request_remnawave_data() {
   echo "=== ВАЖНО: Введите данные для настройки Remnawave ==="
   echo
-  read -p "Введите домен панели (например, panel.domain.com): " PANEL_DOMAIN < /dev/tty
+  question "Введите домен панели (например, panel.domain.com): "
+  read PANEL_DOMAIN < /dev/tty
   if [[ -z "$PANEL_DOMAIN" ]]; then
     echo "Домен панели не может быть пустым."
     exit 1
   fi
   echo "PANEL_DOMAIN=$PANEL_DOMAIN" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите порт панели (по умолчанию 3000): " PANEL_PORT < /dev/tty
+  question "Введите порт панели (по умолчанию 3000): "
+  read PANEL_PORT < /dev/tty
   PANEL_PORT=${PANEL_PORT:-3000}
   echo "PANEL_PORT=$PANEL_PORT" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите домен подписок (0 для использования домена панели): " SUB_DOMAIN < /dev/tty
+  question "Введите домен подписок (0 для использования домена панели): "
+  read SUB_DOMAIN < /dev/tty
   if [[ "$SUB_DOMAIN" == "0" ]]; then
     SUB_PUBLIC_DOMAIN="$PANEL_DOMAIN/api/sub"
   else
@@ -579,28 +693,32 @@ request_remnawave_data() {
   fi
   echo "SUB_PUBLIC_DOMAIN=$SUB_PUBLIC_DOMAIN" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите логин для метрик: " METRICS_USER < /dev/tty
+  question "Введите логин для метрик: "
+  read METRICS_USER < /dev/tty
   if [[ -z "$METRICS_USER" ]]; then
     echo "Логин для метрик не может быть пустым."
     exit 1
   fi
   echo "METRICS_USER=$METRICS_USER" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите пароль для метрик: " METRICS_PASS < /dev/tty
+  question "Введите пароль для метрик: "
+  read METRICS_PASS < /dev/tty
   if [[ -z "$METRICS_PASS" ]]; then
     echo "Пароль для метрик не может быть пустым."
     exit 1
   fi
   echo "METRICS_PASS=$METRICS_PASS" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите имя пользователя базы данных: " DB_USER < /dev/tty
+  question "Введите имя пользователя базы данных: "
+  read DB_USER < /dev/tty
   if [[ -z "$DB_USER" ]]; then
     echo "Имя пользователя базы данных не может быть пустым."
     exit 1
   fi
   echo "DB_USER=$DB_USER" >> "$TEMP_VARS_FILE"
 
-  read -p "Введите пароль пользователя базы данных: " DB_PASS < /dev/tty
+  question "Введите пароль пользователя базы данных: "
+  read DB_PASS < /dev/tty
   if [[ -z "$DB_PASS" ]]; then
     echo "Пароль пользователя базы данных не может быть пустым."
     exit 1
@@ -799,58 +917,94 @@ install_full_remnawave() {
   echo "Полная установка Remnawave завершена!"
 }
 
-request_full_data() {
-  echo "=== ВАЖНО: Введите данные для настройки Remnanode. Скрипт продолжит выполнение после ввода всех данных ==="
-  echo
+request_remnanode_data_full() {
+  SKIP_REMNANODE=0
+
   while true; do
-    read -p "Введите доменное имя сервера (например, noda1.domain.com): " DOMAIN < /dev/tty
-    if [[ -n "$DOMAIN" ]]; then
-      break
+    question "Введите APP_PORT (по умолчанию 3001, n для пропуска): "
+    read APP_PORT < /dev/tty
+    if [[ "$APP_PORT" == "n" || "$APP_PORT" == "N" ]]; then
+      question "Вы точно хотите пропустить установку Remnanode и Docker? (y/n): "
+      read CONFIRM < /dev/tty
+      if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+        SKIP_REMNANODE=1
+        return
+      else
+        continue
+      fi
     fi
-    echo "Доменное имя не может быть пустым. Пожалуйста, введите значение."
-  done
-  echo "DOMAIN=$DOMAIN" >> "$TEMP_VARS_FILE"
-
-  read -p "Введите порт маскировки (по умолчанию 8443): " MONITOR_PORT < /dev/tty
-  MONITOR_PORT=${MONITOR_PORT:-8443}
-  echo "MONITOR_PORT=$MONITOR_PORT" >> "$TEMP_VARS_FILE"
-
-  while true; do
-    read -p "Введите APP_PORT (по умолчанию 3001): " APP_PORT < /dev/tty
     APP_PORT=${APP_PORT:-3001}
-    if [[ -n "$APP_PORT" ]]; then
-      break
-    fi
-    echo "APP_PORT не может быть пустым. Пожалуйста, введите значение."
+    break
   done
   echo "APP_PORT=$APP_PORT" >> "$TEMP_VARS_FILE"
 
   while true; do
-    read -p "Введите SSL_CERT (можно получить при добавлении ноды в панели): " SSL_CERT_FULL < /dev/tty
-    if [[ -n "$SSL_CERT_FULL" ]]; then
+    question "Введите SSL_CERT (можно получить при добавлении ноды в панели, n для пропуска): "
+    read SSL_CERT_FULL < /dev/tty
+    if [[ "$SSL_CERT_FULL" == "n" || "$SSL_CERT_FULL" == "N" ]]; then
+      question "Вы точно хотите пропустить установку Remnanode и Docker? (y/n): "
+      read CONFIRM < /dev/tty
+      if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+        SKIP_REMNANODE=1
+        return
+      else
+        continue
+      fi
+    elif [[ -n "$SSL_CERT_FULL" ]]; then
       break
     fi
-    echo "SSL_CERT не может быть пустым. Пожалуйста, введите значение."
+    warn "SSL_CERT не может быть пустым. Пожалуйста, введите значение."
   done
   echo "SSL_CERT_FULL=$SSL_CERT_FULL" >> "$TEMP_VARS_FILE"
+}
 
+request_warp_data() {
+  SKIP_WARP=0
   while true; do
-    read -p "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений): " ADMIN_BOT_TOKEN < /dev/tty
-    if [[ -n "$ADMIN_BOT_TOKEN" ]]; then
+    question "Введите порт для WARP (1000-65535, по умолчанию 40000, n для пропуска): "
+    read WARP_PORT < /dev/tty
+    if [[ "$WARP_PORT" == "n" || "$WARP_PORT" == "N" ]]; then
+      question "Вы точно хотите пропустить установку WARP? (y/n): "
+      read CONFIRM < /dev/tty
+      if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+        SKIP_WARP=1
+        return
+      else
+        continue
+      fi
+    fi
+    WARP_PORT=${WARP_PORT:-40000}
+    if [[ "$WARP_PORT" =~ ^[0-9]+$ ]] && [ "$WARP_PORT" -ge 1000 ] && [ "$WARP_PORT" -le 65535 ]; then
       break
     fi
-    echo "Токен бота не может быть пустым. Пожалуйста, введите значение."
+    warn "Порт должен быть числом от 1000 до 65535."
   done
-  echo "ADMIN_BOT_TOKEN=$ADMIN_BOT_TOKEN" >> "$TEMP_VARS_FILE"
+  echo "WARP_PORT=$WARP_PORT" >> "$TEMP_VARS_FILE"
+}
 
-  while true; do
-    read -p "Введите Telegram ID админа для Tblocker: " ADMIN_CHAT_ID < /dev/tty
-    if [[ -n "$ADMIN_CHAT_ID" ]]; then
-      break
+install_warp() {
+    local WARP_PORT="$1"
+    info "Установка WARP (WireProxy)..."
+
+    if ! command -v expect >/dev/null 2>&1; then
+        info "Устанавливается пакет expect для автоматизации установки WARP..."
+        sudo apt update -y
+        sudo apt install -y expect
     fi
-    echo "Telegram ID админа не может быть пустым. Пожалуйста, введите значение."
-  done
-  echo "ADMIN_CHAT_ID=$ADMIN_CHAT_ID" >> "$TEMP_VARS_FILE"
+
+    wget -N https://gitlab.com/fscarmen/warp/-/raw/main/menu.sh -O menu.sh
+    chmod +x menu.sh
+
+    expect <<EOF
+spawn bash menu.sh w
+expect "Choose:" { send "1\r" }
+expect "Choose:" { send "1\r" }
+expect "Please customize the Client port" { send "$WARP_PORT\r" }
+expect "Choose:" { send "1\r" }
+expect eof
+EOF
+    rm -f menu.sh
+    success "WARP установлен!"
 }
 
 while true; do
@@ -934,30 +1088,40 @@ while true; do
         
         case $REMNANODE_OPTION in
           1)
-            request_full_data
+            request_caddy_data_full
+            request_remnanode_data_full
+            request_warp_data
+            request_tblocker_data_full
+            request_bbr_data_full
             source "$TEMP_VARS_FILE"
             sudo apt update -y
-            if ! check_bbr; then
+            if [[ "$SKIP_WARP" != "1" ]]; then
+              install_warp "$WARP_PORT"
+            fi
+            if [[ "$SKIP_BBR" != "1" ]]; then
               install_bbr
             fi
-            if ! check_caddy; then
+            if [[ "$SKIP_CADDY" != "1" ]]; then
               install_caddy
             fi
-            setup_crontab
-            if ! check_docker; then install_docker; fi
-            if ! check_remnanode; then
-              install_remnanode
+            if [[ "$SKIP_REMNANODE" != "1" ]]; then
+              setup_crontab
+              if ! check_docker; then install_docker; fi
+              if ! check_remnanode; then
+                install_remnanode
+              fi
             fi
-            if ! check_tblocker; then
+            if [[ "$SKIP_TBLOCKER" != "1" ]] && ! check_tblocker; then
               install_tblocker
             fi
             rm /tmp/install_vars
             echo "Установка завершена!"
             cd /opt/remnanode
+            info "Просмотр логов..."
             sudo docker compose logs -f
             ;;
           2)
-            request_full_data
+            request_remnanode_data_full
             source "$TEMP_VARS_FILE"
             sudo apt update -y
             if ! check_docker; then install_docker; fi
@@ -967,10 +1131,11 @@ while true; do
             rm /tmp/install_vars
             echo "Установка завершена!"
             cd /opt/remnanode
+            info "Просмотр логов..."
             sudo docker compose logs -f
             ;;
           3)
-            request_caddy_data
+            request_caddy_data_full
             source "$TEMP_VARS_FILE"
             sudo apt update -y
             if ! check_bbr; then
@@ -984,7 +1149,7 @@ while true; do
             exit 0
             ;;
           4)
-            request_tblocker_data
+            request_tblocker_data_full
             source "$TEMP_VARS_FILE"
             sudo apt update -y
             if ! check_tblocker; then
@@ -1005,12 +1170,22 @@ while true; do
             echo "Установка завершена!"
             ;;
           6)
+            request_warp_data
+            install_warp "$WARP_PORT"
+            echo "Установка WARP завершена!"
+            sudo apt update -y
+            rm /tmp/install_vars
+            echo "Установка завершена!"
+            exit 0
+            ;;
+          7)
             update_remnanode
             echo "Обновление завершено!"
             cd /opt/remnanode
+            info "Просмотр логов..."
             sudo docker compose logs -f
             ;;
-          7)
+          8)
             break
             ;;
           *)
