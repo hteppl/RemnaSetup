@@ -21,7 +21,7 @@ display_main_menu() {
   echo -e "└────────────────────────────────────────────────────────────┘"
   echo -e "\033[0m"
   echo -e "\033[1;33mGitHub: https://github.com/Vladless/Solo_bot/tree/main\033[0m"
-  echo -e "\033[1;33mVersion: v1.3\033[0m"
+  echo -e "\033[1;33mVersion: v1.2\033[0m"
   echo
   echo -e "\033[1;36m┌────────────────────────┐\033[0m"
   echo -e "\033[1;36m│     Главное меню       │\033[0m"
@@ -226,6 +226,7 @@ request_full_wave_data() {
 
 request_caddy_data_full() {
   SKIP_CADDY=0
+
   while true; do
     read -p "Введите доменное имя сервера (например, noda1.domain.com, n для пропуска): " DOMAIN < /dev/tty
     if [[ "$DOMAIN" == "n" || "$DOMAIN" == "N" ]]; then
@@ -288,6 +289,7 @@ request_caddy_wave_data() {
 
 request_tblocker_data_full() {
   SKIP_TBLOCKER=0
+
   while true; do
     read -p "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений, n для пропуска): " ADMIN_BOT_TOKEN < /dev/tty
     if [[ "$ADMIN_BOT_TOKEN" == "n" || "$ADMIN_BOT_TOKEN" == "N" ]]; then
@@ -857,6 +859,7 @@ install_full_remnawave() {
 
 request_remnanode_data_full() {
   SKIP_REMNANODE=0
+
   while true; do
     read -p "Введите APP_PORT (по умолчанию 3001, n для пропуска): " APP_PORT < /dev/tty
     if [[ "$APP_PORT" == "n" || "$APP_PORT" == "N" ]]; then
