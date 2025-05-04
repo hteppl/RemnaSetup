@@ -29,7 +29,7 @@
 
 ## 🖥️ Быстрый старт
 ```bash
-bash <(curl -fsSL raw.githubusercontent.com/Capybara-z/RemnaSetup/main/remnasetup.sh)
+bash <(curl -fsSL raw.githubusercontent.com/Capybara-z/RemnaSetup/dev/remnasetup.sh)
 ```
 
 ---
