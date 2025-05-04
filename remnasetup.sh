@@ -133,6 +133,15 @@ check_subscription_page() {
   fi
 }
 
+check_warp() {
+  if pgrep -f wireproxy >/dev/null 2>&1; then
+    echo "WARP (WireProxy) уже установлен и запущен, пропускаем установку."
+    return 0
+  else
+    return 1
+  fi
+}
+
 request_full_wave_data() {
   echo "=== ВАЖНО: Введите данные для настройки Remnawave. Скрипт продолжит выполнение после ввода всех данных ==="
   echo
@@ -916,6 +925,24 @@ request_warp_data() {
   echo "WARP_PORT=$WARP_PORT" >> "$TEMP_VARS_FILE"
 }
 
+install_warp() {
+    local WARP_PORT="$1"
+    echo -e "\nУстановка WARP (WireProxy)..."
+    wget -N https://gitlab.com/fscarmen/warp/-/raw/main/menu.sh -O menu.sh
+    chmod +x menu.sh
+
+    expect <<EOF
+spawn bash menu.sh w
+expect "Choose:" { send "1\r" }
+expect "Choose:" { send "1\r" }
+expect "Please customize the Client port" { send "$WARP_PORT\r" }
+expect "Choose:" { send "1\r" }
+expect eof
+EOF
+    rm -f menu.sh
+    echo -e "WARP установлен!"
+}
+
 while true; do
   display_main_menu
   
@@ -1005,7 +1032,7 @@ while true; do
             source "$TEMP_VARS_FILE"
             sudo apt update -y
             if [[ "$SKIP_WARP" != "1" ]]; then
-              install_warp
+              install_warp "$WARP_PORT"
             fi
             if [[ "$SKIP_BBR" != "1" ]]; then
               install_bbr
@@ -1077,9 +1104,11 @@ while true; do
             echo "Установка завершена!"
             ;;
           6)
-            install_warp
+            install_warp "$WARP_PORT"
             echo "Установка WARP завершена!"
             sudo apt update -y
+            echo "Установка завершена!"
+            exit 0
             ;;
           7)
             update_remnanode
