@@ -456,9 +456,9 @@ CADDY_EOF"
   mkdir -p /var/www/site
   mkdir -p /var/www/site/assets
 
-  curl -sL "https://raw.githubusercontent.com/Capybara-z/remnanode/refs/heads/main/files/index.html" -o /var/www/site/index.html
-  curl -sL "https://raw.githubusercontent.com/Capybara-z/remnanode/refs/heads/main/files/assets/main.js" -o /var/www/site/assets/main.js
-  curl -sL "https://raw.githubusercontent.com/Capybara-z/remnanode/refs/heads/main/files/assets/style.css" -o /var/www/site/assets/style.css
+  curl -sL "https://raw.githubusercontent.com/Capybara-z/RemnaSetup/refs/heads/main/files/index.html" -o /var/www/site/index.html
+  curl -sL "https://raw.githubusercontent.com/Capybara-z/RemnaSetup/refs/heads/main/files/assets/main.js" -o /var/www/site/assets/main.js
+  curl -sL "https://raw.githubusercontent.com/Capybara-z/RemnaSetup/refs/heads/main/files/assets/style.css" -o /var/www/site/assets/style.css
 
   sudo systemctl reload caddy
 }
