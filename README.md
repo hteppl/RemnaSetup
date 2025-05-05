@@ -6,7 +6,7 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Platform](https://img.shields.io/badge/Platform-Ubuntu%20%7C%20Debian-orange)
 
-**Универсальный скрипт для автоматической установки, настройки и обновления инфраструктуры Remnawave и RemnaNode**
+**Универсальный скрипт для автоматической установки, настройки и обновления инфраструктуры Remnawave и Remnanode**
 
 [![Stars](https://img.shields.io/github/stars/Capybara-z/RemnaSetup?style=social)](https://github.com/Capybara-z/RemnaSetup)
 [![Forks](https://img.shields.io/github/forks/Capybara-z/RemnaSetup?style=social)](https://github.com/Capybara-z/RemnaSetup)
@@ -35,7 +35,7 @@
 </td>
 <td width="50%" align="center">
 
-### 🌐 RemnaNode
+### 🌐 Remnanode
 - Установка и настройка ноды
 - Интеграция с Caddy для self-style
 - Настройка Tblocker для защиты от торрентов
@@ -52,7 +52,7 @@
   - Remnawave + Страница подписок
   - Только Remnawave
   - Только Страница подписок
-  - Только RemnaNode
+  - Только Remnanode
 - **Просмотр логов** после установки
 - **Проверка зависимостей** перед установкой
 
@@ -81,14 +81,14 @@
 </td>
 <td width="50%" align="center">
 
-### 2️⃣ RemnaNode
-- 📦 Полная установка (RemnaNode + Caddy + Tblocker + BBR + WARP)
-- 🚀 Только RemnaNode
+### 2️⃣ Remnanode
+- 📦 Полная установка (Remnanode + Caddy + Tblocker + BBR + WARP)
+- 🚀 Только Remnanode
 - 🔄 Только Caddy + self-style
 - 🛡️ Только Tblocker
 - ⚡ Только BBR
 - 🌐 Только WARP
-- ⬆️ Обновление RemnaNode
+- ⬆️ Обновление Remnanode
 
 </td>
 </tr>
