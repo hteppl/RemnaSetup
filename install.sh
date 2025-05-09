@@ -1,10 +1,34 @@
 #!/bin/bash
 
+if [ "$(id -u)" != "0" ]; then
+    echo "Этот скрипт должен быть запущен с правами root"
+    exit 1
+fi
+
+if ! command -v curl &> /dev/null; then
+    echo "Установка curl..."
+    if command -v apt-get &> /dev/null; then
+        apt update -y && apt install -y curl
+    elif command -v yum &> /dev/null; then
+        yum install -y curl
+    elif command -v dnf &> /dev/null; then
+        dnf install -y curl
+    else
+        echo "Не удалось установить curl. Пожалуйста, установите его вручную."
+        exit 1
+    fi
+fi
+
 TEMP_DIR=$(mktemp -d)
 cd "$TEMP_DIR" || exit 1
 
 echo "Скачивание RemnaSetup..."
 curl -L https://github.com/Capybara-z/RemnaSetup/archive/refs/heads/dev.zip -o remnasetup.zip
+
+if [ ! -f remnasetup.zip ]; then
+    echo "Ошибка: Не удалось скачать архив"
+    exit 1
+fi
 
 if ! command -v unzip &> /dev/null; then
     echo "Установка unzip..."
@@ -24,18 +48,28 @@ fi
 echo "Распаковка файлов..."
 unzip -q remnasetup.zip
 
-sudo mkdir -p /opt/remnasetup
+if [ ! -d "RemnaSetup-dev" ]; then
+    echo "Ошибка: Не удалось распаковать архив"
+    exit 1
+fi
+
+mkdir -p /opt/remnasetup
 
 echo "Установка RemnaSetup в /opt/remnasetup..."
-sudo cp -r RemnaSetup-dev/* /opt/remnasetup/
+cp -r RemnaSetup-dev/* /opt/remnasetup/
+
+if [ ! -f "/opt/remnasetup/remnasetup.sh" ]; then
+    echo "Ошибка: Не удалось скопировать файлы"
+    exit 1
+fi
 
 echo "Установка прав..."
-sudo chown -R $USER:$USER /opt/remnasetup
-sudo chmod -R 755 /opt/remnasetup
-sudo chmod +x /opt/remnasetup/remnasetup.sh
-sudo chmod +x /opt/remnasetup/scripts/common/*.sh
-sudo chmod +x /opt/remnasetup/scripts/remnawave/*.sh
-sudo chmod +x /opt/remnasetup/scripts/remnanode/*.sh
+chown -R $SUDO_USER:$SUDO_USER /opt/remnasetup
+chmod -R 755 /opt/remnasetup
+chmod +x /opt/remnasetup/remnasetup.sh
+chmod +x /opt/remnasetup/scripts/common/*.sh
+chmod +x /opt/remnasetup/scripts/remnawave/*.sh
+chmod +x /opt/remnasetup/scripts/remnanode/*.sh
 
 cd /opt/remnasetup || exit 1
 
