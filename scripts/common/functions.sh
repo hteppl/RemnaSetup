@@ -17,27 +17,27 @@ BOLD_MAGENTA='\033[1;35m'
 BOLD_CYAN='\033[1;36m'
 
 info() {
-    echo -e "${BOLD_CYAN}[INFO]${RESET} $1"
+    echo -e "\033[1;36m[INFO]\033[0m $1"
 }
 
 warn() {
-    echo -e "${BOLD_YELLOW}[WARN]${RESET} $1"
+    echo -e "\033[1;33m[WARN]\033[0m $1"
 }
 
 error() {
-    echo -e "${BOLD_RED}[ERROR]${RESET} $1"
+    echo -e "\033[1;31m[ERROR]\033[0m $1"
 }
 
 success() {
-    echo -e "${BOLD_GREEN}[SUCCESS]${RESET} $1"
+    echo -e "\033[1;32m[SUCCESS]\033[0m $1"
 }
 
 menu() {
-    echo -e "${BOLD_MAGENTA}$1${RESET}"
+    echo -e "\033[1;35m$1\033[0m"
 }
 
 question() {
-    echo -e "${BOLD_CYAN}$1${RESET}"
+    echo -e "\033[1;36m$1\033[0m"
 }
 
 command_exists() {
