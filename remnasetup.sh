@@ -93,6 +93,21 @@ display_main_menu() {
     echo
 }
 
+run_script() {
+    local script="$1"
+    if [ -f "$script" ]; then
+        source "$script"
+        local result=$?
+        if [ $result -ne 0 ]; then
+            warn "Скрипт завершился с ошибкой"
+            read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+        fi
+    else
+        error "Скрипт не найден: $script"
+        read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+    fi
+}
+
 main() {
 while true; do
   display_main_menu
@@ -101,13 +116,13 @@ while true; do
       while true; do
         display_remnawave_menu
         case $REMNAWAVE_OPTION in
-                        1) source "${SCRIPT_DIR}/scripts/remnawave/install-full.sh" ;;
-                        2) source "${SCRIPT_DIR}/scripts/remnawave/install-panel.sh" ;;
-                        3) source "${SCRIPT_DIR}/scripts/remnawave/install-subscription.sh" ;;
-                        4) source "${SCRIPT_DIR}/scripts/remnawave/install-caddy.sh" ;;
-                        5) source "${SCRIPT_DIR}/scripts/remnawave/update-full.sh" ;;
-                        6) source "${SCRIPT_DIR}/scripts/remnawave/update-panel.sh" ;;
-                        7) source "${SCRIPT_DIR}/scripts/remnawave/update-subscription.sh" ;;
+                        1) run_script "${SCRIPT_DIR}/scripts/remnawave/install-full.sh" ;;
+                        2) run_script "${SCRIPT_DIR}/scripts/remnawave/install-panel.sh" ;;
+                        3) run_script "${SCRIPT_DIR}/scripts/remnawave/install-subscription.sh" ;;
+                        4) run_script "${SCRIPT_DIR}/scripts/remnawave/install-caddy.sh" ;;
+                        5) run_script "${SCRIPT_DIR}/scripts/remnawave/update-full.sh" ;;
+                        6) run_script "${SCRIPT_DIR}/scripts/remnawave/update-panel.sh" ;;
+                        7) run_script "${SCRIPT_DIR}/scripts/remnawave/update-subscription.sh" ;;
                         8) break ;;
                         *) warn "Неверный выбор. Попробуйте снова." ;;
         esac
@@ -117,13 +132,13 @@ while true; do
       while true; do
         display_remnanode_menu
         case $REMNANODE_OPTION in
-                        1) source "${SCRIPT_DIR}/scripts/remnanode/install-full.sh" ;;
-                        2) source "${SCRIPT_DIR}/scripts/remnanode/install-panel.sh" ;;
-                        3) source "${SCRIPT_DIR}/scripts/remnanode/install-caddy.sh" ;;
-                        4) source "${SCRIPT_DIR}/scripts/remnanode/install-tblocker.sh" ;;
-                        5) source "${SCRIPT_DIR}/scripts/remnanode/install-bbr.sh" ;;
-                        6) source "${SCRIPT_DIR}/scripts/remnanode/install-warp.sh" ;;
-                        7) source "${SCRIPT_DIR}/scripts/remnanode/update.sh" ;;
+                        1) run_script "${SCRIPT_DIR}/scripts/remnanode/install-full.sh" ;;
+                        2) run_script "${SCRIPT_DIR}/scripts/remnanode/install-panel.sh" ;;
+                        3) run_script "${SCRIPT_DIR}/scripts/remnanode/install-caddy.sh" ;;
+                        4) run_script "${SCRIPT_DIR}/scripts/remnanode/install-tblocker.sh" ;;
+                        5) run_script "${SCRIPT_DIR}/scripts/remnanode/install-bbr.sh" ;;
+                        6) run_script "${SCRIPT_DIR}/scripts/remnanode/install-warp.sh" ;;
+                        7) run_script "${SCRIPT_DIR}/scripts/remnanode/update-panel.sh" ;;
                         8) break ;;
                         *) warn "Неверный выбор. Попробуйте снова." ;;
         esac
@@ -140,7 +155,5 @@ while true; do
   esac
 done
 }
-
-trap 'echo -e "${RESET}"' EXIT
 
 main 
