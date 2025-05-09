@@ -51,7 +51,7 @@ fi
 info "Распаковка файлов..."
 unzip -q remnasetup.zip
 
-cd RemnaSetup-main || exit 1
+cd RemnaSetup-dev || exit 1
 
 chmod +x remnasetup.sh
 
