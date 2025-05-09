@@ -45,7 +45,7 @@ print_header() {
 display_remnawave_menu() {
   clear
   print_header
-  echo -e "${CYAN}Меню Remnawave:${RESET}"
+  menu "Меню Remnawave:"
   echo -e "${BLUE}1. Полная установка (Remnawave + Страница подписок + Caddy)${RESET}"
   echo -e "${BLUE}2. Установка Remnawave${RESET}"
   echo -e "${BLUE}3. Установка Страницы подписок${RESET}"
@@ -55,15 +55,15 @@ display_remnawave_menu() {
   echo -e "${BLUE}7. Обновление Страницы подписок${RESET}"
   echo -e "${BLUE}8. Назад${RESET}"
   echo
-  question "Введите номер опции (1-8): "
-  read REMNAWAVE_OPTION < /dev/tty
+  question "Выберите пункт меню (1-8): "
+  read -r REMNAWAVE_OPTION < /dev/tty
   echo
 }
 
 display_remnanode_menu() {
   clear
   print_header
-  echo -e "${CYAN}Меню Remnanode:${RESET}"
+  menu "Меню Remnanode:"
   echo -e "${BLUE}1. Полная установка (Remnanode + Caddy + Tblocker + BBR + WARP)${RESET}"
   echo -e "${BLUE}2. Только Remnanode${RESET}"
   echo -e "${BLUE}3. Только Caddy + self-style${RESET}"
@@ -73,21 +73,21 @@ display_remnanode_menu() {
   echo -e "${BLUE}7. Обновить Remnanode${RESET}"
   echo -e "${BLUE}8. Назад${RESET}"
   echo
-  question "Введите номер опции (1-8): "
-  read REMNANODE_OPTION < /dev/tty
+  question "Выберите пункт меню (1-8): "
+  read -r REMNANODE_OPTION < /dev/tty
   echo
 }
 
 display_main_menu() {
     clear
     print_header
-    echo -e "${CYAN}Главное меню:${RESET}"
+    menu "Главное меню:"
     echo -e "${BLUE}1. Установка/обновление Remnawave${RESET}"
     echo -e "${BLUE}2. Установка/обновление Remnanode${RESET}"
     echo -e "${RED}0. Выход${RESET}"
     echo
-    question "Введите номер опции (0-2): "
-    read MAIN_OPTION < /dev/tty
+    question "Выберите пункт меню (0-2): "
+    read -r MAIN_OPTION < /dev/tty
     echo
 }
 
