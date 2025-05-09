@@ -27,6 +27,10 @@ success() {
     echo -e "${BOLD_GREEN}[SUCCESS]${NC} $1"
 }
 
+question() {
+    echo -e "${BOLD_CYAN}[QUESTION]${NC} $1"
+}
+
 TEMP_DIR=$(mktemp -d)
 cd "$TEMP_DIR" || exit 1
 
@@ -51,12 +55,17 @@ fi
 info "Распаковка файлов..."
 unzip -q remnasetup.zip
 
-cd RemnaSetup-dev || exit 1
+sudo mkdir -p /opt/remnasetup
 
-chmod +x remnasetup.sh
+info "Установка RemnaSetup в /opt/remnasetup..."
+sudo cp -r RemnaSetup-dev/* /opt/remnasetup/
+
+sudo chown -R $USER:$USER /opt/remnasetup
+sudo chmod +x /opt/remnasetup/remnasetup.sh
+
+cd /opt/remnasetup || exit 1
 
 success "Запуск RemnaSetup..."
 ./remnasetup.sh
 
-cd - || exit 1
 rm -rf "$TEMP_DIR" 
