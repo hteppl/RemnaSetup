@@ -32,8 +32,7 @@ check_remnanode() {
         else
             info "Remnanode уже установлен"
             read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-            "$(dirname "$0")/../../scripts/remnanode/menu.sh"
-            exit 0
+            "$(dirname "$0")/menu.sh"
         fi
     fi
     return 1
@@ -98,7 +97,7 @@ main() {
 
     success "Установка завершена!"
     read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-    "$(dirname "$0")/../../scripts/remnanode/menu.sh"
+    "$(dirname "$0")/menu.sh"
 }
 
 main 
