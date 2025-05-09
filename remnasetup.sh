@@ -2,18 +2,8 @@
 
 SCRIPT_DIR="/opt/remnasetup"
 
-if [ ! -f "${SCRIPT_DIR}/scripts/common/colors.sh" ]; then
-    echo "Ошибка: файл colors.sh не найден"
-    exit 1
-fi
-
-if [ ! -f "${SCRIPT_DIR}/scripts/common/functions.sh" ]; then
-    echo "Ошибка: файл functions.sh не найден"
-    exit 1
-fi
-
-. "${SCRIPT_DIR}/scripts/common/colors.sh"
-. "${SCRIPT_DIR}/scripts/common/functions.sh"
+source /opt/remnasetup/scripts/common/colors.sh
+source /opt/remnasetup/scripts/common/functions.sh
 
 print_header() {
     clear
