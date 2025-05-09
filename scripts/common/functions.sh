@@ -11,29 +11,30 @@ BOLD_GREEN='\033[1;32m'
 BOLD_YELLOW='\033[1;33m'
 BOLD_RED='\033[1;31m'
 BOLD_CYAN='\033[1;36m'
+BOLD_MAGENTA='\033[1;35m'
 
 info() {
-    echo -e "${BOLD_BLUE}[INFO]${NC} $1"
+    echo -e "${BOLD_CYAN}[INFO]${RESET} $1"
 }
 
 warn() {
-    echo -e "${BOLD_YELLOW}[WARN]${NC} $1"
+    echo -e "${BOLD_YELLOW}[WARN]${RESET} $1"
 }
 
 error() {
-    echo -e "${BOLD_RED}[ERROR]${NC} $1"
+    echo -e "${BOLD_RED}[ERROR]${RESET} $1"
 }
 
 success() {
-    echo -e "${BOLD_GREEN}[SUCCESS]${NC} $1"
-}
-
-question() {
-    echo -e "${BOLD_CYAN}[QUESTION]${NC} $1"
+    echo -e "${BOLD_GREEN}[SUCCESS]${RESET} $1"
 }
 
 menu() {
-    echo -e "${BOLD_CYAN}[MENU]${NC} $1"
+    echo -e "${BOLD_MAGENTA}$1${RESET}"
+}
+
+question() {
+    echo -e "${BOLD_CYAN}$1${RESET}"
 }
 
 command_exists() {
