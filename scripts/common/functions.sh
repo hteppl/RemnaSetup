@@ -26,7 +26,7 @@ menu() {
 
 question() {
     read -p "$(echo -e "${BOLD_CYAN}$1${RESET}") " answer
-    echo "$answer"
+    REPLY="$answer"
 }
 
 command_exists() {
