@@ -5,6 +5,13 @@ if [ "$(id -u)" != "0" ]; then
     exit 1
 fi
 
+TEMP_DIR=$(mktemp -d)
+
+if [ -d "/opt/remnasetup" ]; then
+    echo "Удаление существующей установки RemnaSetup..."
+    rm -rf /opt/remnasetup
+fi
+
 if ! command -v curl &> /dev/null; then
     echo "Установка curl..."
     if command -v apt-get &> /dev/null; then
@@ -19,7 +26,6 @@ if ! command -v curl &> /dev/null; then
     fi
 fi
 
-TEMP_DIR=$(mktemp -d)
 cd "$TEMP_DIR" || exit 1
 
 echo "Скачивание RemnaSetup..."
@@ -27,6 +33,7 @@ curl -L https://github.com/Capybara-z/RemnaSetup/archive/refs/heads/dev.zip -o r
 
 if [ ! -f remnasetup.zip ]; then
     echo "Ошибка: Не удалось скачать архив"
+    rm -rf "$TEMP_DIR"
     exit 1
 fi
 
@@ -41,6 +48,7 @@ if ! command -v unzip &> /dev/null; then
         sudo dnf install -y unzip
     else
         echo "Не удалось установить unzip. Пожалуйста, установите его вручную."
+        rm -rf "$TEMP_DIR"
         exit 1
     fi
 fi
@@ -50,6 +58,7 @@ unzip -q remnasetup.zip
 
 if [ ! -d "RemnaSetup-dev" ]; then
     echo "Ошибка: Не удалось распаковать архив"
+    rm -rf "$TEMP_DIR"
     exit 1
 fi
 
@@ -60,6 +69,7 @@ cp -r RemnaSetup-dev/* /opt/remnasetup/
 
 if [ ! -f "/opt/remnasetup/remnasetup.sh" ]; then
     echo "Ошибка: Не удалось скопировать файлы"
+    rm -rf "$TEMP_DIR"
     exit 1
 fi
 
@@ -71,9 +81,9 @@ chmod +x /opt/remnasetup/scripts/common/*.sh
 chmod +x /opt/remnasetup/scripts/remnawave/*.sh
 chmod +x /opt/remnasetup/scripts/remnanode/*.sh
 
+rm -rf "$TEMP_DIR"
+
 cd /opt/remnasetup || exit 1
 
 echo "Запуск RemnaSetup..."
-bash /opt/remnasetup/remnasetup.sh
-
-rm -rf "$TEMP_DIR" 
+bash /opt/remnasetup/remnasetup.sh 
