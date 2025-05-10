@@ -5,10 +5,8 @@ source "/opt/remnasetup/scripts/common/functions.sh"
 
 check_docker() {
     if command -v docker >/dev/null 2>&1; then
-        info "Docker уже установлен"
         return 0
     else
-        info "Docker не установлен"
         return 1
     fi
 }
@@ -62,9 +60,11 @@ check_components() {
         fi
     fi
 
-    if pgrep -f wireproxy >/dev/null 2>&1; then
+    if command -v wireproxy >/dev/null 2>&1; then
         info "WARP уже установлен, пропускаем установку"
         SKIP_WARP=true
+    else
+        SKIP_WARP=false
     fi
 
     if sysctl net.ipv4.tcp_congestion_control | grep -q bbr; then

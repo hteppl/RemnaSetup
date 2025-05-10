@@ -4,7 +4,7 @@ source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
 
 check_warp() {
-    if pgrep -f wireproxy >/dev/null 2>&1; then
+    if command -v wireproxy >/dev/null 2>&1; then
         info "WARP (WireProxy) уже установлен"
         question "Хотите переустановить? (y/n):"
         answer="$REPLY"
