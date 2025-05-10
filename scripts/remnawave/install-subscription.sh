@@ -67,9 +67,16 @@ install_subscription() {
     fi
 }
 
-main() {
-    install_docker
+check_docker() {
+    if command -v docker >/dev/null 2>&1; then
+        info "Docker уже установлен, пропускаем установку."
+        return 0
+    else
+        return 1
+    fi
+}
 
+main() {
     check_component "subscription" "/opt/remnawave/subscription" "/opt/remnawave/subscription/.env"
 
     while true; do
@@ -112,6 +119,9 @@ main() {
         warn "Описание проекта не может быть пустым. Пожалуйста, введите значение."
     done
 
+    if ! check_docker; then
+        install_docker
+    fi
     install_subscription
 
     success "Установка завершена!"

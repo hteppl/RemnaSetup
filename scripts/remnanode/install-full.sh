@@ -336,6 +336,24 @@ ROOT_EOF
     success "Tblocker успешно установлен!"
 }
 
+check_docker() {
+    if command -v docker >/dev/null 2>&1; then
+        info "Docker уже установлен, пропускаем установку."
+        return 0
+    else
+        return 1
+    fi
+}
+
+install_docker() {
+    info "Установка Docker..."
+    sudo curl -fsSL https://get.docker.com | sh || {
+        error "Ошибка: Не удалось установить Docker."
+        exit 1
+    }
+    success "Docker успешно установлен!"
+}
+
 main() {
     info "Начало полной установки Remnanode..."
 
@@ -345,13 +363,8 @@ main() {
     info "Обновление пакетов системы..."
     sudo apt update -y
 
-    if ! command -v docker >/dev/null 2>&1; then
-        info "Установка Docker..."
-        sudo curl -fsSL https://get.docker.com | sh || {
-            error "Ошибка: Не удалось установить Docker."
-            exit 1
-        }
-        success "Docker успешно установлен!"
+    if ! check_docker; then
+        install_docker
     fi
 
     if [[ "$SKIP_WARP" != "true" ]]; then

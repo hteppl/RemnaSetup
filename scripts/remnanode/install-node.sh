@@ -63,9 +63,6 @@ install_remnanode() {
 }
 
 main() {
-    if ! check_docker; then
-        install_docker
-    fi
 
     if check_remnanode; then
         cd /opt/remnanode
@@ -93,6 +90,10 @@ main() {
 
     question "Будет ли использоваться Tblocker? (y/n): "
     read -r USE_TBLOCKER
+
+    if ! check_docker; then
+        install_docker
+    fi
 
     install_remnanode
 

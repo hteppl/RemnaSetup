@@ -80,9 +80,16 @@ install_panel() {
     fi
 }
 
-main() {
-    install_docker
+check_docker() {
+    if command -v docker >/dev/null 2>&1; then
+        info "Docker уже установлен, пропускаем установку."
+        return 0
+    else
+        return 1
+    fi
+}
 
+main() {
     check_component "panel" "/opt/remnawave" "/opt/remnawave/.env"
 
     while true; do
@@ -143,6 +150,9 @@ main() {
         warn "Пароль пользователя базы данных не может быть пустым. Пожалуйста, введите значение."
     done
 
+    if ! check_docker; then
+        install_docker
+    fi
     install_panel
 
     success "Установка завершена!"

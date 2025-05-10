@@ -110,9 +110,16 @@ install_with_protection() {
     fi
 }
 
-main() {
-    install_docker
+check_docker() {
+    if command -v docker >/dev/null 2>&1; then
+        info "Docker уже установлен, пропускаем установку."
+        return 0
+    else
+        return 1
+    fi
+}
 
+main() {
     check_component "caddy" "/opt/remnawave/caddy" "/opt/remnawave/caddy/.env"
 
     question "Требуется ли защита панели кастомным путем и защита подписок? (y/n): "
@@ -198,7 +205,12 @@ main() {
             fi
             warn "Пароль администратора не может быть пустым. Пожалуйста, введите значение."
         done
-        
+    fi
+
+    if ! check_docker; then
+        install_docker
+    fi
+    if [ "$NEED_PROTECTION" = "y" ]; then
         install_with_protection
     else
         install_without_protection
