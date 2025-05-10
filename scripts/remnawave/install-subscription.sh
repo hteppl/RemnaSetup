@@ -51,6 +51,7 @@ install_subscription() {
     if [ "$REINSTALL_SUBSCRIPTION" = true ]; then
         info "Установка страницы подписок Remnawave..."
         mkdir -p /opt/remnawave/subscription
+        cp "/opt/remnasetup/data/app-config.json" /opt/remnawave/subscription/app-config.json
         cp "/opt/remnasetup/data/docker/subscription-compose.yml" /opt/remnawave/subscription/docker-compose.yml
 
         sed -i "s|SUB_DOMAIN=.*|SUB_DOMAIN=$SUB_DOMAIN|g" /opt/remnawave/.env
