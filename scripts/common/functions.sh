@@ -20,6 +20,8 @@ success() {
 
 menu() {
     echo -e "${BOLD_MAGENTA}$1${RESET}"
+    read -p "$(echo -e "${BOLD_CYAN}Выберите пункт меню: ${RESET}") " choice
+    echo "$choice"
 }
 
 question() {
