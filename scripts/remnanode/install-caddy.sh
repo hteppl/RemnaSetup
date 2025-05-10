@@ -6,7 +6,7 @@ source "/opt/remnasetup/scripts/common/functions.sh"
 check_caddy() {
     if command -v caddy >/dev/null 2>&1; then
         info "Caddy уже установлен"
-        question "Хотите скорректировать конфигурацию Caddy? (y/n): "
+        question "Хотите скорректировать конфигурацию Caddy? (y/n):"
         UPDATE_CONFIG="$REPLY"
         
         if [[ "$UPDATE_CONFIG" == "y" || "$UPDATE_CONFIG" == "Y" ]]; then
@@ -53,7 +53,7 @@ update_caddy_config() {
 main() {
     if check_caddy; then
         while true; do
-            question "Введите доменное для self-style (например, noda1.domain.com): "
+            question "Введите доменное для self-style (например, noda1.domain.com):"
             DOMAIN="$REPLY"
             if [[ -n "$DOMAIN" ]]; then
                 break
@@ -62,7 +62,7 @@ main() {
         done
 
         while true; do
-            question "Введите порт для self-style (по умолчанию 8443): "
+            question "Введите порт для self-style (по умолчанию 8443):"
             MONITOR_PORT="$REPLY"
             MONITOR_PORT=${MONITOR_PORT:-8443}
             if [[ "$MONITOR_PORT" =~ ^[0-9]+$ ]]; then
@@ -74,7 +74,7 @@ main() {
         update_caddy_config
     else
         while true; do
-            question "Введите доменное для self-style (например, noda1.domain.com): "
+            question "Введите доменное для self-style (например, noda1.domain.com):"
             DOMAIN="$REPLY"
             if [[ -n "$DOMAIN" ]]; then
                 break
@@ -83,7 +83,7 @@ main() {
         done
 
         while true; do
-            question "Введите порт для self-style (по умолчанию 8443): "
+            question "Введите порт для self-style (по умолчанию 8443):"
             MONITOR_PORT="$REPLY"
             MONITOR_PORT=${MONITOR_PORT:-8443}
             if [[ "$MONITOR_PORT" =~ ^[0-9]+$ ]]; then

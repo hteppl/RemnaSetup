@@ -81,7 +81,7 @@ display_remnawave_menu() {
   echo -e "${BLUE}7. Обновление Страницы подписок${RESET}"
   echo -e "${BLUE}8. Назад${RESET}"
   echo
-  read -p "$(echo -e "${BOLD_CYAN}Выберите пункт меню (1-8): ${RESET}") " REMNAWAVE_OPTION
+  read -p "$(echo -e "${BOLD_CYAN}Выберите пункт меню (1-8):${RESET}") " REMNAWAVE_OPTION
   echo
 }
 
@@ -98,7 +98,7 @@ display_remnanode_menu() {
   echo -e "${BLUE}7. Обновить Remnanode${RESET}"
   echo -e "${BLUE}8. Назад${RESET}"
   echo
-  read -p "$(echo -e "${BOLD_CYAN}Выберите пункт меню (1-8): ${RESET}") " REMNANODE_OPTION
+  read -p "$(echo -e "${BOLD_CYAN}Выберите пункт меню (1-8):${RESET}") " REMNANODE_OPTION
   echo
 }
 
@@ -110,7 +110,7 @@ display_main_menu() {
     echo -e "${BLUE}2. Установка/обновление Remnanode${RESET}"
     echo -e "${RED}0. Выход${RESET}"
     echo
-    read -p "$(echo -e "${BOLD_CYAN}Выберите пункт меню (0-2): ${RESET}") " MAIN_OPTION
+    read -p "$(echo -e "${BOLD_CYAN}Выберите пункт меню (0-2):${RESET}") " MAIN_OPTION
     echo
 }
 

@@ -24,7 +24,7 @@ install_docker() {
 check_remnanode() {
     if sudo docker ps -q --filter "name=remnanode" | grep -q .; then
         info "Remnanode уже установлен"
-        question "Хотите скорректировать настройки Remnanode? (y/n): "
+        question "Хотите скорректировать настройки Remnanode? (y/n):"
         REINSTALL="$REPLY"
         
         if [[ "$REINSTALL" == "y" || "$REINSTALL" == "Y" ]]; then
@@ -63,14 +63,13 @@ install_remnanode() {
 }
 
 main() {
-
     if check_remnanode; then
         cd /opt/remnanode
         sudo docker compose down
     fi
 
     while true; do
-        question "Введите APP_PORT (по умолчанию 3001): "
+        question "Введите APP_PORT (по умолчанию 3001):"
         APP_PORT="$REPLY"
         APP_PORT=${APP_PORT:-3001}
         if [[ "$APP_PORT" =~ ^[0-9]+$ ]]; then
@@ -80,7 +79,7 @@ main() {
     done
 
     while true; do
-        question "Введите SSL_CERT (можно получить при добавлении ноды в панели): "
+        question "Введите SSL_CERT (можно получить при добавлении ноды в панели):"
         SSL_CERT_FULL="$REPLY"
         if [[ -n "$SSL_CERT_FULL" ]]; then
             break
@@ -88,7 +87,7 @@ main() {
         warn "SSL_CERT не может быть пустым. Пожалуйста, введите значение."
     done
 
-    question "Будет ли использоваться Tblocker? (y/n): "
+    question "Будет ли использоваться Tblocker? (y/n):"
     USE_TBLOCKER="$REPLY"
 
     if ! check_docker; then

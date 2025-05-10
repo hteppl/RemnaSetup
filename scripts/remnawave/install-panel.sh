@@ -8,7 +8,7 @@ REINSTALL_PANEL=false
 check_component() {
     if [ -f "/opt/remnawave/docker-compose.yml" ] && (cd /opt/remnawave && docker compose ps -q | grep -q "remnawave\|remnawave-db\|remnawave-redis") || [ -f "/opt/remnawave/.env" ]; then
         info "Обнаружена установка панели"
-        question "Переустановить панель? (y/n): "
+        question "Переустановить панель? (y/n):"
         REINSTALL="$REPLY"
 
         if [ "$REINSTALL" = "y" ]; then
@@ -80,7 +80,7 @@ main() {
     check_component
 
     while true; do
-        question "Введите домен панели (например, panel.domain.com): "
+        question "Введите домен панели (например, panel.domain.com):"
         PANEL_DOMAIN="$REPLY"
         if [[ -n "$PANEL_DOMAIN" ]]; then
             break
@@ -89,7 +89,7 @@ main() {
     done
 
     while true; do
-        question "Введите домен подписок (например, sub.domain.com): "
+        question "Введите домен подписок (например, sub.domain.com):"
         SUB_DOMAIN="$REPLY"
         if [[ -n "$SUB_DOMAIN" ]]; then
             break
@@ -97,12 +97,12 @@ main() {
         warn "Домен подписок не может быть пустым. Пожалуйста, введите значение."
     done
 
-    question "Введите порт панели (по умолчанию 3000): "
+    question "Введите порт панели (по умолчанию 3000):"
     PANEL_PORT="$REPLY"
     PANEL_PORT=${PANEL_PORT:-3000}
 
     while true; do
-        question "Введите логин для метрик: "
+        question "Введите логин для метрик:"
         METRICS_USER="$REPLY"
         if [[ -n "$METRICS_USER" ]]; then
             break
@@ -111,7 +111,7 @@ main() {
     done
 
     while true; do
-        question "Введите пароль для метрик: "
+        question "Введите пароль для метрик:"
         METRICS_PASS="$REPLY"
         if [[ -n "$METRICS_PASS" ]]; then
             break
@@ -120,7 +120,7 @@ main() {
     done
 
     while true; do
-        question "Введите имя пользователя базы данных: "
+        question "Введите имя пользователя базы данных:"
         DB_USER="$REPLY"
         if [[ -n "$DB_USER" ]]; then
             break
@@ -129,7 +129,7 @@ main() {
     done
 
     while true; do
-        question "Введите пароль пользователя базы данных: "
+        question "Введите пароль пользователя базы данных:"
         DB_PASSWORD="$REPLY"
         if [[ -n "$DB_PASSWORD" ]]; then
             break

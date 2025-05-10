@@ -6,7 +6,7 @@ source "/opt/remnasetup/scripts/common/functions.sh"
 check_warp() {
     if pgrep -f wireproxy >/dev/null 2>&1; then
         info "WARP (WireProxy) уже установлен"
-        question "Хотите переустановить? (y/n): "
+        question "Хотите переустановить? (y/n):"
         answer="$REPLY"
         if [[ "$answer" != "y" ]]; then
             info "WARP уже установлен"
@@ -49,7 +49,7 @@ main() {
     fi
 
     while true; do
-        question "Введите порт для WARP (1000-65535, по умолчанию 40000): "
+        question "Введите порт для WARP (1000-65535, по умолчанию 40000):"
         WARP_PORT="$REPLY"
         WARP_PORT=${WARP_PORT:-40000}
         

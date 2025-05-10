@@ -8,7 +8,7 @@ REINSTALL_CADDY=false
 check_component() {
     if [ -f "/opt/remnawave/caddy/docker-compose.yml" ] || [ -f "/opt/remnawave/caddy/Caddyfile" ]; then
         info "Обнаружена установка Caddy"
-        question "Переустановить Caddy? (y/n): "
+        question "Переустановить Caddy? (y/n):"
         REINSTALL="$REPLY"
 
         if [ "$REINSTALL" = "y" ]; then
@@ -130,11 +130,11 @@ check_docker() {
 main() {
     check_component
 
-    question "Требуется ли защита панели кастомным путем и защита подписок? (y/n): "
+    question "Требуется ли защита панели кастомным путем и защита подписок? (y/n):"
     NEED_PROTECTION="$REPLY"
 
     while true; do
-        question "Введите домен панели (например, panel.domain.com): "
+        question "Введите домен панели (например, panel.domain.com):"
         PANEL_DOMAIN="$REPLY"
         if [[ -n "$PANEL_DOMAIN" ]]; then
             break
@@ -143,7 +143,7 @@ main() {
     done
 
     while true; do
-        question "Введите домен подписок (например, sub.domain.com): "
+        question "Введите домен подписок (например, sub.domain.com):"
         SUB_DOMAIN="$REPLY"
         if [[ -n "$SUB_DOMAIN" ]]; then
             break
@@ -151,17 +151,17 @@ main() {
         warn "Домен подписок не может быть пустым. Пожалуйста, введите значение."
     done
 
-    question "Введите порт панели (по умолчанию 3000): "
+    question "Введите порт панели (по умолчанию 3000):"
     PANEL_PORT="$REPLY"
     PANEL_PORT=${PANEL_PORT:-3000}
 
-    question "Введите порт подписок (по умолчанию 3010): "
+    question "Введите порт подписок (по умолчанию 3010):"
     SUB_PORT="$REPLY"
     SUB_PORT=${SUB_PORT:-3010}
 
     if [ "$NEED_PROTECTION" = "y" ]; then
         while true; do
-            question "Введите имя проекта: "
+            question "Введите имя проекта:"
             PROJECT_NAME="$REPLY"
             if [[ -n "$PROJECT_NAME" ]]; then
                 break
@@ -170,7 +170,7 @@ main() {
         done
 
         while true; do
-            question "Введите описание страницы подписки: "
+            question "Введите описание страницы подписки:"
             PROJECT_DESCRIPTION="$REPLY"
             if [[ -n "$PROJECT_DESCRIPTION" ]]; then
                 break
@@ -179,7 +179,7 @@ main() {
         done
 
         while true; do
-            question "Введите путь доступа к панели (например, supersecretroute): "
+            question "Введите путь доступа к панели (например, supersecretroute):"
             CUSTOM_LOGIN_ROUTE="$REPLY"
             if [[ -n "$CUSTOM_LOGIN_ROUTE" ]]; then
                 break
@@ -188,7 +188,7 @@ main() {
         done
 
         while true; do
-            question "Введите логин администратора: "
+            question "Введите логин администратора:"
             LOGIN_USERNAME="$REPLY"
             if [[ -n "$LOGIN_USERNAME" ]]; then
                 break
@@ -197,7 +197,7 @@ main() {
         done
 
         while true; do
-            question "Введите email администратора: "
+            question "Введите email администратора:"
             LOGIN_EMAIL="$REPLY"
             if [[ -n "$LOGIN_EMAIL" ]]; then
                 break
@@ -206,7 +206,7 @@ main() {
         done
 
         while true; do
-            question "Введите пароль администратора: "
+            question "Введите пароль администратора:"
             LOGIN_PASSWORD="$REPLY"
             if [[ -n "$LOGIN_PASSWORD" ]]; then
                 break

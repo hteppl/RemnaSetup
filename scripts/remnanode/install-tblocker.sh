@@ -6,7 +6,7 @@ source "/opt/remnasetup/scripts/common/functions.sh"
 check_remnanode() {
     if sudo docker ps -q --filter "name=remnanode" | grep -q .; then
         info "Remnanode уже установлен"
-        question "Хотите обновить docker-compose файл для интеграции с Tblocker? (y/n): "
+        question "Хотите обновить docker-compose файл для интеграции с Tblocker? (y/n):"
         UPDATE_DOCKER="$REPLY"
         
         if [[ "$UPDATE_DOCKER" == "y" || "$UPDATE_DOCKER" == "Y" ]]; then
@@ -32,7 +32,7 @@ update_docker_compose() {
 check_tblocker() {
     if [ -f /opt/tblocker/config.yaml ] && systemctl list-units --full -all | grep -q tblocker.service; then
         info "Tblocker уже установлен"
-        question "Желаете обновить конфигурацию? (y/n): "
+        question "Желаете обновить конфигурацию? (y/n):"
         UPDATE_CONFIG="$REPLY"
         
         if [[ "$UPDATE_CONFIG" == "y" || "$UPDATE_CONFIG" == "Y" ]]; then
@@ -118,7 +118,7 @@ main() {
 
     if check_tblocker; then
         while true; do
-            question "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений): "
+            question "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений):"
             ADMIN_BOT_TOKEN="$REPLY"
             if [[ -n "$ADMIN_BOT_TOKEN" ]]; then
                 break
@@ -128,7 +128,7 @@ main() {
         echo "ADMIN_BOT_TOKEN=$ADMIN_BOT_TOKEN" > /tmp/install_vars
 
         while true; do
-            question "Введите Telegram ID админа для Tblocker: "
+            question "Введите Telegram ID админа для Tblocker:"
             ADMIN_CHAT_ID="$REPLY"
             if [[ -n "$ADMIN_CHAT_ID" ]]; then
                 break
@@ -140,7 +140,7 @@ main() {
         update_tblocker_config
     else
         while true; do
-            question "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений): "
+            question "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений):"
             ADMIN_BOT_TOKEN="$REPLY"
             if [[ -n "$ADMIN_BOT_TOKEN" ]]; then
                 break
@@ -150,7 +150,7 @@ main() {
         echo "ADMIN_BOT_TOKEN=$ADMIN_BOT_TOKEN" > /tmp/install_vars
 
         while true; do
-            question "Введите Telegram ID админа для Tblocker: "
+            question "Введите Telegram ID админа для Tblocker:"
             ADMIN_CHAT_ID="$REPLY"
             if [[ -n "$ADMIN_CHAT_ID" ]]; then
                 break

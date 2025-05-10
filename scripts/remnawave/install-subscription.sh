@@ -8,7 +8,7 @@ REINSTALL_SUBSCRIPTION=false
 check_component() {
     if [ -f "/opt/remnawave/subscription/docker-compose.yml" ] && (cd /opt/remnawave/subscription && docker compose ps -q | grep -q "remnawave-subscription-page") || [ -f "/opt/remnawave/subscription/app-config.json" ]; then
         info "Обнаружена установка страницы подписок"
-        question "Переустановить страницу подписок? (y/n): "
+        question "Переустановить страницу подписок? (y/n):"
         REINSTALL="$REPLY"
 
         if [ "$REINSTALL" = "y" ]; then
@@ -72,7 +72,7 @@ main() {
     check_component
 
     while true; do
-        question "Введите домен панели (например, panel.domain.com): "
+        question "Введите домен панели (например, panel.domain.com):"
         PANEL_DOMAIN="$REPLY"
         if [[ -n "$PANEL_DOMAIN" ]]; then
             break
@@ -81,7 +81,7 @@ main() {
     done
 
     while true; do
-        question "Введите домен подписок (например, sub.domain.com): "
+        question "Введите домен подписок (например, sub.domain.com):"
         SUB_DOMAIN="$REPLY"
         if [[ -n "$SUB_DOMAIN" ]]; then
             break
@@ -89,12 +89,12 @@ main() {
         warn "Домен подписок не может быть пустым. Пожалуйста, введите значение."
     done
 
-    question "Введите порт подписок (по умолчанию 3010): "
+    question "Введите порт подписок (по умолчанию 3010):"
     SUB_PORT="$REPLY"
     SUB_PORT=${SUB_PORT:-3010}
 
     while true; do
-        question "Введите имя проекта: "
+        question "Введите имя проекта:"
         PROJECT_NAME="$REPLY"
         if [[ -n "$PROJECT_NAME" ]]; then
             break
@@ -103,7 +103,7 @@ main() {
     done
 
     while true; do
-        question "Введите описание страницы подписки: "
+        question "Введите описание страницы подписки:"
         PROJECT_DESCRIPTION="$REPLY"
         if [[ -n "$PROJECT_DESCRIPTION" ]]; then
             break
