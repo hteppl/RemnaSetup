@@ -29,7 +29,7 @@ fi
 cd "$TEMP_DIR" || exit 1
 
 echo "Скачивание RemnaSetup..."
-curl -L https://github.com/Capybara-z/RemnaSetup/archive/refs/heads/dev.zip -o remnasetup.zip
+curl -L https://github.com/Capybara-z/RemnaSetup/archive/refs/heads/main.zip -o remnasetup.zip
 
 if [ ! -f remnasetup.zip ]; then
     echo "Ошибка: Не удалось скачать архив"
