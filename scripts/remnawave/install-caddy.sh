@@ -6,17 +6,25 @@ source "/opt/remnasetup/scripts/common/functions.sh"
 REINSTALL_CADDY=false
 
 check_component() {
-    if [ -f "/opt/remnawave/caddy/docker-compose.yml" ] && (cd /opt/remnawave/caddy && docker compose ps -q | grep -q "caddy\|remnawave-caddy") || [ -f "/opt/remnawave/caddy/Caddyfile" ]; then
+    if [ -f "/opt/remnawave/caddy/docker-compose.yml" ] || [ -f "/opt/remnawave/caddy/Caddyfile" ]; then
         info "Обнаружена установка Caddy"
         question "Переустановить Caddy? (y/n): "
         REINSTALL="$REPLY"
 
         if [ "$REINSTALL" = "y" ]; then
             warn "Останавливаем и удаляем существующую установку..."
-            cd /opt/remnawave/caddy && docker compose down
-            docker rmi caddy:2.9 remnawave/caddy-with-auth:latest 2>/dev/null || true
-            rm -f /opt/remnawave/caddy/docker-compose.yml
+            if [ -f "/opt/remnawave/caddy/docker-compose.yml" ]; then
+                cd /opt/remnawave/caddy && docker compose down
+            fi
+            if [ -f "/opt/remnawave/caddy/docker-compose.yml" ] && (cd /opt/remnawave/caddy && docker compose ps -q | grep -q "remnawave-caddy\|caddy"); then
+                if [ "$NEED_PROTECTION" = "y" ]; then
+                    docker rmi remnawave/caddy-with-auth:latest 2>/dev/null || true
+                else
+                    docker rmi caddy:2.9 2>/dev/null || true
+                fi
+            fi
             rm -f /opt/remnawave/caddy/Caddyfile
+            rm -f /opt/remnawave/caddy/docker-compose.yml
             REINSTALL_CADDY=true
         else
             info "Отказано в переустановке Caddy"
@@ -151,25 +159,25 @@ main() {
     SUB_PORT="$REPLY"
     SUB_PORT=${SUB_PORT:-3010}
 
+    while true; do
+        question "Введите имя проекта: "
+        PROJECT_NAME="$REPLY"
+        if [[ -n "$PROJECT_NAME" ]]; then
+            break
+        fi
+        warn "Имя проекта не может быть пустым. Пожалуйста, введите значение."
+    done
+
+    while true; do
+        question "Введите описание страницы подписки: "
+        PROJECT_DESCRIPTION="$REPLY"
+        if [[ -n "$PROJECT_DESCRIPTION" ]]; then
+            break
+        fi
+        warn "Описание проекта не может быть пустым. Пожалуйста, введите значение."
+    done
+
     if [ "$NEED_PROTECTION" = "y" ]; then
-        while true; do
-            question "Введите имя проекта: "
-            PROJECT_NAME="$REPLY"
-            if [[ -n "$PROJECT_NAME" ]]; then
-                break
-            fi
-            warn "Имя проекта не может быть пустым. Пожалуйста, введите значение."
-        done
-
-        while true; do
-            question "Введите описание страницы подписки: "
-            PROJECT_DESCRIPTION="$REPLY"
-            if [[ -n "$PROJECT_DESCRIPTION" ]]; then
-                break
-            fi
-            warn "Описание проекта не может быть пустым. Пожалуйста, введите значение."
-        done
-
         while true; do
             question "Введите путь доступа к панели (например, supersecretroute): "
             CUSTOM_LOGIN_ROUTE="$REPLY"
