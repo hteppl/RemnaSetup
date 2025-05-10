@@ -1,0 +1,23 @@
+services:
+    remnawave-subscription-page:
+        image: remnawave/subscription-page:latest
+        container_name: remnawave-subscription-page
+        hostname: remnawave-subscription-page
+        restart: always
+        volumes:
+            - ./app-config.json:/app/dist/assets/app-config.json
+        environment:
+            - REMNAWAVE_PLAIN_DOMAIN=remnawave:$PANEL_PORT
+            - REQUEST_REMNAWAVE_SCHEME=http
+            - SUBSCRIPTION_PAGE_PORT=$SUB_PORT
+            - META_TITLE="$PROJECT_NAME"
+            - META_DESCRIPTION="$PROJECT_DESCRIPTION"
+        ports:
+            - '127.0.0.1:$SUB_PORT:$SUB_PORT'
+        networks:
+            - remnawave-network
+
+networks:
+    remnawave-network:
+        driver: bridge
+        external: true
