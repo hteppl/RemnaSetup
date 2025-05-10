@@ -65,7 +65,7 @@ fi
 mkdir -p /opt/remnasetup
 
 echo "Установка RemnaSetup в /opt/remnasetup..."
-cp -r RemnaSetup-dev/* /opt/remnasetup/
+cp -r RemnaSetup-main/* /opt/remnasetup/
 
 if [ ! -f "/opt/remnasetup/remnasetup.sh" ]; then
     echo "Ошибка: Не удалось скопировать файлы"
