@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source "$(dirname "$0")/colors.sh"
+. "$(dirname "$0")/colors.sh"
 
 info() {
     echo -e "${BOLD_CYAN}[INFO]${RESET} $1"
