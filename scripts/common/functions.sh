@@ -1,43 +1,29 @@
 #!/bin/bash
 
-RESET='\033[0m'
-
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-BLUE='\033[0;34m'
-MAGENTA='\033[0;35m'
-CYAN='\033[0;36m'
-
-BOLD_RED='\033[1;31m'
-BOLD_GREEN='\033[1;32m'
-BOLD_YELLOW='\033[1;33m'
-BOLD_BLUE='\033[1;34m'
-BOLD_MAGENTA='\033[1;35m'
-BOLD_CYAN='\033[1;36m'
+source "$(dirname "$0")/colors.sh"
 
 info() {
-    echo -e "\033[1;36m[INFO]\033[0m $1"
+    echo -e "${BOLD_CYAN}[INFO]${RESET} $1"
 }
 
 warn() {
-    echo -e "\033[1;33m[WARN]\033[0m $1"
+    echo -e "${BOLD_YELLOW}[WARN]${RESET} $1"
 }
 
 error() {
-    echo -e "\033[1;31m[ERROR]\033[0m $1"
+    echo -e "${BOLD_RED}[ERROR]${RESET} $1"
 }
 
 success() {
-    echo -e "\033[1;32m[SUCCESS]\033[0m $1"
+    echo -e "${BOLD_GREEN}[SUCCESS]${RESET} $1"
 }
 
 menu() {
-    echo -e "\033[1;35m$1\033[0m"
+    echo -e "${BOLD_MAGENTA}$1${RESET}"
 }
 
 question() {
-    echo -e "\033[1;36m$1\033[0m"
+    echo -e "${BOLD_CYAN}$1${RESET}"
 }
 
 command_exists() {
