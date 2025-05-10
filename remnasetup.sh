@@ -1,9 +1,31 @@
 #!/bin/bash
 
-SCRIPT_DIR="/opt/remnasetup"
-
 . /opt/remnasetup/scripts/common/colors.sh
 . /opt/remnasetup/scripts/common/functions.sh
+
+menu() {
+    echo -e "${BOLD_MAGENTA}$1${RESET}"
+}
+
+question() {
+    echo -e "${BOLD_CYAN}$1${RESET}"
+}
+
+info() {
+    echo -e "${BOLD_CYAN}[INFO]${RESET} $1"
+}
+
+warn() {
+    echo -e "${BOLD_YELLOW}[WARN]${RESET} $1"
+}
+
+error() {
+    echo -e "${BOLD_RED}[ERROR]${RESET} $1"
+}
+
+success() {
+    echo -e "${BOLD_GREEN}[SUCCESS]${RESET} $1"
+}
 
 print_header() {
     clear
