@@ -159,7 +159,7 @@ while true; do
                         4) run_script "${SCRIPT_DIR}/scripts/remnanode/install-tblocker.sh" ;;
                         5) run_script "${SCRIPT_DIR}/scripts/remnanode/install-bbr.sh" ;;
                         6) run_script "${SCRIPT_DIR}/scripts/remnanode/install-warp.sh" ;;
-                        7) run_script "${SCRIPT_DIR}/scripts/remnanode/update-panel.sh" ;;
+                        7) run_script "${SCRIPT_DIR}/scripts/remnanode/update.sh" ;;
                         8) break ;;
                         *) warn "Неверный выбор. Попробуйте снова." ;;
         esac
