@@ -2,20 +2,6 @@
 
 source "/opt/remnasetup/scripts/common/colors.sh"
 
-export -f info
-export -f warn
-export -f error
-export -f success
-export -f menu
-export -f question
-export -f command_exists
-export -f check_root
-export -f check_directory
-export -f check_file
-export -f create_directory
-export -f backup_file
-export -f restore_file
-
 info() {
     echo -e "${BOLD_CYAN}[INFO]${RESET} $1"
 }
@@ -82,3 +68,17 @@ restore_file() {
         mv "$1.bak" "$1"
     fi
 }
+
+export -f info
+export -f warn
+export -f error
+export -f success
+export -f menu
+export -f question
+export -f command_exists
+export -f check_root
+export -f check_directory
+export -f check_file
+export -f create_directory
+export -f backup_file
+export -f restore_file
