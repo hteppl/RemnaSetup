@@ -120,7 +120,7 @@ display_main_menu() {
 run_script() {
     local script="$1"
     if [ -f "$script" ]; then
-        source "$script"
+        bash "$script"
         local result=$?
         if [ $result -ne 0 ]; then
             warn "Скрипт завершился с ошибкой"
