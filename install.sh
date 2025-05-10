@@ -29,7 +29,7 @@ fi
 cd "$TEMP_DIR" || exit 1
 
 echo "Скачивание RemnaSetup..."
-curl -L https://github.com/Capybara-z/RemnaSetup/archive/refs/heads/dev.zip -o remnasetup.zip
+curl -L https://github.com/Capybara-z/RemnaSetup/archive/refs/heads/main.zip -o remnasetup.zip
 
 if [ ! -f remnasetup.zip ]; then
     echo "Ошибка: Не удалось скачать архив"
@@ -56,7 +56,7 @@ fi
 echo "Распаковка файлов..."
 unzip -q remnasetup.zip
 
-if [ ! -d "RemnaSetup-dev" ]; then
+if [ ! -d "RemnaSetup-main" ]; then
     echo "Ошибка: Не удалось распаковать архив"
     rm -rf "$TEMP_DIR"
     exit 1
@@ -65,7 +65,7 @@ fi
 mkdir -p /opt/remnasetup
 
 echo "Установка RemnaSetup в /opt/remnasetup..."
-cp -r RemnaSetup-dev/* /opt/remnasetup/
+cp -r RemnaSetup-main/* /opt/remnasetup/
 
 if [ ! -f "/opt/remnasetup/remnasetup.sh" ]; then
     echo "Ошибка: Не удалось скопировать файлы"

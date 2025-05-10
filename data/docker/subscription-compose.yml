@@ -5,14 +5,14 @@ services:
         hostname: remnawave-subscription-page
         restart: always
         volumes:
-            - ./app-config.json:/app/dist/assets/app-config.json
+            - ./app-config.json:/opt/app/frontend/assets/app-config.json
         environment:
-            - REMNAWAVE_PLAIN_DOMAIN=$PANEL_DOMAIN
-            - SUBSCRIPTION_PAGE_PORT=$SUB_PORT
+            - REMNAWAVE_PANEL_URL=https://$PANEL_DOMAIN
+            - APP_PORT=$SUB_PORT
             - META_TITLE="$PROJECT_NAME"
             - META_DESCRIPTION="$PROJECT_DESCRIPTION"
         ports:
-            - '$SUB_PORT:$SUB_PORT'
+            - '127.0.0.1:$SUB_PORT:$SUB_PORT'
         networks:
             - remnawave-network
 
