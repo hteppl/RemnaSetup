@@ -215,11 +215,11 @@ install_with_protection() {
         sed -i "s|\$SUB_DOMAIN|$SUB_DOMAIN|g" Caddyfile
         sed -i "s|\$SUB_PORT|$SUB_PORT|g" Caddyfile
 
-        sed -i "s|\$REMNAWAVE_PANEL_DOMAIN|$PANEL_DOMAIN|g" docker-compose.yml
-        sed -i "s|\$REMNAWAVE_CUSTOM_LOGIN_ROUTE|$CUSTOM_LOGIN_ROUTE|g" docker-compose.yml
-        sed -i "s|\$AUTHP_ADMIN_USER|$LOGIN_USERNAME|g" docker-compose.yml
-        sed -i "s|\$AUTHP_ADMIN_EMAIL|$LOGIN_EMAIL|g" docker-compose.yml
-        sed -i "s|\$AUTHP_ADMIN_SECRET|$LOGIN_PASSWORD|g" docker-compose.yml
+        sed -i "s|\$PANEL_DOMAIN|$PANEL_DOMAIN|g" docker-compose.yml
+        sed -i "s|\$CUSTOM_LOGIN_ROUTE|$CUSTOM_LOGIN_ROUTE|g" docker-compose.yml
+        sed -i "s|\$LOGIN_USERNAME|$LOGIN_USERNAME|g" docker-compose.yml
+        sed -i "s|\$LOGIN_EMAIL|$LOGIN_EMAIL|g" docker-compose.yml
+        sed -i "s|\$LOGIN_PASSWORD|$LOGIN_PASSWORD|g" docker-compose.yml
 
         docker compose up -d
     fi
