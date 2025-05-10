@@ -159,25 +159,25 @@ main() {
     SUB_PORT="$REPLY"
     SUB_PORT=${SUB_PORT:-3010}
 
-    while true; do
-        question "Введите имя проекта: "
-        PROJECT_NAME="$REPLY"
-        if [[ -n "$PROJECT_NAME" ]]; then
-            break
-        fi
-        warn "Имя проекта не может быть пустым. Пожалуйста, введите значение."
-    done
-
-    while true; do
-        question "Введите описание страницы подписки: "
-        PROJECT_DESCRIPTION="$REPLY"
-        if [[ -n "$PROJECT_DESCRIPTION" ]]; then
-            break
-        fi
-        warn "Описание проекта не может быть пустым. Пожалуйста, введите значение."
-    done
-
     if [ "$NEED_PROTECTION" = "y" ]; then
+        while true; do
+            question "Введите имя проекта: "
+            PROJECT_NAME="$REPLY"
+            if [[ -n "$PROJECT_NAME" ]]; then
+                break
+            fi
+            warn "Имя проекта не может быть пустым. Пожалуйста, введите значение."
+        done
+
+        while true; do
+            question "Введите описание страницы подписки: "
+            PROJECT_DESCRIPTION="$REPLY"
+            if [[ -n "$PROJECT_DESCRIPTION" ]]; then
+                break
+            fi
+            warn "Описание проекта не может быть пустым. Пожалуйста, введите значение."
+        done
+
         while true; do
             question "Введите путь доступа к панели (например, supersecretroute): "
             CUSTOM_LOGIN_ROUTE="$REPLY"
