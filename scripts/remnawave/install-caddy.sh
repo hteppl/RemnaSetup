@@ -16,7 +16,7 @@ check_component() {
             if [ -f "/opt/remnawave/caddy/docker-compose.yml" ]; then
                 cd /opt/remnawave/caddy && docker compose down
             fi
-            if [ -f "/opt/remnawave/caddy/docker-compose.yml" ] && (cd /opt/remnawave/caddy && docker compose ps -q | grep -q "remnawave-caddy\|caddy"); then
+            if docker ps -a --format '{{.Names}}' | grep -q "remnawave-caddy\|caddy"; then
                 if [ "$NEED_PROTECTION" = "y" ]; then
                     docker rmi remnawave/caddy-with-auth:latest 2>/dev/null || true
                 else
