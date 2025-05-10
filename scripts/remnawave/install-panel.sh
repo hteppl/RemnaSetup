@@ -66,8 +66,8 @@ install_panel() {
 
         sed -i "s|\$PANEL_DOMAIN|$PANEL_DOMAIN|g" /opt/remnawave/.env
         sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" /opt/remnawave/.env
-        sed -i "s|\$METRICS_USERNAME|$METRICS_USERNAME|g" /opt/remnawave/.env
-        sed -i "s|\$METRICS_PASSWORD|$METRICS_PASSWORD|g" /opt/remnawave/.env
+        sed -i "s|\$METRICS_USER|$METRICS_USER|g" /opt/remnawave/.env
+        sed -i "s|\$METRICS_PASS|$METRICS_PASS|g" /opt/remnawave/.env
         sed -i "s|\$DB_USER|$DB_USER|g" /opt/remnawave/.env
         sed -i "s|\$DB_PASSWORD|$DB_PASSWORD|g" /opt/remnawave/.env
         sed -i "s|\$JWT_AUTH_SECRET|$JWT_AUTH_SECRET|g" /opt/remnawave/.env
@@ -116,8 +116,8 @@ main() {
 
     while true; do
         question "Введите логин для метрик: "
-        METRICS_USERNAME="$REPLY"
-        if [[ -n "$METRICS_USERNAME" ]]; then
+        METRICS_USER="$REPLY"
+        if [[ -n "$METRICS_USER" ]]; then
             break
         fi
         warn "Логин для метрик не может быть пустым. Пожалуйста, введите значение."
@@ -125,8 +125,8 @@ main() {
 
     while true; do
         question "Введите пароль для метрик: "
-        METRICS_PASSWORD="$REPLY"
-        if [[ -n "$METRICS_PASSWORD" ]]; then
+        METRICS_PASS="$REPLY"
+        if [[ -n "$METRICS_PASS" ]]; then
             break
         fi
         warn "Пароль для метрик не может быть пустым. Пожалуйста, введите значение."
