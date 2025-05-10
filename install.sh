@@ -56,7 +56,7 @@ fi
 echo "Распаковка файлов..."
 unzip -q remnasetup.zip
 
-if [ ! -d "RemnaSetup-dev" ]; then
+if [ ! -d "RemnaSetup-main" ]; then
     echo "Ошибка: Не удалось распаковать архив"
     rm -rf "$TEMP_DIR"
     exit 1
@@ -65,7 +65,7 @@ fi
 mkdir -p /opt/remnasetup
 
 echo "Установка RemnaSetup в /opt/remnasetup..."
-cp -r RemnaSetup-dev/* /opt/remnasetup/
+cp -r RemnaSetup-main/* /opt/remnasetup/
 
 if [ ! -f "/opt/remnasetup/remnasetup.sh" ]; then
     echo "Ошибка: Не удалось скопировать файлы"
