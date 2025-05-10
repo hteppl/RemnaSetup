@@ -97,53 +97,59 @@ install_without_protection() {
     if [ "$REINSTALL_PANEL" = true ]; then
         info "Установка панели Remnawave..."
         mkdir -p /opt/remnawave
-        cp "/opt/remnasetup/data/docker/panel.env" /opt/remnawave/.env
-        cp "/opt/remnasetup/data/docker/panel-compose.yml" /opt/remnawave/docker-compose.yml
+        cd /opt/remnawave
+
+        cp "/opt/remnasetup/data/docker/panel.env" .env
+        cp "/opt/remnasetup/data/docker/panel-compose.yml" docker-compose.yml
 
         JWT_AUTH_SECRET=$(generate_jwt)
         JWT_API_TOKENS_SECRET=$(generate_jwt)
 
-        sed -i "s|\$PANEL_DOMAIN|$PANEL_DOMAIN|g" /opt/remnawave/.env
-        sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" /opt/remnawave/.env
-        sed -i "s|\$METRICS_USER|$METRICS_USER|g" /opt/remnawave/.env
-        sed -i "s|\$METRICS_PASS|$METRICS_PASS|g" /opt/remnawave/.env
-        sed -i "s|\$DB_USER|$DB_USER|g" /opt/remnawave/.env
-        sed -i "s|\$DB_PASSWORD|$DB_PASSWORD|g" /opt/remnawave/.env
-        sed -i "s|\$JWT_AUTH_SECRET|$JWT_AUTH_SECRET|g" /opt/remnawave/.env
-        sed -i "s|\$JWT_API_TOKENS_SECRET|$JWT_API_TOKENS_SECRET|g" /opt/remnawave/.env
-        sed -i "s|\$SUB_DOMAIN|$SUB_DOMAIN|g" /opt/remnawave/.env
+        sed -i "s|\$PANEL_DOMAIN|$PANEL_DOMAIN|g" .env
+        sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" .env
+        sed -i "s|\$METRICS_USER|$METRICS_USER|g" .env
+        sed -i "s|\$METRICS_PASS|$METRICS_PASS|g" .env
+        sed -i "s|\$DB_USER|$DB_USER|g" .env
+        sed -i "s|\$DB_PASSWORD|$DB_PASSWORD|g" .env
+        sed -i "s|\$JWT_AUTH_SECRET|$JWT_AUTH_SECRET|g" .env
+        sed -i "s|\$JWT_API_TOKENS_SECRET|$JWT_API_TOKENS_SECRET|g" .env
+        sed -i "s|\$SUB_DOMAIN|$SUB_DOMAIN|g" .env
 
-        sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" /opt/remnawave/docker-compose.yml
+        sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" docker-compose.yml
 
-        cd /opt/remnawave && docker compose up -d
+        docker compose up -d
     fi
 
     if [ "$REINSTALL_SUBSCRIPTION" = true ]; then
         info "Установка страницы подписок..."
         mkdir -p /opt/remnawave/subscription
-        cp "/opt/remnasetup/data/app-config.json" /opt/remnawave/subscription/app-config.json
-        cp "/opt/remnasetup/data/docker/subscription-compose.yml" /opt/remnawave/subscription/docker-compose.yml
+        cd /opt/remnawave/subscription
 
-        sed -i "s|\$PANEL_DOMAIN|$PANEL_DOMAIN|g" /opt/remnawave/subscription/docker-compose.yml
-        sed -i "s|\$SUB_PORT|$SUB_PORT|g" /opt/remnawave/subscription/docker-compose.yml
-        sed -i "s|\$PROJECT_NAME|$PROJECT_NAME|g" /opt/remnawave/subscription/docker-compose.yml
-        sed -i "s|\$PROJECT_DESCRIPTION|$PROJECT_DESCRIPTION|g" /opt/remnawave/subscription/docker-compose.yml
+        cp "/opt/remnasetup/data/app-config.json" app-config.json
+        cp "/opt/remnasetup/data/docker/subscription-compose.yml" docker-compose.yml
 
-        cd /opt/remnawave/subscription && docker compose up -d
+        sed -i "s|\$PANEL_DOMAIN|$PANEL_DOMAIN|g" docker-compose.yml
+        sed -i "s|\$SUB_PORT|$SUB_PORT|g" docker-compose.yml
+        sed -i "s|\$PROJECT_NAME|$PROJECT_NAME|g" docker-compose.yml
+        sed -i "s|\$PROJECT_DESCRIPTION|$PROJECT_DESCRIPTION|g" docker-compose.yml
+
+        docker compose up -d
     fi
 
     if [ "$REINSTALL_CADDY" = true ]; then
         info "Установка Caddy..."
         mkdir -p /opt/remnawave/caddy
-        cp "/opt/remnasetup/data/caddy/caddyfile" /opt/remnawave/caddy/Caddyfile
-        cp "/opt/remnasetup/data/docker/caddy-compose.yml" /opt/remnawave/caddy/docker-compose.yml
+        cd /opt/remnawave/caddy
 
-        sed -i "s|\$PANEL_DOMAIN|$PANEL_DOMAIN|g" /opt/remnawave/caddy/Caddyfile
-        sed -i "s|\$SUB_DOMAIN|$SUB_DOMAIN|g" /opt/remnawave/caddy/Caddyfile
-        sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" /opt/remnawave/caddy/Caddyfile
-        sed -i "s|\$SUB_PORT|$SUB_PORT|g" /opt/remnawave/caddy/Caddyfile
+        cp "/opt/remnasetup/data/caddy/caddyfile" Caddyfile
+        cp "/opt/remnasetup/data/docker/caddy-compose.yml" docker-compose.yml
 
-        cd /opt/remnawave/caddy && docker compose up -d
+        sed -i "s|\$PANEL_DOMAIN|$PANEL_DOMAIN|g" Caddyfile
+        sed -i "s|\$SUB_DOMAIN|$SUB_DOMAIN|g" Caddyfile
+        sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" Caddyfile
+        sed -i "s|\$SUB_PORT|$SUB_PORT|g" Caddyfile
+
+        docker compose up -d
     fi
 }
 
@@ -151,58 +157,64 @@ install_with_protection() {
     if [ "$REINSTALL_PANEL" = true ]; then
         info "Установка панели Remnawave с защитой..."
         mkdir -p /opt/remnawave
-        cp "/opt/remnasetup/data/docker/panel.env" /opt/remnawave/.env
-        cp "/opt/remnasetup/data/docker/panel-compose.yml" /opt/remnawave/docker-compose.yml
+        cd /opt/remnawave
+
+        cp "/opt/remnasetup/data/docker/panel.env" .env
+        cp "/opt/remnasetup/data/docker/panel-compose.yml" docker-compose.yml
 
         JWT_AUTH_SECRET=$(generate_jwt)
         JWT_API_TOKENS_SECRET=$(generate_jwt)
 
-        sed -i "s|\$PANEL_DOMAIN|$PANEL_DOMAIN|g" /opt/remnawave/.env
-        sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" /opt/remnawave/.env
-        sed -i "s|\$METRICS_USER|$METRICS_USER|g" /opt/remnawave/.env
-        sed -i "s|\$METRICS_PASS|$METRICS_PASS|g" /opt/remnawave/.env
-        sed -i "s|\$DB_USER|$DB_USER|g" /opt/remnawave/.env
-        sed -i "s|\$DB_PASSWORD|$DB_PASSWORD|g" /opt/remnawave/.env
-        sed -i "s|\$JWT_AUTH_SECRET|$JWT_AUTH_SECRET|g" /opt/remnawave/.env
-        sed -i "s|\$JWT_API_TOKENS_SECRET|$JWT_API_TOKENS_SECRET|g" /opt/remnawave/.env
-        sed -i "s|\$SUB_DOMAIN|$SUB_DOMAIN|g" /opt/remnawave/.env
+        sed -i "s|\$PANEL_DOMAIN|$PANEL_DOMAIN|g" .env
+        sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" .env
+        sed -i "s|\$METRICS_USER|$METRICS_USER|g" .env
+        sed -i "s|\$METRICS_PASS|$METRICS_PASS|g" .env
+        sed -i "s|\$DB_USER|$DB_USER|g" .env
+        sed -i "s|\$DB_PASSWORD|$DB_PASSWORD|g" .env
+        sed -i "s|\$JWT_AUTH_SECRET|$JWT_AUTH_SECRET|g" .env
+        sed -i "s|\$JWT_API_TOKENS_SECRET|$JWT_API_TOKENS_SECRET|g" .env
+        sed -i "s|\$SUB_DOMAIN|$SUB_DOMAIN|g" .env
 
-        sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" /opt/remnawave/docker-compose.yml
+        sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" docker-compose.yml
 
-        cd /opt/remnawave && docker compose up -d
+        docker compose up -d
     fi
 
     if [ "$REINSTALL_SUBSCRIPTION" = true ]; then
         info "Установка страницы подписок с защитой..."
         mkdir -p /opt/remnawave/subscription
-        cp "/opt/remnasetup/data/app-config.json" /opt/remnawave/subscription/app-config.json
-        cp "/opt/remnasetup/data/docker/subscription-protection-compose.yml" /opt/remnawave/subscription/docker-compose.yml
+        cd /opt/remnawave/subscription
 
-        sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" /opt/remnawave/subscription/docker-compose.yml
-        sed -i "s|\$SUB_PORT|$SUB_PORT|g" /opt/remnawave/subscription/docker-compose.yml
-        sed -i "s|\$PROJECT_NAME|$PROJECT_NAME|g" /opt/remnawave/subscription/docker-compose.yml
-        sed -i "s|\$PROJECT_DESCRIPTION|$PROJECT_DESCRIPTION|g" /opt/remnawave/subscription/docker-compose.yml
+        cp "/opt/remnasetup/data/app-config.json" app-config.json
+        cp "/opt/remnasetup/data/docker/subscription-protection-compose.yml" docker-compose.yml
 
-        cd /opt/remnawave/subscription && docker compose up -d
+        sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" docker-compose.yml
+        sed -i "s|\$SUB_PORT|$SUB_PORT|g" docker-compose.yml
+        sed -i "s|\$PROJECT_NAME|$PROJECT_NAME|g" docker-compose.yml
+        sed -i "s|\$PROJECT_DESCRIPTION|$PROJECT_DESCRIPTION|g" docker-compose.yml
+
+        docker compose up -d
     fi
 
     if [ "$REINSTALL_CADDY" = true ]; then
         info "Установка Caddy с защитой..."
         mkdir -p /opt/remnawave/caddy
-        cp "/opt/remnasetup/data/caddy/caddyfile-protection" /opt/remnawave/caddy/Caddyfile
-        cp "/opt/remnasetup/data/docker/caddy-protection-compose.yml" /opt/remnawave/caddy/docker-compose.yml
+        cd /opt/remnawave/caddy
 
-        sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" /opt/remnawave/caddy/Caddyfile
-        sed -i "s|\$SUB_DOMAIN|$SUB_DOMAIN|g" /opt/remnawave/caddy/Caddyfile
-        sed -i "s|\$SUB_PORT|$SUB_PORT|g" /opt/remnawave/caddy/Caddyfile
+        cp "/opt/remnasetup/data/caddy/caddyfile-protection" Caddyfile
+        cp "/opt/remnasetup/data/docker/caddy-protection-compose.yml" docker-compose.yml
 
-        sed -i "s|\$REMNAWAVE_PANEL_DOMAIN|$PANEL_DOMAIN|g" /opt/remnawave/caddy/docker-compose.yml
-        sed -i "s|\$REMNAWAVE_CUSTOM_LOGIN_ROUTE|$CUSTOM_LOGIN_ROUTE|g" /opt/remnawave/caddy/docker-compose.yml
-        sed -i "s|\$AUTHP_ADMIN_USER|$LOGIN_USERNAME|g" /opt/remnawave/caddy/docker-compose.yml
-        sed -i "s|\$AUTHP_ADMIN_EMAIL|$LOGIN_EMAIL|g" /opt/remnawave/caddy/docker-compose.yml
-        sed -i "s|\$AUTHP_ADMIN_SECRET|$LOGIN_PASSWORD|g" /opt/remnawave/caddy/docker-compose.yml
+        sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" Caddyfile
+        sed -i "s|\$SUB_DOMAIN|$SUB_DOMAIN|g" Caddyfile
+        sed -i "s|\$SUB_PORT|$SUB_PORT|g" Caddyfile
 
-        cd /opt/remnawave/caddy && docker compose up -d
+        sed -i "s|\$REMNAWAVE_PANEL_DOMAIN|$PANEL_DOMAIN|g" docker-compose.yml
+        sed -i "s|\$REMNAWAVE_CUSTOM_LOGIN_ROUTE|$CUSTOM_LOGIN_ROUTE|g" docker-compose.yml
+        sed -i "s|\$AUTHP_ADMIN_USER|$LOGIN_USERNAME|g" docker-compose.yml
+        sed -i "s|\$AUTHP_ADMIN_EMAIL|$LOGIN_EMAIL|g" docker-compose.yml
+        sed -i "s|\$AUTHP_ADMIN_SECRET|$LOGIN_PASSWORD|g" docker-compose.yml
+
+        docker compose up -d
     fi
 }
 

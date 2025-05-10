@@ -43,25 +43,27 @@ install_panel() {
     if [ "$REINSTALL_PANEL" = true ]; then
         info "Установка панели Remnawave..."
         mkdir -p /opt/remnawave
-        cp "/opt/remnasetup/data/docker/panel.env" /opt/remnawave/.env
-        cp "/opt/remnasetup/data/docker/panel-compose.yml" /opt/remnawave/docker-compose.yml
+        cd /opt/remnawave
+
+        cp "/opt/remnasetup/data/docker/panel.env" .env
+        cp "/opt/remnasetup/data/docker/panel-compose.yml" docker-compose.yml
 
         JWT_AUTH_SECRET=$(generate_jwt)
         JWT_API_TOKENS_SECRET=$(generate_jwt)
 
-        sed -i "s|\$PANEL_DOMAIN|$PANEL_DOMAIN|g" /opt/remnawave/.env
-        sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" /opt/remnawave/.env
-        sed -i "s|\$METRICS_USER|$METRICS_USER|g" /opt/remnawave/.env
-        sed -i "s|\$METRICS_PASS|$METRICS_PASS|g" /opt/remnawave/.env
-        sed -i "s|\$DB_USER|$DB_USER|g" /opt/remnawave/.env
-        sed -i "s|\$DB_PASSWORD|$DB_PASSWORD|g" /opt/remnawave/.env
-        sed -i "s|\$JWT_AUTH_SECRET|$JWT_AUTH_SECRET|g" /opt/remnawave/.env
-        sed -i "s|\$JWT_API_TOKENS_SECRET|$JWT_API_TOKENS_SECRET|g" /opt/remnawave/.env
-        sed -i "s|\$SUB_DOMAIN|$SUB_DOMAIN|g" /opt/remnawave/.env
+        sed -i "s|\$PANEL_DOMAIN|$PANEL_DOMAIN|g" .env
+        sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" .env
+        sed -i "s|\$METRICS_USER|$METRICS_USER|g" .env
+        sed -i "s|\$METRICS_PASS|$METRICS_PASS|g" .env
+        sed -i "s|\$DB_USER|$DB_USER|g" .env
+        sed -i "s|\$DB_PASSWORD|$DB_PASSWORD|g" .env
+        sed -i "s|\$JWT_AUTH_SECRET|$JWT_AUTH_SECRET|g" .env
+        sed -i "s|\$JWT_API_TOKENS_SECRET|$JWT_API_TOKENS_SECRET|g" .env
+        sed -i "s|\$SUB_DOMAIN|$SUB_DOMAIN|g" .env
 
-        sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" /opt/remnawave/docker-compose.yml
+        sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" docker-compose.yml
 
-        cd /opt/remnawave && docker compose up -d
+        docker compose up -d
     fi
 }
 

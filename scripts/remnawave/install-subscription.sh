@@ -39,19 +39,22 @@ install_subscription() {
     if [ "$REINSTALL_SUBSCRIPTION" = true ]; then
         info "Установка страницы подписок Remnawave..."
         mkdir -p /opt/remnawave/subscription
-        cp "/opt/remnasetup/data/app-config.json" /opt/remnawave/subscription/app-config.json
-        cp "/opt/remnasetup/data/docker/subscription-compose.yml" /opt/remnawave/subscription/docker-compose.yml
+        cd /opt/remnawave/subscription
 
-        sed -i "s|SUB_DOMAIN=.*|SUB_DOMAIN=$SUB_DOMAIN|g" /opt/remnawave/.env
+        cp "/opt/remnasetup/data/app-config.json" app-config.json
+        cp "/opt/remnasetup/data/docker/subscription-compose.yml" docker-compose.yml
 
-        sed -i "s|\$PANEL_DOMAIN|$PANEL_DOMAIN|g" /opt/remnawave/subscription/docker-compose.yml
-        sed -i "s|\$SUB_PORT|$SUB_PORT|g" /opt/remnawave/subscription/docker-compose.yml
-        sed -i "s|\$PROJECT_NAME|$PROJECT_NAME|g" /opt/remnawave/subscription/docker-compose.yml
-        sed -i "s|\$PROJECT_DESCRIPTION|$PROJECT_DESCRIPTION|g" /opt/remnawave/subscription/docker-compose.yml
-        sed -i "s|\$PANEL_DOMAIN|$PANEL_DOMAIN|g" /opt/remnawave/subscription/docker-compose.yml
+        sed -i "s|\$PANEL_DOMAIN|$PANEL_DOMAIN|g" docker-compose.yml
+        sed -i "s|\$SUB_PORT|$SUB_PORT|g" docker-compose.yml
+        sed -i "s|\$PROJECT_NAME|$PROJECT_NAME|g" docker-compose.yml
+        sed -i "s|\$PROJECT_DESCRIPTION|$PROJECT_DESCRIPTION|g" docker-compose.yml
 
-        cd /opt/remnawave && docker compose restart
+        cd /opt/remnawave
+        if [ -f ".env" ]; then
+            sed -i "s|SUB_DOMAIN=.*|SUB_DOMAIN=$SUB_DOMAIN|g" .env
+        fi
 
+        docker compose restart
         cd /opt/remnawave/subscription && docker compose up -d
     fi
 }
