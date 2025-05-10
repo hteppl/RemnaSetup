@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. "$(dirname "$0")/colors.sh"
+source "/opt/remnasetup/scripts/common/colors.sh"
 
 export -f info
 export -f warn
