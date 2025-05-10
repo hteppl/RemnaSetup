@@ -95,11 +95,11 @@ install_with_protection() {
         sed -i "s|\$PROJECT_NAME|$PROJECT_NAME|g" /opt/remnawave/subscription/docker-compose.yml
         sed -i "s|\$PROJECT_DESCRIPTION|$PROJECT_DESCRIPTION|g" /opt/remnawave/subscription/docker-compose.yml
 
-        sed -i "s|\$PANEL_DOMAIN|$PANEL_DOMAIN|g" /opt/remnawave/caddy/docker-compose.yml
-        sed -i "s|\$PANEL_PATH|$PANEL_PATH|g" /opt/remnawave/caddy/docker-compose.yml
-        sed -i "s|\$ADMIN_USERNAME|$ADMIN_USERNAME|g" /opt/remnawave/caddy/docker-compose.yml
-        sed -i "s|\$ADMIN_EMAIL|$ADMIN_EMAIL|g" /opt/remnawave/caddy/docker-compose.yml
-        sed -i "s|\$ADMIN_PASSWORD|$ADMIN_PASSWORD|g" /opt/remnawave/caddy/docker-compose.yml
+        sed -i "s|\$REMNAWAVE_PANEL_DOMAIN|$PANEL_DOMAIN|g" /opt/remnawave/caddy/docker-compose.yml
+        sed -i "s|\$REMNAWAVE_CUSTOM_LOGIN_ROUTE|$CUSTOM_LOGIN_ROUTE|g" /opt/remnawave/caddy/docker-compose.yml
+        sed -i "s|\$AUTHP_ADMIN_USER|$LOGIN_USERNAME|g" /opt/remnawave/caddy/docker-compose.yml
+        sed -i "s|\$AUTHP_ADMIN_EMAIL|$LOGIN_EMAIL|g" /opt/remnawave/caddy/docker-compose.yml
+        sed -i "s|\$AUTHP_ADMIN_SECRET|$LOGIN_PASSWORD|g" /opt/remnawave/caddy/docker-compose.yml
 
         sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" /opt/remnawave/caddy/Caddyfile
         sed -i "s|\$SUB_DOMAIN|$SUB_DOMAIN|g" /opt/remnawave/caddy/Caddyfile
@@ -174,8 +174,8 @@ main() {
 
         while true; do
             question "Введите путь доступа к панели (например, supersecretroute): "
-            PANEL_PATH="$REPLY"
-            if [[ -n "$PANEL_PATH" ]]; then
+            CUSTOM_LOGIN_ROUTE="$REPLY"
+            if [[ -n "$CUSTOM_LOGIN_ROUTE" ]]; then
                 break
             fi
             warn "Путь доступа к панели не может быть пустым. Пожалуйста, введите значение."
@@ -183,8 +183,8 @@ main() {
 
         while true; do
             question "Введите логин администратора: "
-            ADMIN_USERNAME="$REPLY"
-            if [[ -n "$ADMIN_USERNAME" ]]; then
+            LOGIN_USERNAME="$REPLY"
+            if [[ -n "$LOGIN_USERNAME" ]]; then
                 break
             fi
             warn "Логин администратора не может быть пустым. Пожалуйста, введите значение."
@@ -192,8 +192,8 @@ main() {
 
         while true; do
             question "Введите email администратора: "
-            ADMIN_EMAIL="$REPLY"
-            if [[ -n "$ADMIN_EMAIL" ]]; then
+            LOGIN_EMAIL="$REPLY"
+            if [[ -n "$LOGIN_EMAIL" ]]; then
                 break
             fi
             warn "Email администратора не может быть пустым. Пожалуйста, введите значение."
@@ -201,8 +201,8 @@ main() {
 
         while true; do
             question "Введите пароль администратора: "
-            ADMIN_PASSWORD="$REPLY"
-            if [[ -n "$ADMIN_PASSWORD" ]]; then
+            LOGIN_PASSWORD="$REPLY"
+            if [[ -n "$LOGIN_PASSWORD" ]]; then
                 break
             fi
             warn "Пароль администратора не может быть пустым. Пожалуйста, введите значение."
