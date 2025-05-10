@@ -2,8 +2,8 @@
 
 SCRIPT_DIR="/opt/remnasetup"
 
-source /opt/remnasetup/scripts/common/colors.sh
-source /opt/remnasetup/scripts/common/functions.sh
+. /opt/remnasetup/scripts/common/colors.sh
+. /opt/remnasetup/scripts/common/functions.sh
 
 print_header() {
     clear
