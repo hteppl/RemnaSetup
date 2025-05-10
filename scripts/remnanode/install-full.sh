@@ -3,7 +3,30 @@
 source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
 
+check_docker() {
+    if command -v docker >/dev/null 2>&1; then
+        info "Docker уже установлен"
+        return 0
+    else
+        info "Docker не установлен"
+        return 1
+    fi
+}
+
+install_docker() {
+    info "Установка Docker..."
+    sudo curl -fsSL https://get.docker.com | sh || {
+        error "Ошибка: Не удалось установить Docker."
+        exit 1
+    }
+    success "Docker успешно установлен!"
+}
+
 check_components() {
+    if ! check_docker; then
+        install_docker
+    fi
+
     if sudo docker ps -q --filter "name=remnanode" | grep -q .; then
         info "Remnanode уже установлен"
         question "Хотите скорректировать настройки Remnanode? (y/n):"
@@ -334,24 +357,6 @@ ROOT_EOF
     sudo systemctl restart tblocker.service
     rm -f /tmp/install_vars
     success "Tblocker успешно установлен!"
-}
-
-check_docker() {
-    if command -v docker >/dev/null 2>&1; then
-        info "Docker уже установлен, пропускаем установку."
-        return 0
-    else
-        return 1
-    fi
-}
-
-install_docker() {
-    info "Установка Docker..."
-    sudo curl -fsSL https://get.docker.com | sh || {
-        error "Ошибка: Не удалось установить Docker."
-        exit 1
-    }
-    success "Docker успешно установлен!"
 }
 
 main() {
