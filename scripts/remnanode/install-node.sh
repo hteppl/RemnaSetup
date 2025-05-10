@@ -32,7 +32,7 @@ check_remnanode() {
         else
             info "Remnanode уже установлен"
             read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-            display_remnanode_menu
+            exit 0
             return 1
         fi
     fi
@@ -99,7 +99,7 @@ main() {
 
     success "Установка завершена!"
     read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-    display_remnanode_menu
+    exit 0
 }
 
 main 

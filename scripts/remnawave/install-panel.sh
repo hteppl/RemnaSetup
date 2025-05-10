@@ -36,7 +36,7 @@ check_component() {
         else
             info "Отказано в переустановке $component"
             read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-            display_remnawave_menu
+            exit 0
         fi
     else
         REINSTALL_PANEL=true
@@ -157,7 +157,7 @@ main() {
 
     success "Установка завершена!"
     read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-    display_remnawave_menu
+    exit 0
 }
 
 main

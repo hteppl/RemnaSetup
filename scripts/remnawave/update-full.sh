@@ -22,7 +22,7 @@ update_all() {
 main() {
     update_all
     read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-    display_remnawave_menu
+    exit 0
 }
 
 main

@@ -34,6 +34,8 @@ check_component() {
             REINSTALL_CADDY=true
         else
             info "Отказано в переустановке $component"
+            read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+            exit 0
         fi
     else
         REINSTALL_CADDY=true
@@ -218,7 +220,7 @@ main() {
 
     success "Установка завершена!"
     read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-    display_remnawave_menu
+    exit 0
 }
 
 main

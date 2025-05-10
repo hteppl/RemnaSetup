@@ -7,7 +7,7 @@ check_bbr() {
     if sysctl net.ipv4.tcp_congestion_control | grep -q "bbr"; then
         info "BBR уже настроен"
         read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-        display_remnanode_menu
+        exit 0
         return 1
     fi
     return 0
@@ -28,7 +28,7 @@ main() {
 
     install_bbr
     read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-    display_remnanode_menu
+    exit 0
 }
 
 main

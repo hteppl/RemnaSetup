@@ -15,7 +15,7 @@ update_panel() {
 main() {
     update_panel
     read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-    display_remnawave_menu
+    exit 0
 }
 
 main

@@ -11,7 +11,7 @@ check_warp() {
         if [[ "$answer" != "y" ]]; then
             info "WARP уже установлен"
             read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-            display_remnanode_menu
+            exit 0
             return 1
         fi
     fi
@@ -61,7 +61,7 @@ main() {
 
     install_warp "$WARP_PORT"
     read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-    display_remnanode_menu
+    exit 0
 }
 
 main
