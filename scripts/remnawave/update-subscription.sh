@@ -5,7 +5,7 @@ source "/opt/remnasetup/scripts/common/functions.sh"
 
 update_subscription() {
     info "Обновление Subscription..."
-    cd /opt/remnawave/subscription || exit 1
+    cd /opt/remnawave/subscription
     docker compose down
     docker compose pull
     docker compose up -d
