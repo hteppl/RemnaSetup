@@ -1,7 +1,7 @@
 #!/bin/bash
 
-source "$(dirname "$0")/../../scripts/common/colors.sh"
-source "$(dirname "$0")/../../scripts/common/functions.sh"
+source "/opt/remnasetup/scripts/common/colors.sh"
+source "/opt/remnasetup/scripts/common/functions.sh"
 
 check_docker() {
     if command -v docker >/dev/null 2>&1; then
@@ -32,10 +32,11 @@ check_remnanode() {
         else
             info "Remnanode уже установлен"
             read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-            "$(dirname "$0")/menu.sh"
+            display_remnanode_menu
+            return 1
         fi
     fi
-    return 1
+    return 0
 }
 
 install_remnanode() {
@@ -49,9 +50,9 @@ install_remnanode() {
     echo "$SSL_CERT_FULL" >> .env
 
     if [[ "$USE_TBLOCKER" == "y" || "$USE_TBLOCKER" == "Y" ]]; then
-        cp "$(dirname "$0")/../../data/docker/node-tblocker-compose.yml" docker-compose.yml
+        cp "/opt/remnasetup/data/docker/node-tblocker-compose.yml" docker-compose.yml
     else
-        cp "$(dirname "$0")/../../data/docker/node-compose.yml" docker-compose.yml
+        cp "/opt/remnasetup/data/docker/node-compose.yml" docker-compose.yml
     fi
 
     sudo docker compose up -d || {
@@ -97,7 +98,7 @@ main() {
 
     success "Установка завершена!"
     read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-    "$(dirname "$0")/menu.sh"
+    display_remnanode_menu
 }
 
 main 

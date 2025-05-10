@@ -1,5 +1,7 @@
 #!/bin/bash
 
+SCRIPT_DIR="/opt/remnasetup"
+
 . /opt/remnasetup/scripts/common/colors.sh
 . /opt/remnasetup/scripts/common/functions.sh
 
