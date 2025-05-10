@@ -297,7 +297,10 @@ install_remnanode() {
     echo "$SSL_CERT_FULL" >> .env
 
     if [ -f /opt/tblocker/config.yaml ] && systemctl list-units --full -all | grep -q tblocker.service; then
-        info "Используем docker-compose с интеграцией Tblocker"
+        info "Tblocker уже установлен, используем docker-compose с интеграцией"
+        cp "/opt/remnasetup/data/docker/node-tblocker-compose.yml" docker-compose.yml
+    elif [[ -n "$ADMIN_BOT_TOKEN" && -n "$ADMIN_CHAT_ID" ]]; then
+        info "Данные Tblocker предоставлены, используем docker-compose с интеграцией"
         cp "/opt/remnasetup/data/docker/node-tblocker-compose.yml" docker-compose.yml
     else
         info "Используем стандартный docker-compose"
