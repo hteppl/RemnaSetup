@@ -25,7 +25,7 @@ check_remnanode() {
     if sudo docker ps -q --filter "name=remnanode" | grep -q .; then
         info "Remnanode уже установлен"
         question "Хотите скорректировать настройки Remnanode? (y/n): "
-        read -r REINSTALL
+        REINSTALL="$REPLY"
         
         if [[ "$REINSTALL" == "y" || "$REINSTALL" == "Y" ]]; then
             return 0
@@ -71,7 +71,7 @@ main() {
 
     while true; do
         question "Введите APP_PORT (по умолчанию 3001): "
-        read -r APP_PORT
+        APP_PORT="$REPLY"
         APP_PORT=${APP_PORT:-3001}
         if [[ "$APP_PORT" =~ ^[0-9]+$ ]]; then
             break
@@ -81,7 +81,7 @@ main() {
 
     while true; do
         question "Введите SSL_CERT (можно получить при добавлении ноды в панели): "
-        read -r SSL_CERT_FULL
+        SSL_CERT_FULL="$REPLY"
         if [[ -n "$SSL_CERT_FULL" ]]; then
             break
         fi
@@ -89,7 +89,7 @@ main() {
     done
 
     question "Будет ли использоваться Tblocker? (y/n): "
-    read -r USE_TBLOCKER
+    USE_TBLOCKER="$REPLY"
 
     if ! check_docker; then
         install_docker

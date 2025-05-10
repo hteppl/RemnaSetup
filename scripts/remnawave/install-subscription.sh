@@ -13,7 +13,7 @@ check_component() {
     if [ -d "$path" ]; then
         info "Обнаружена установка $component"
         question "Переустановить $component? (y/n): "
-        read -r REINSTALL
+        REINSTALL="$REPLY"
 
         if [ "$REINSTALL" = "y" ]; then
             warn "Останавливаем и удаляем существующую установку..."
@@ -81,7 +81,7 @@ main() {
 
     while true; do
         question "Введите домен панели (например, panel.domain.com): "
-        read -r PANEL_DOMAIN
+        PANEL_DOMAIN="$REPLY"
         if [[ -n "$PANEL_DOMAIN" ]]; then
             break
         fi
@@ -90,7 +90,7 @@ main() {
 
     while true; do
         question "Введите домен подписок (например, sub.domain.com): "
-        read -r SUB_DOMAIN
+        SUB_DOMAIN="$REPLY"
         if [[ -n "$SUB_DOMAIN" ]]; then
             break
         fi
@@ -98,12 +98,12 @@ main() {
     done
 
     question "Введите порт подписок (по умолчанию 3010): "
-    read -r SUB_PORT
+    SUB_PORT="$REPLY"
     SUB_PORT=${SUB_PORT:-3010}
 
     while true; do
         question "Введите имя проекта: "
-        read -r PROJECT_NAME
+        PROJECT_NAME="$REPLY"
         if [[ -n "$PROJECT_NAME" ]]; then
             break
         fi
@@ -112,7 +112,7 @@ main() {
 
     while true; do
         question "Введите описание страницы подписки: "
-        read -r PROJECT_DESCRIPTION
+        PROJECT_DESCRIPTION="$REPLY"
         if [[ -n "$PROJECT_DESCRIPTION" ]]; then
             break
         fi

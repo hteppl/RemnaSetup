@@ -13,7 +13,7 @@ check_component() {
     if [ -d "$path" ]; then
         info "Обнаружена установка $component"
         question "Переустановить $component? (y/n): "
-        read -r REINSTALL
+        REINSTALL="$REPLY"
 
         if [ "$REINSTALL" = "y" ]; then
             warn "Останавливаем и удаляем существующую установку..."
@@ -94,7 +94,7 @@ main() {
 
     while true; do
         question "Введите домен панели (например, panel.domain.com): "
-        read -r PANEL_DOMAIN
+        PANEL_DOMAIN="$REPLY"
         if [[ -n "$PANEL_DOMAIN" ]]; then
             break
         fi
@@ -103,7 +103,7 @@ main() {
 
     while true; do
         question "Введите домен подписок (например, sub.domain.com): "
-        read -r SUB_DOMAIN
+        SUB_DOMAIN="$REPLY"
         if [[ -n "$SUB_DOMAIN" ]]; then
             break
         fi
@@ -111,12 +111,12 @@ main() {
     done
 
     question "Введите порт панели (по умолчанию 3000): "
-    read -r PANEL_PORT
+    PANEL_PORT="$REPLY"
     PANEL_PORT=${PANEL_PORT:-3000}
 
     while true; do
         question "Введите логин для метрик: "
-        read -r METRICS_USERNAME
+        METRICS_USERNAME="$REPLY"
         if [[ -n "$METRICS_USERNAME" ]]; then
             break
         fi
@@ -125,7 +125,7 @@ main() {
 
     while true; do
         question "Введите пароль для метрик: "
-        read -r METRICS_PASSWORD
+        METRICS_PASSWORD="$REPLY"
         if [[ -n "$METRICS_PASSWORD" ]]; then
             break
         fi
@@ -134,7 +134,7 @@ main() {
 
     while true; do
         question "Введите имя пользователя базы данных: "
-        read -r DB_USER
+        DB_USER="$REPLY"
         if [[ -n "$DB_USER" ]]; then
             break
         fi
@@ -143,7 +143,7 @@ main() {
 
     while true; do
         question "Введите пароль пользователя базы данных: "
-        read -r DB_PASSWORD
+        DB_PASSWORD="$REPLY"
         if [[ -n "$DB_PASSWORD" ]]; then
             break
         fi

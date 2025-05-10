@@ -7,7 +7,7 @@ check_components() {
     if sudo docker ps -q --filter "name=remnanode" | grep -q .; then
         info "Remnanode уже установлен"
         question "Хотите скорректировать настройки Remnanode? (y/n): "
-        read -r UPDATE_NODE
+        UPDATE_NODE="$REPLY"
         if [[ "$UPDATE_NODE" == "y" || "$UPDATE_NODE" == "Y" ]]; then
             UPDATE_REMNANODE=true
         else
@@ -18,7 +18,7 @@ check_components() {
     if command -v caddy >/dev/null 2>&1; then
         info "Caddy уже установлен"
         question "Хотите скорректировать настройки Caddy? (y/n): "
-        read -r UPDATE_CADDY
+        UPDATE_CADDY="$REPLY"
         if [[ "$UPDATE_CADDY" == "y" || "$UPDATE_CADDY" == "Y" ]]; then
             UPDATE_CADDY=true
         else
@@ -29,7 +29,7 @@ check_components() {
     if [ -f /opt/tblocker/config.yaml ] && systemctl list-units --full -all | grep -q tblocker.service; then
         info "Tblocker уже установлен"
         question "Хотите скорректировать настройки Tblocker? (y/n): "
-        read -r UPDATE_TBLOCKER
+        UPDATE_TBLOCKER="$REPLY"
         if [[ "$UPDATE_TBLOCKER" == "y" || "$UPDATE_TBLOCKER" == "Y" ]]; then
             UPDATE_TBLOCKER=true
         else
@@ -52,10 +52,10 @@ request_data() {
     if [[ "$SKIP_CADDY" != "true" ]]; then
         while true; do
             question "Введите доменное имя для self-style (например, noda1.domain.com, n для пропуска): "
-            read -r DOMAIN
+            DOMAIN="$REPLY"
             if [[ "$DOMAIN" == "n" || "$DOMAIN" == "N" ]]; then
                 question "Вы точно хотите пропустить установку Caddy? (y/n): "
-                read -r CONFIRM
+                CONFIRM="$REPLY"
                 if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
                     SKIP_CADDY=true
                     break
@@ -71,10 +71,10 @@ request_data() {
         if [[ "$SKIP_CADDY" != "true" ]]; then
             while true; do
                 question "Введите порт для self-style (по умолчанию 8443, n для пропуска): "
-                read -r MONITOR_PORT
+                MONITOR_PORT="$REPLY"
                 if [[ "$MONITOR_PORT" == "n" || "$MONITOR_PORT" == "N" ]]; then
                     question "Вы точно хотите пропустить установку Caddy? (y/n): "
-                    read -r CONFIRM
+                    CONFIRM="$REPLY"
                     if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
                         SKIP_CADDY=true
                         break
@@ -94,10 +94,10 @@ request_data() {
     if [[ "$SKIP_REMNANODE" != "true" ]]; then
         while true; do
             question "Введите APP_PORT (по умолчанию 3001, n для пропуска): "
-            read -r APP_PORT
+            APP_PORT="$REPLY"
             if [[ "$APP_PORT" == "n" || "$APP_PORT" == "N" ]]; then
                 question "Вы точно хотите пропустить установку Remnanode? (y/n): "
-                read -r CONFIRM
+                CONFIRM="$REPLY"
                 if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
                     SKIP_REMNANODE=true
                     break
@@ -115,10 +115,10 @@ request_data() {
         if [[ "$SKIP_REMNANODE" != "true" ]]; then
             while true; do
                 question "Введите SSL_CERT (можно получить при добавлении ноды в панели, n для пропуска): "
-                read -r SSL_CERT_FULL
+                SSL_CERT_FULL="$REPLY"
                 if [[ "$SSL_CERT_FULL" == "n" || "$SSL_CERT_FULL" == "N" ]]; then
                     question "Вы точно хотите пропустить установку Remnanode? (y/n): "
-                    read -r CONFIRM
+                    CONFIRM="$REPLY"
                     if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
                         SKIP_REMNANODE=true
                         break
@@ -136,10 +136,10 @@ request_data() {
     if [[ "$SKIP_TBLOCKER" != "true" ]]; then
         while true; do
             question "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений, n для пропуска): "
-            read -r ADMIN_BOT_TOKEN
+            ADMIN_BOT_TOKEN="$REPLY"
             if [[ "$ADMIN_BOT_TOKEN" == "n" || "$ADMIN_BOT_TOKEN" == "N" ]]; then
                 question "Вы точно хотите пропустить установку Tblocker? (y/n): "
-                read -r CONFIRM
+                CONFIRM="$REPLY"
                 if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
                     SKIP_TBLOCKER=true
                     break
@@ -155,10 +155,10 @@ request_data() {
         if [[ "$SKIP_TBLOCKER" != "true" ]]; then
             while true; do
                 question "Введите Telegram ID админа для Tblocker (n для пропуска): "
-                read -r ADMIN_CHAT_ID
+                ADMIN_CHAT_ID="$REPLY"
                 if [[ "$ADMIN_CHAT_ID" == "n" || "$ADMIN_CHAT_ID" == "N" ]]; then
                     question "Вы точно хотите пропустить установку Tblocker? (y/n): "
-                    read -r CONFIRM
+                    CONFIRM="$REPLY"
                     if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
                         SKIP_TBLOCKER=true
                         break
@@ -176,10 +176,10 @@ request_data() {
     if [[ "$SKIP_WARP" != "true" ]]; then
         while true; do
             question "Введите порт для WARP (1000-65535, по умолчанию 40000, n для пропуска): "
-            read -r WARP_PORT
+            WARP_PORT="$REPLY"
             if [[ "$WARP_PORT" == "n" || "$WARP_PORT" == "N" ]]; then
                 question "Вы точно хотите пропустить установку WARP? (y/n): "
-                read -r CONFIRM
+                CONFIRM="$REPLY"
                 if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
                     SKIP_WARP=true
                     break
@@ -198,7 +198,7 @@ request_data() {
     if [[ "$SKIP_BBR" != "true" ]]; then
         while true; do
             question "Требуется установка BBR? (y/n): "
-            read -r BBR_ANSWER
+            BBR_ANSWER="$REPLY"
             if [[ "$BBR_ANSWER" == "n" || "$BBR_ANSWER" == "N" ]]; then
                 SKIP_BBR=true
                 break

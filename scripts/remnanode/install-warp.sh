@@ -7,7 +7,7 @@ check_warp() {
     if pgrep -f wireproxy >/dev/null 2>&1; then
         info "WARP (WireProxy) уже установлен"
         question "Хотите переустановить? (y/n): "
-        read -r answer
+        answer="$REPLY"
         if [[ "$answer" != "y" ]]; then
             info "WARP уже установлен"
             read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
@@ -50,7 +50,7 @@ main() {
 
     while true; do
         question "Введите порт для WARP (1000-65535, по умолчанию 40000): "
-        read -r WARP_PORT
+        WARP_PORT="$REPLY"
         WARP_PORT=${WARP_PORT:-40000}
         
         if [[ "$WARP_PORT" =~ ^[0-9]+$ ]] && [ "$WARP_PORT" -ge 1000 ] && [ "$WARP_PORT" -le 65535 ]; then

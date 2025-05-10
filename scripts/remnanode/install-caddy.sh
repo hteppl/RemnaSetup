@@ -7,7 +7,7 @@ check_caddy() {
     if command -v caddy >/dev/null 2>&1; then
         info "Caddy уже установлен"
         question "Хотите скорректировать конфигурацию Caddy? (y/n): "
-        read -r UPDATE_CONFIG
+        UPDATE_CONFIG="$REPLY"
         
         if [[ "$UPDATE_CONFIG" == "y" || "$UPDATE_CONFIG" == "Y" ]]; then
             return 0
@@ -54,7 +54,7 @@ main() {
     if check_caddy; then
         while true; do
             question "Введите доменное для self-style (например, noda1.domain.com): "
-            read -r DOMAIN
+            DOMAIN="$REPLY"
             if [[ -n "$DOMAIN" ]]; then
                 break
             fi
@@ -63,7 +63,7 @@ main() {
 
         while true; do
             question "Введите порт для self-style (по умолчанию 8443): "
-            read -r MONITOR_PORT
+            MONITOR_PORT="$REPLY"
             MONITOR_PORT=${MONITOR_PORT:-8443}
             if [[ "$MONITOR_PORT" =~ ^[0-9]+$ ]]; then
                 break
@@ -75,7 +75,7 @@ main() {
     else
         while true; do
             question "Введите доменное для self-style (например, noda1.domain.com): "
-            read -r DOMAIN
+            DOMAIN="$REPLY"
             if [[ -n "$DOMAIN" ]]; then
                 break
             fi
@@ -84,7 +84,7 @@ main() {
 
         while true; do
             question "Введите порт для self-style (по умолчанию 8443): "
-            read -r MONITOR_PORT
+            MONITOR_PORT="$REPLY"
             MONITOR_PORT=${MONITOR_PORT:-8443}
             if [[ "$MONITOR_PORT" =~ ^[0-9]+$ ]]; then
                 break

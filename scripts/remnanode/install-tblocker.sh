@@ -7,7 +7,7 @@ check_remnanode() {
     if sudo docker ps -q --filter "name=remnanode" | grep -q .; then
         info "Remnanode уже установлен"
         question "Хотите обновить docker-compose файл для интеграции с Tblocker? (y/n): "
-        read -r UPDATE_DOCKER
+        UPDATE_DOCKER="$REPLY"
         
         if [[ "$UPDATE_DOCKER" == "y" || "$UPDATE_DOCKER" == "Y" ]]; then
             return 0
@@ -35,7 +35,7 @@ check_tblocker() {
     if [ -f /opt/tblocker/config.yaml ] && systemctl list-units --full -all | grep -q tblocker.service; then
         info "Tblocker уже установлен"
         question "Желаете обновить конфигурацию? (y/n): "
-        read -r UPDATE_CONFIG
+        UPDATE_CONFIG="$REPLY"
         
         if [[ "$UPDATE_CONFIG" == "y" || "$UPDATE_CONFIG" == "Y" ]]; then
             return 0
@@ -121,7 +121,7 @@ main() {
     if check_tblocker; then
         while true; do
             question "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений): "
-            read -r ADMIN_BOT_TOKEN
+            ADMIN_BOT_TOKEN="$REPLY"
             if [[ -n "$ADMIN_BOT_TOKEN" ]]; then
                 break
             fi
@@ -131,7 +131,7 @@ main() {
 
         while true; do
             question "Введите Telegram ID админа для Tblocker: "
-            read -r ADMIN_CHAT_ID
+            ADMIN_CHAT_ID="$REPLY"
             if [[ -n "$ADMIN_CHAT_ID" ]]; then
                 break
             fi
@@ -143,7 +143,7 @@ main() {
     else
         while true; do
             question "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений): "
-            read -r ADMIN_BOT_TOKEN
+            ADMIN_BOT_TOKEN="$REPLY"
             if [[ -n "$ADMIN_BOT_TOKEN" ]]; then
                 break
             fi
@@ -153,7 +153,7 @@ main() {
 
         while true; do
             question "Введите Telegram ID админа для Tblocker: "
-            read -r ADMIN_CHAT_ID
+            ADMIN_CHAT_ID="$REPLY"
             if [[ -n "$ADMIN_CHAT_ID" ]]; then
                 break
             fi

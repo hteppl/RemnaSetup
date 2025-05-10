@@ -13,7 +13,7 @@ check_component() {
     if [ -d "$path" ]; then
         info "Обнаружена установка $component"
         question "Переустановить $component? (y/n): "
-        read -r REINSTALL
+        REINSTALL="$REPLY"
 
         if [ "$REINSTALL" = "y" ]; then
             warn "Останавливаем и удаляем существующую установку..."
@@ -123,11 +123,11 @@ main() {
     check_component "caddy" "/opt/remnawave/caddy" "/opt/remnawave/caddy/.env"
 
     question "Требуется ли защита панели кастомным путем и защита подписок? (y/n): "
-    read -r NEED_PROTECTION
+    NEED_PROTECTION="$REPLY"
 
     while true; do
         question "Введите домен панели (например, panel.domain.com): "
-        read -r PANEL_DOMAIN
+        PANEL_DOMAIN="$REPLY"
         if [[ -n "$PANEL_DOMAIN" ]]; then
             break
         fi
@@ -136,7 +136,7 @@ main() {
 
     while true; do
         question "Введите домен подписок (например, sub.domain.com): "
-        read -r SUB_DOMAIN
+        SUB_DOMAIN="$REPLY"
         if [[ -n "$SUB_DOMAIN" ]]; then
             break
         fi
@@ -144,17 +144,17 @@ main() {
     done
 
     question "Введите порт панели (по умолчанию 3000): "
-    read -r PANEL_PORT
+    PANEL_PORT="$REPLY"
     PANEL_PORT=${PANEL_PORT:-3000}
 
     question "Введите порт подписок (по умолчанию 3010): "
-    read -r SUB_PORT
+    SUB_PORT="$REPLY"
     SUB_PORT=${SUB_PORT:-3010}
 
     if [ "$NEED_PROTECTION" = "y" ]; then
         while true; do
             question "Введите имя проекта: "
-            read -r PROJECT_NAME
+            PROJECT_NAME="$REPLY"
             if [[ -n "$PROJECT_NAME" ]]; then
                 break
             fi
@@ -163,7 +163,7 @@ main() {
 
         while true; do
             question "Введите описание страницы подписки: "
-            read -r PROJECT_DESCRIPTION
+            PROJECT_DESCRIPTION="$REPLY"
             if [[ -n "$PROJECT_DESCRIPTION" ]]; then
                 break
             fi
@@ -172,7 +172,7 @@ main() {
 
         while true; do
             question "Введите путь доступа к панели (например, supersecretroute): "
-            read -r PANEL_PATH
+            PANEL_PATH="$REPLY"
             if [[ -n "$PANEL_PATH" ]]; then
                 break
             fi
@@ -181,7 +181,7 @@ main() {
 
         while true; do
             question "Введите логин администратора: "
-            read -r ADMIN_USERNAME
+            ADMIN_USERNAME="$REPLY"
             if [[ -n "$ADMIN_USERNAME" ]]; then
                 break
             fi
@@ -190,7 +190,7 @@ main() {
 
         while true; do
             question "Введите email администратора: "
-            read -r ADMIN_EMAIL
+            ADMIN_EMAIL="$REPLY"
             if [[ -n "$ADMIN_EMAIL" ]]; then
                 break
             fi
@@ -199,7 +199,7 @@ main() {
 
         while true; do
             question "Введите пароль администратора: "
-            read -r ADMIN_PASSWORD
+            ADMIN_PASSWORD="$REPLY"
             if [[ -n "$ADMIN_PASSWORD" ]]; then
                 break
             fi
