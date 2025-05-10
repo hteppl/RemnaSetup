@@ -56,7 +56,7 @@ fi
 echo "Распаковка файлов..."
 unzip -q remnasetup.zip
 
-if [ ! -d "RemnaSetup-dev" ]; then
+if [ ! -d "RemnaSetup-main" ]; then
     echo "Ошибка: Не удалось распаковать архив"
     rm -rf "$TEMP_DIR"
     exit 1
