@@ -23,11 +23,13 @@ install_docker() {
 }
 
 check_components() {
-    if ! check_docker; then
-        install_docker
+    if command -v docker >/dev/null 2>&1; then
+        info "Docker уже установлен"
+    else
+        info "Docker не установлен"
     fi
 
-    if sudo docker ps -q --filter "name=remnanode" | grep -q .; then
+    if [ -f "/opt/remnanode/docker-compose.yml" ]; then
         info "Remnanode уже установлен"
         question "Хотите скорректировать настройки Remnanode? (y/n):"
         UPDATE_NODE="$REPLY"
