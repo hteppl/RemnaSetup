@@ -6,35 +6,20 @@ source "/opt/remnasetup/scripts/common/functions.sh"
 REINSTALL_PANEL=false
 
 check_component() {
-    local component=$1
-    local path=$2
-    local env_file=$3
-
-    if [ -d "$path" ]; then
-        info "Обнаружена установка $component"
-        question "Переустановить $component? (y/n): "
+    if [ -f "/opt/remnawave/docker-compose.yml" ] && (cd /opt/remnawave && docker compose ps -q | grep -q "remnawave\|remnawave-db\|remnawave-redis") || [ -f "/opt/remnawave/.env" ]; then
+        info "Обнаружена установка панели"
+        question "Переустановить панель? (y/n): "
         REINSTALL="$REPLY"
 
         if [ "$REINSTALL" = "y" ]; then
             warn "Останавливаем и удаляем существующую установку..."
-            cd "$path" || exit 1
-            docker compose down
-            cd - || exit 1
-
-            if [ -n "$env_file" ] && [ -f "$env_file" ]; then
-                rm -f "$env_file"
-            fi
-
-            if [ -f "$path/docker-compose.yml" ]; then
-                rm -f "$path/docker-compose.yml"
-            fi
-
-            docker rmi remnawave/panel:latest 2>/dev/null || true
-            docker rmi remnawave/redis:latest 2>/dev/null || true
-            docker rmi remnawave/postgres:latest 2>/dev/null || true
+            cd /opt/remnawave && docker compose down
+            docker rmi remnawave/backend:latest postgres:17 valkey/valkey:8.0.2-alpine 2>/dev/null || true
+            rm -f /opt/remnawave/.env
+            rm -f /opt/remnawave/docker-compose.yml
             REINSTALL_PANEL=true
         else
-            info "Отказано в переустановке $component"
+            info "Отказано в переустановке панели"
             read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
             exit 0
         fi
@@ -90,7 +75,7 @@ check_docker() {
 }
 
 main() {
-    check_component "panel" "/opt/remnawave" "/opt/remnawave/.env"
+    check_component
 
     while true; do
         question "Введите домен панели (например, panel.domain.com): "

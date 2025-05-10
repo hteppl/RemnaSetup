@@ -6,34 +6,20 @@ source "/opt/remnasetup/scripts/common/functions.sh"
 REINSTALL_CADDY=false
 
 check_component() {
-    local component=$1
-    local path=$2
-    local env_file=$3
-
-    if [ -d "$path" ]; then
-        info "Обнаружена установка $component"
-        question "Переустановить $component? (y/n): "
+    if [ -f "/opt/remnawave/caddy/docker-compose.yml" ] && (cd /opt/remnawave/caddy && docker compose ps -q | grep -q "caddy\|remnawave-caddy") || [ -f "/opt/remnawave/caddy/Caddyfile" ]; then
+        info "Обнаружена установка Caddy"
+        question "Переустановить Caddy? (y/n): "
         REINSTALL="$REPLY"
 
         if [ "$REINSTALL" = "y" ]; then
             warn "Останавливаем и удаляем существующую установку..."
-            cd "$path" || exit 1
-            docker compose down
-            cd - || exit 1
-
-            if [ -n "$env_file" ] && [ -f "$env_file" ]; then
-                rm -f "$env_file"
-            fi
-
-            if [ -f "$path/docker-compose.yml" ]; then
-                rm -f "$path/docker-compose.yml"
-            fi
-
-            docker rmi caddy:latest 2>/dev/null || true
-
+            cd /opt/remnawave/caddy && docker compose down
+            docker rmi caddy:2.9 remnawave/caddy-with-auth:latest 2>/dev/null || true
+            rm -f /opt/remnawave/caddy/docker-compose.yml
+            rm -f /opt/remnawave/caddy/Caddyfile
             REINSTALL_CADDY=true
         else
-            info "Отказано в переустановке $component"
+            info "Отказано в переустановке Caddy"
             read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
             exit 0
         fi
@@ -122,7 +108,7 @@ check_docker() {
 }
 
 main() {
-    check_component "caddy" "/opt/remnawave/caddy" "/opt/remnawave/caddy/.env"
+    check_component
 
     question "Требуется ли защита панели кастомным путем и защита подписок? (y/n): "
     NEED_PROTECTION="$REPLY"
