@@ -74,11 +74,11 @@
 ### 1️⃣ Remnawave
 - 📦 Полная установка (Remnawave + Страница подписок + Caddy)
 - 🚀 Установка Remnawave
-- 📱 Установка Страницы подписок
-- 🔄 Установка Caddy
-- ⬆️ Обновление (Remnawave + Страницы подписок)
-- ⬆️ Обновление Remnawave
-- ⬆️ Обновление Страницы подписок
+- 📄 Установка Страницы подписок
+- ⚙️ Установка Caddy
+- 🔄 Обновление (Remnawave + Страницы подписок)
+- 🔄 Обновление Remnawave
+- 🔄 Обновление Страницы подписок
 
 </td>
 <td width="50%" align="center">
@@ -86,11 +86,11 @@
 ### 2️⃣ Remnanode
 - 📦 Полная установка (Remnanode + Caddy + Tblocker + BBR + WARP)
 - 🚀 Установка Remnanode
-- 🔄 Установка Caddy + self-style
+- ⚙️ Установка Caddy + self-style
 - 🛡️ Установка Tblocker
 - ⚡ Установка BBR
 - 🌐 Установка WARP
-- ⬆️ Обновление Remnanode
+- 🔄 Обновление Remnanode
 
 </td>
 </tr>
