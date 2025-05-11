@@ -195,6 +195,20 @@ request_data() {
                 fi
                 warn "Telegram ID админа не может быть пустым. Пожалуйста, введите значение."
             done
+
+            question "Требуется настройка отправки вебхуков? (y/n):"
+            WEBHOOK_NEEDED="$REPLY"
+            
+            if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
+                while true; do
+                    question "Укажите адрес вебхука (пример portal.domain.com/tblocker/webhook):"
+                    WEBHOOK_URL="$REPLY"
+                    if [[ -n "$WEBHOOK_URL" ]]; then
+                        break
+                    fi
+                    warn "Адрес вебхука не может быть пустым. Пожалуйста, введите значение."
+                done
+            fi
         fi
     fi
 
@@ -323,6 +337,9 @@ install_tblocker() {
 
     echo "ADMIN_BOT_TOKEN=$ADMIN_BOT_TOKEN" > /tmp/install_vars
     echo "ADMIN_CHAT_ID=$ADMIN_CHAT_ID" >> /tmp/install_vars
+    if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
+        echo "WEBHOOK_URL=$WEBHOOK_URL" >> /tmp/install_vars
+    fi
 
     sudo su - << 'ROOT_EOF'
 source /tmp/install_vars
@@ -344,6 +361,13 @@ if [[ -f /opt/tblocker/config.yaml ]]; then
     sed -i 's|^UsernameRegex:.*$|UsernameRegex: "email: (\\\\S+)"|' /opt/tblocker/config.yaml
     sed -i "s|^AdminBotToken:.*$|AdminBotToken: \"$ADMIN_BOT_TOKEN\"|" /opt/tblocker/config.yaml
     sed -i "s|^AdminChatID:.*$|AdminChatID: \"$ADMIN_CHAT_ID\"|" /opt/tblocker/config.yaml
+    
+    if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
+        sed -i 's|^SendWebhook:.*$|SendWebhook: true|' /opt/tblocker/config.yaml
+        sed -i "s|^WebhookURL:.*$|WebhookURL: \"https://$WEBHOOK_URL\"|" /opt/tblocker/config.yaml
+    else
+        sed -i 's|^SendWebhook:.*$|SendWebhook: false|' /opt/tblocker/config.yaml
+    fi
 else
     error "Ошибка: Файл /opt/tblocker/config.yaml не найден."
     exit 1
