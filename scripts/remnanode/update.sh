@@ -6,7 +6,6 @@ source "/opt/remnasetup/scripts/common/functions.sh"
 update_panel() {
     info "Обновление ноды Remnanode..."
     cd /opt/remnanode
-    docker compose down
     docker compose pull
     docker compose up -d
 }
