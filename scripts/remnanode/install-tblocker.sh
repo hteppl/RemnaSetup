@@ -5,14 +5,14 @@ source "/opt/remnasetup/scripts/common/functions.sh"
 
 check_remnanode() {
     if sudo docker ps -q --filter "name=remnanode" | grep -q .; then
-        info "Remnanode уже установлен"
+        info "Remnanode установлен"
         question "Хотите обновить docker-compose файл для интеграции с Tblocker? (y/n):"
         UPDATE_DOCKER="$REPLY"
         
         if [[ "$UPDATE_DOCKER" == "y" || "$UPDATE_DOCKER" == "Y" ]]; then
             return 0
         else
-            info "Remnanode уже установлен, docker-compose не будет обновлён"
+            info "Remnanode установлен, отказ от обновления docker-compose"
             return 1
         fi
     fi
@@ -45,6 +45,24 @@ check_tblocker() {
         fi
     fi
     return 0
+}
+
+check_webhook() {
+    question "Требуется настройка отправки вебхуков? (y/n):"
+    WEBHOOK_NEEDED="$REPLY"
+    
+    if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
+        while true; do
+            question "Укажите адрес вебхука (пример portal.domain.com/tblocker/webhook):"
+            WEBHOOK_URL="$REPLY"
+            if [[ -n "$WEBHOOK_URL" ]]; then
+                break
+            fi
+            warn "Адрес вебхука не может быть пустым. Пожалуйста, введите значение."
+        done
+        return 0
+    fi
+    return 1
 }
 
 setup_crontab() {
@@ -84,6 +102,13 @@ if [[ -f /opt/tblocker/config.yaml ]]; then
     sed -i 's|^UsernameRegex:.*$|UsernameRegex: "email: (\\\\S+)"|' /opt/tblocker/config.yaml
     sed -i "s|^AdminBotToken:.*$|AdminBotToken: \"$ADMIN_BOT_TOKEN\"|" /opt/tblocker/config.yaml
     sed -i "s|^AdminChatID:.*$|AdminChatID: \"$ADMIN_CHAT_ID\"|" /opt/tblocker/config.yaml
+
+    if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
+        sed -i 's|^SendWebhook:.*$|SendWebhook: true|' /opt/tblocker/config.yaml
+        sed -i "s|^WebhookURL:.*$|WebhookURL: \"https://$WEBHOOK_URL\"|" /opt/tblocker/config.yaml
+    else
+        sed -i 's|^SendWebhook:.*$|SendWebhook: false|' /opt/tblocker/config.yaml
+    fi
 else
     error "Ошибка: Файл /opt/tblocker/config.yaml не найден."
     exit 1
@@ -103,6 +128,14 @@ update_tblocker_config() {
         sudo sed -i 's|^UsernameRegex:.*$|UsernameRegex: "email: (\\\\S+)"|' /opt/tblocker/config.yaml
         sudo sed -i "s|^AdminBotToken:.*$|AdminBotToken: \"$ADMIN_BOT_TOKEN\"|" /opt/tblocker/config.yaml
         sudo sed -i "s|^AdminChatID:.*$|AdminChatID: \"$ADMIN_CHAT_ID\"|" /opt/tblocker/config.yaml
+
+        if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
+            sudo sed -i 's|^SendWebhook:.*$|SendWebhook: true|' /opt/tblocker/config.yaml
+            sudo sed -i "s|^WebhookURL:.*$|WebhookURL: \"https://$WEBHOOK_URL\"|" /opt/tblocker/config.yaml
+        else
+            sudo sed -i 's|^SendWebhook:.*$|SendWebhook: false|' /opt/tblocker/config.yaml
+        fi
+        
         sudo systemctl restart tblocker.service
         success "Конфигурация Tblocker обновлена!"
     else
@@ -137,6 +170,11 @@ main() {
         done
         echo "ADMIN_CHAT_ID=$ADMIN_CHAT_ID" >> /tmp/install_vars
 
+        check_webhook
+        if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
+            echo "WEBHOOK_URL=$WEBHOOK_URL" >> /tmp/install_vars
+        fi
+
         update_tblocker_config
     else
         while true; do
@@ -158,6 +196,11 @@ main() {
             warn "Telegram ID админа не может быть пустым. Пожалуйста, введите значение."
         done
         echo "ADMIN_CHAT_ID=$ADMIN_CHAT_ID" >> /tmp/install_vars
+
+        check_webhook
+        if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
+            echo "WEBHOOK_URL=$WEBHOOK_URL" >> /tmp/install_vars
+        fi
 
         install_tblocker
         setup_crontab
