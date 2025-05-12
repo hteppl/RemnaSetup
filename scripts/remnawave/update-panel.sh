@@ -6,7 +6,6 @@ source "/opt/remnasetup/scripts/common/functions.sh"
 update_panel() {
     info "Обновление Remnawave..."
     cd /opt/remnawave
-    docker compose down
     docker compose pull
     docker compose up -d
     success "Remnawave успешно обновлен!"

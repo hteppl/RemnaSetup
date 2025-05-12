@@ -7,12 +7,10 @@ update_all() {
     info "Обновление всех компонентов..."
     
     cd /opt/remnawave
-    docker compose down
     docker compose pull
     docker compose up -d
 
     cd /opt/remnawave/subscription
-    docker compose down
     docker compose pull
     docker compose up -d
     
