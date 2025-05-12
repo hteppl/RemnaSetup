@@ -24,17 +24,20 @@ install_docker() {
 check_remnanode() {
     if [ -f "/opt/remnanode/docker-compose.yml" ]; then
         info "Remnanode уже установлен"
-        question "Хотите скорректировать настройки Remnanode? (y/n):"
-        REINSTALL="$REPLY"
-        
-        if [[ "$REINSTALL" == "y" || "$REINSTALL" == "Y" ]]; then
-            return 0
-        else
-            info "Remnanode уже установлен"
-            read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-            exit 0
-            return 1
-        fi
+        while true; do
+            question "Хотите скорректировать настройки Remnanode? (y/n):"
+            REINSTALL="$REPLY"
+            if [[ "$REINSTALL" == "y" || "$REINSTALL" == "Y" ]]; then
+                return 0
+            elif [[ "$REINSTALL" == "n" || "$REINSTALL" == "N" ]]; then
+                info "Remnanode уже установлен"
+                read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+                exit 0
+                return 1
+            else
+                warn "Пожалуйста, введите только 'y' или 'n'"
+            fi
+        done
     fi
     return 0
 }
@@ -87,8 +90,14 @@ main() {
         warn "SSL_CERT не может быть пустым. Пожалуйста, введите значение."
     done
 
-    question "Будет ли использоваться Tblocker? (y/n):"
-    USE_TBLOCKER="$REPLY"
+    while true; do
+        question "Будет ли использоваться Tblocker? (y/n):"
+        USE_TBLOCKER="$REPLY"
+        if [[ "$USE_TBLOCKER" == "y" || "$USE_TBLOCKER" == "Y" || "$USE_TBLOCKER" == "n" || "$USE_TBLOCKER" == "N" ]]; then
+            break
+        fi
+        warn "Пожалуйста, введите только 'y' или 'n'"
+    done
 
     if ! check_docker; then
         install_docker

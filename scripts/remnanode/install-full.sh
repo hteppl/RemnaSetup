@@ -29,35 +29,53 @@ check_components() {
 
     if [ -f "/opt/remnanode/docker-compose.yml" ]; then
         info "Remnanode уже установлен"
-        question "Хотите скорректировать настройки Remnanode? (y/n):"
-        UPDATE_NODE="$REPLY"
-        if [[ "$UPDATE_NODE" == "y" || "$UPDATE_NODE" == "Y" ]]; then
-            UPDATE_REMNANODE=true
-        else
-            SKIP_REMNANODE=true
-        fi
+        while true; do
+            question "Хотите скорректировать настройки Remnanode? (y/n):"
+            UPDATE_NODE="$REPLY"
+            if [[ "$UPDATE_NODE" == "y" || "$UPDATE_NODE" == "Y" ]]; then
+                UPDATE_REMNANODE=true
+                break
+            elif [[ "$UPDATE_NODE" == "n" || "$UPDATE_NODE" == "N" ]]; then
+                SKIP_REMNANODE=true
+                break
+            else
+                warn "Пожалуйста, введите только 'y' или 'n'"
+            fi
+        done
     fi
 
     if command -v caddy >/dev/null 2>&1; then
         info "Caddy уже установлен"
-        question "Хотите скорректировать настройки Caddy? (y/n):"
-        UPDATE_CADDY="$REPLY"
-        if [[ "$UPDATE_CADDY" == "y" || "$UPDATE_CADDY" == "Y" ]]; then
-            UPDATE_CADDY=true
-        else
-            SKIP_CADDY=true
-        fi
+        while true; do
+            question "Хотите скорректировать настройки Caddy? (y/n):"
+            UPDATE_CADDY="$REPLY"
+            if [[ "$UPDATE_CADDY" == "y" || "$UPDATE_CADDY" == "Y" ]]; then
+                UPDATE_CADDY=true
+                break
+            elif [[ "$UPDATE_CADDY" == "n" || "$UPDATE_CADDY" == "N" ]]; then
+                SKIP_CADDY=true
+                break
+            else
+                warn "Пожалуйста, введите только 'y' или 'n'"
+            fi
+        done
     fi
 
     if [ -f /opt/tblocker/config.yaml ] && systemctl list-units --full -all | grep -q tblocker.service; then
         info "Tblocker уже установлен"
-        question "Хотите скорректировать настройки Tblocker? (y/n):"
-        UPDATE_TBLOCKER="$REPLY"
-        if [[ "$UPDATE_TBLOCKER" == "y" || "$UPDATE_TBLOCKER" == "Y" ]]; then
-            UPDATE_TBLOCKER=true
-        else
-            SKIP_TBLOCKER=true
-        fi
+        while true; do
+            question "Хотите скорректировать настройки Tblocker? (y/n):"
+            UPDATE_TBLOCKER="$REPLY"
+            if [[ "$UPDATE_TBLOCKER" == "y" || "$UPDATE_TBLOCKER" == "Y" ]]; then
+                UPDATE_TBLOCKER=true
+                break
+            elif [[ "$UPDATE_TBLOCKER" == "n" || "$UPDATE_TBLOCKER" == "N" ]]; then
+                SKIP_TBLOCKER=true
+                break
+            else
+                warn "Пожалуйста, введите только 'y' или 'n'"
+            fi
+        done
     fi
 
     if command -v wireproxy >/dev/null 2>&1; then
@@ -79,13 +97,20 @@ request_data() {
             question "Введите доменное имя для self-style (например, noda1.domain.com, n для пропуска):"
             DOMAIN="$REPLY"
             if [[ "$DOMAIN" == "n" || "$DOMAIN" == "N" ]]; then
-                question "Вы точно хотите пропустить установку Caddy? (y/n):"
-                CONFIRM="$REPLY"
-                if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
-                    SKIP_CADDY=true
+                while true; do
+                    question "Вы точно хотите пропустить установку Caddy? (y/n):"
+                    CONFIRM="$REPLY"
+                    if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+                        SKIP_CADDY=true
+                        break
+                    elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
+                        break
+                    else
+                        warn "Пожалуйста, введите только 'y' или 'n'"
+                    fi
+                done
+                if [[ "$SKIP_CADDY" == "true" ]]; then
                     break
-                else
-                    continue
                 fi
             elif [[ -n "$DOMAIN" ]]; then
                 break
@@ -98,13 +123,20 @@ request_data() {
                 question "Введите порт для self-style (по умолчанию 8443, n для пропуска):"
                 MONITOR_PORT="$REPLY"
                 if [[ "$MONITOR_PORT" == "n" || "$MONITOR_PORT" == "N" ]]; then
-                    question "Вы точно хотите пропустить установку Caddy? (y/n):"
-                    CONFIRM="$REPLY"
-                    if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
-                        SKIP_CADDY=true
+                    while true; do
+                        question "Вы точно хотите пропустить установку Caddy? (y/n):"
+                        CONFIRM="$REPLY"
+                        if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+                            SKIP_CADDY=true
+                            break
+                        elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
+                            break
+                        else
+                            warn "Пожалуйста, введите только 'y' или 'n'"
+                        fi
+                    done
+                    if [[ "$SKIP_CADDY" == "true" ]]; then
                         break
-                    else
-                        continue
                     fi
                 fi
                 MONITOR_PORT=${MONITOR_PORT:-8443}
@@ -121,13 +153,20 @@ request_data() {
             question "Введите APP_PORT (по умолчанию 3001, n для пропуска):"
             APP_PORT="$REPLY"
             if [[ "$APP_PORT" == "n" || "$APP_PORT" == "N" ]]; then
-                question "Вы точно хотите пропустить установку Remnanode? (y/n):"
-                CONFIRM="$REPLY"
-                if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
-                    SKIP_REMNANODE=true
+                while true; do
+                    question "Вы точно хотите пропустить установку Remnanode? (y/n):"
+                    CONFIRM="$REPLY"
+                    if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+                        SKIP_REMNANODE=true
+                        break
+                    elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
+                        break
+                    else
+                        warn "Пожалуйста, введите только 'y' или 'n'"
+                    fi
+                done
+                if [[ "$SKIP_REMNANODE" == "true" ]]; then
                     break
-                else
-                    continue
                 fi
             fi
             APP_PORT=${APP_PORT:-3001}
@@ -142,13 +181,20 @@ request_data() {
                 question "Введите SSL_CERT (можно получить при добавлении ноды в панели, n для пропуска):"
                 SSL_CERT_FULL="$REPLY"
                 if [[ "$SSL_CERT_FULL" == "n" || "$SSL_CERT_FULL" == "N" ]]; then
-                    question "Вы точно хотите пропустить установку Remnanode? (y/n):"
-                    CONFIRM="$REPLY"
-                    if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
-                        SKIP_REMNANODE=true
+                    while true; do
+                        question "Вы точно хотите пропустить установку Remnanode? (y/n):"
+                        CONFIRM="$REPLY"
+                        if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+                            SKIP_REMNANODE=true
+                            break
+                        elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
+                            break
+                        else
+                            warn "Пожалуйста, введите только 'y' или 'n'"
+                        fi
+                    done
+                    if [[ "$SKIP_REMNANODE" == "true" ]]; then
                         break
-                    else
-                        continue
                     fi
                 elif [[ -n "$SSL_CERT_FULL" ]]; then
                     break
@@ -163,13 +209,20 @@ request_data() {
             question "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений, n для пропуска):"
             ADMIN_BOT_TOKEN="$REPLY"
             if [[ "$ADMIN_BOT_TOKEN" == "n" || "$ADMIN_BOT_TOKEN" == "N" ]]; then
-                question "Вы точно хотите пропустить установку Tblocker? (y/n):"
-                CONFIRM="$REPLY"
-                if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
-                    SKIP_TBLOCKER=true
+                while true; do
+                    question "Вы точно хотите пропустить установку Tblocker? (y/n):"
+                    CONFIRM="$REPLY"
+                    if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+                        SKIP_TBLOCKER=true
+                        break
+                    elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
+                        break
+                    else
+                        warn "Пожалуйста, введите только 'y' или 'n'"
+                    fi
+                done
+                if [[ "$SKIP_TBLOCKER" == "true" ]]; then
                     break
-                else
-                    continue
                 fi
             elif [[ -n "$ADMIN_BOT_TOKEN" ]]; then
                 break
@@ -182,13 +235,20 @@ request_data() {
                 question "Введите Telegram ID админа для Tblocker (n для пропуска):"
                 ADMIN_CHAT_ID="$REPLY"
                 if [[ "$ADMIN_CHAT_ID" == "n" || "$ADMIN_CHAT_ID" == "N" ]]; then
-                    question "Вы точно хотите пропустить установку Tblocker? (y/n):"
-                    CONFIRM="$REPLY"
-                    if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
-                        SKIP_TBLOCKER=true
+                    while true; do
+                        question "Вы точно хотите пропустить установку Tblocker? (y/n):"
+                        CONFIRM="$REPLY"
+                        if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+                            SKIP_TBLOCKER=true
+                            break
+                        elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
+                            break
+                        else
+                            warn "Пожалуйста, введите только 'y' или 'n'"
+                        fi
+                    done
+                    if [[ "$SKIP_TBLOCKER" == "true" ]]; then
                         break
-                    else
-                        continue
                     fi
                 elif [[ -n "$ADMIN_CHAT_ID" ]]; then
                     break
@@ -196,19 +256,25 @@ request_data() {
                 warn "Telegram ID админа не может быть пустым. Пожалуйста, введите значение."
             done
 
-            question "Требуется настройка отправки вебхуков? (y/n):"
-            WEBHOOK_NEEDED="$REPLY"
-            
-            if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
-                while true; do
-                    question "Укажите адрес вебхука (пример portal.domain.com/tblocker/webhook):"
-                    WEBHOOK_URL="$REPLY"
-                    if [[ -n "$WEBHOOK_URL" ]]; then
-                        break
-                    fi
-                    warn "Адрес вебхука не может быть пустым. Пожалуйста, введите значение."
-                done
-            fi
+            while true; do
+                question "Требуется настройка отправки вебхуков? (y/n):"
+                WEBHOOK_NEEDED="$REPLY"
+                if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
+                    while true; do
+                        question "Укажите адрес вебхука (пример portal.domain.com/tblocker/webhook):"
+                        WEBHOOK_URL="$REPLY"
+                        if [[ -n "$WEBHOOK_URL" ]]; then
+                            break
+                        fi
+                        warn "Адрес вебхука не может быть пустым. Пожалуйста, введите значение."
+                    done
+                    break
+                elif [[ "$WEBHOOK_NEEDED" == "n" || "$WEBHOOK_NEEDED" == "N" ]]; then
+                    break
+                else
+                    warn "Пожалуйста, введите только 'y' или 'n'"
+                fi
+            done
         fi
     fi
 
@@ -217,13 +283,20 @@ request_data() {
             question "Введите порт для WARP (1000-65535, по умолчанию 40000, n для пропуска):"
             WARP_PORT="$REPLY"
             if [[ "$WARP_PORT" == "n" || "$WARP_PORT" == "N" ]]; then
-                question "Вы точно хотите пропустить установку WARP? (y/n):"
-                CONFIRM="$REPLY"
-                if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
-                    SKIP_WARP=true
+                while true; do
+                    question "Вы точно хотите пропустить установку WARP? (y/n):"
+                    CONFIRM="$REPLY"
+                    if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+                        SKIP_WARP=true
+                        break
+                    elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
+                        break
+                    else
+                        warn "Пожалуйста, введите только 'y' или 'n'"
+                    fi
+                done
+                if [[ "$SKIP_WARP" == "true" ]]; then
                     break
-                else
-                    continue
                 fi
             fi
             WARP_PORT=${WARP_PORT:-40000}
@@ -244,8 +317,9 @@ request_data() {
             elif [[ "$BBR_ANSWER" == "y" || "$BBR_ANSWER" == "Y" ]]; then
                 SKIP_BBR=false
                 break
+            else
+                warn "Пожалуйста, введите только 'y' или 'n'"
             fi
-            warn "Пожалуйста, введите y или n."
         done
     fi
 }

@@ -6,15 +6,18 @@ source "/opt/remnasetup/scripts/common/functions.sh"
 check_remnanode() {
     if sudo docker ps -q --filter "name=remnanode" | grep -q .; then
         info "Remnanode установлен"
-        question "Хотите обновить docker-compose файл для интеграции с Tblocker? (y/n):"
-        UPDATE_DOCKER="$REPLY"
-        
-        if [[ "$UPDATE_DOCKER" == "y" || "$UPDATE_DOCKER" == "Y" ]]; then
-            return 0
-        else
-            info "Remnanode установлен, отказ от обновления docker-compose"
-            return 1
-        fi
+        while true; do
+            question "Хотите обновить docker-compose файл для интеграции с Tblocker? (y/n):"
+            UPDATE_DOCKER="$REPLY"
+            if [[ "$UPDATE_DOCKER" == "y" || "$UPDATE_DOCKER" == "Y" ]]; then
+                return 0
+            elif [[ "$UPDATE_DOCKER" == "n" || "$UPDATE_DOCKER" == "N" ]]; then
+                info "Remnanode установлен, отказ от обновления docker-compose"
+                return 1
+            else
+                warn "Пожалуйста, введите только 'y' или 'n'"
+            fi
+        done
     fi
     return 0
 }
@@ -32,37 +35,44 @@ update_docker_compose() {
 check_tblocker() {
     if [ -f /opt/tblocker/config.yaml ] && systemctl list-units --full -all | grep -q tblocker.service; then
         info "Tblocker уже установлен"
-        question "Желаете обновить конфигурацию? (y/n):"
-        UPDATE_CONFIG="$REPLY"
-        
-        if [[ "$UPDATE_CONFIG" == "y" || "$UPDATE_CONFIG" == "Y" ]]; then
-            return 0
-        else
-            info "Tblocker уже установлен"
-            read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-            exit 0
-            return 1
-        fi
+        while true; do
+            question "Желаете обновить конфигурацию? (y/n):"
+            UPDATE_CONFIG="$REPLY"
+            if [[ "$UPDATE_CONFIG" == "y" || "$UPDATE_CONFIG" == "Y" ]]; then
+                return 0
+            elif [[ "$UPDATE_CONFIG" == "n" || "$UPDATE_CONFIG" == "N" ]]; then
+                info "Tblocker уже установлен"
+                read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+                exit 0
+                return 1
+            else
+                warn "Пожалуйста, введите только 'y' или 'n'"
+            fi
+        done
     fi
     return 0
 }
 
 check_webhook() {
-    question "Требуется настройка отправки вебхуков? (y/n):"
-    WEBHOOK_NEEDED="$REPLY"
-    
-    if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
-        while true; do
-            question "Укажите адрес вебхука (пример portal.domain.com/tblocker/webhook):"
-            WEBHOOK_URL="$REPLY"
-            if [[ -n "$WEBHOOK_URL" ]]; then
-                break
-            fi
-            warn "Адрес вебхука не может быть пустым. Пожалуйста, введите значение."
-        done
-        return 0
-    fi
-    return 1
+    while true; do
+        question "Требуется настройка отправки вебхуков? (y/n):"
+        WEBHOOK_NEEDED="$REPLY"
+        if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
+            while true; do
+                question "Укажите адрес вебхука (пример portal.domain.com/tblocker/webhook):"
+                WEBHOOK_URL="$REPLY"
+                if [[ -n "$WEBHOOK_URL" ]]; then
+                    break
+                fi
+                warn "Адрес вебхука не может быть пустым. Пожалуйста, введите значение."
+            done
+            return 0
+        elif [[ "$WEBHOOK_NEEDED" == "n" || "$WEBHOOK_NEEDED" == "N" ]]; then
+            return 1
+        else
+            warn "Пожалуйста, введите только 'y' или 'n'"
+        fi
+    done
 }
 
 setup_crontab() {

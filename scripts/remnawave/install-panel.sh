@@ -7,22 +7,26 @@ REINSTALL_PANEL=false
 
 check_component() {
     if [ -f "/opt/remnawave/docker-compose.yml" ] && (cd /opt/remnawave && docker compose ps -q | grep -q "remnawave\|remnawave-db\|remnawave-redis") || [ -f "/opt/remnawave/.env" ]; then
-        info "Обнаружена установка панели"
-        question "Переустановить панель? (y/n):"
-        REINSTALL="$REPLY"
-
-        if [ "$REINSTALL" = "y" ]; then
-            warn "Останавливаем и удаляем существующую установку..."
-            cd /opt/remnawave && docker compose down
-            docker rmi remnawave/backend:latest postgres:17 valkey/valkey:8.0.2-alpine 2>/dev/null || true
-            rm -f /opt/remnawave/.env
-            rm -f /opt/remnawave/docker-compose.yml
-            REINSTALL_PANEL=true
-        else
-            info "Отказано в переустановке панели"
-            read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-            exit 0
-        fi
+        info "Обнаружена установка Remnawave"
+        while true; do
+            question "Переустановить Remnawave? (y/n):"
+            REINSTALL="$REPLY"
+            if [[ "$REINSTALL" == "y" || "$REINSTALL" == "Y" ]]; then
+                warn "Останавливаем и удаляем существующую установку..."
+                cd /opt/remnawave && docker compose down
+                docker rmi remnawave/backend:latest postgres:17 valkey/valkey:8.0.2-alpine 2>/dev/null || true
+                rm -f /opt/remnawave/.env
+                rm -f /opt/remnawave/docker-compose.yml
+                REINSTALL_PANEL=true
+                break
+            elif [[ "$REINSTALL" == "n" || "$REINSTALL" == "N" ]]; then
+                info "Отказано в переустановке Remnawave"
+                read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+                exit 0
+            else
+                warn "Пожалуйста, введите только 'y' или 'n'"
+            fi
+        done
     else
         REINSTALL_PANEL=true
     fi

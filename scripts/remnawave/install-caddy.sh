@@ -8,29 +8,33 @@ REINSTALL_CADDY=false
 check_component() {
     if [ -f "/opt/remnawave/caddy/docker-compose.yml" ] || [ -f "/opt/remnawave/caddy/Caddyfile" ]; then
         info "Обнаружена установка Caddy"
-        question "Переустановить Caddy? (y/n):"
-        REINSTALL="$REPLY"
-
-        if [ "$REINSTALL" = "y" ]; then
-            warn "Останавливаем и удаляем существующую установку..."
-            if [ -f "/opt/remnawave/caddy/docker-compose.yml" ]; then
-                cd /opt/remnawave/caddy && docker compose down
-            fi
-            if docker ps -a --format '{{.Names}}' | grep -q "remnawave-caddy\|caddy"; then
-                if [ "$NEED_PROTECTION" = "y" ]; then
-                    docker rmi remnawave/caddy-with-auth:latest 2>/dev/null || true
-                else
-                    docker rmi caddy:2.9 2>/dev/null || true
+        while true; do
+            question "Переустановить Caddy? (y/n):"
+            REINSTALL="$REPLY"
+            if [[ "$REINSTALL" == "y" || "$REINSTALL" == "Y" ]]; then
+                warn "Останавливаем и удаляем существующую установку..."
+                if [ -f "/opt/remnawave/caddy/docker-compose.yml" ]; then
+                    cd /opt/remnawave/caddy && docker compose down
                 fi
+                if docker ps -a --format '{{.Names}}' | grep -q "remnawave-caddy\|caddy"; then
+                    if [ "$NEED_PROTECTION" = "y" ]; then
+                        docker rmi remnawave/caddy-with-auth:latest 2>/dev/null || true
+                    else
+                        docker rmi caddy:2.9 2>/dev/null || true
+                    fi
+                fi
+                rm -f /opt/remnawave/caddy/Caddyfile
+                rm -f /opt/remnawave/caddy/docker-compose.yml
+                REINSTALL_CADDY=true
+                break
+            elif [[ "$REINSTALL" == "n" || "$REINSTALL" == "N" ]]; then
+                info "Отказано в переустановке Caddy"
+                read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+                exit 0
+            else
+                warn "Пожалуйста, введите только 'y' или 'n'"
             fi
-            rm -f /opt/remnawave/caddy/Caddyfile
-            rm -f /opt/remnawave/caddy/docker-compose.yml
-            REINSTALL_CADDY=true
-        else
-            info "Отказано в переустановке Caddy"
-            read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-            exit 0
-        fi
+        done
     else
         REINSTALL_CADDY=true
     fi
@@ -130,8 +134,14 @@ check_docker() {
 main() {
     check_component
 
-    question "Требуется ли защита панели кастомным путем и защита подписок? (y/n):"
-    NEED_PROTECTION="$REPLY"
+    while true; do
+        question "Требуется ли защита панели кастомным путем и защита подписок? (y/n):"
+        NEED_PROTECTION="$REPLY"
+        if [[ "$NEED_PROTECTION" == "y" || "$NEED_PROTECTION" == "Y" || "$NEED_PROTECTION" == "n" || "$NEED_PROTECTION" == "N" ]]; then
+            break
+        fi
+        warn "Пожалуйста, введите только 'y' или 'n'"
+    done
 
     while true; do
         question "Введите домен панели (например, panel.domain.com):"
