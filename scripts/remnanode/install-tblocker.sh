@@ -112,6 +112,7 @@ if [[ -f /opt/tblocker/config.yaml ]]; then
     sed -i 's|^UsernameRegex:.*$|UsernameRegex: "email: (\\\\S+)"|' /opt/tblocker/config.yaml
     sed -i "s|^AdminBotToken:.*$|AdminBotToken: \"$ADMIN_BOT_TOKEN\"|" /opt/tblocker/config.yaml
     sed -i "s|^AdminChatID:.*$|AdminChatID: \"$ADMIN_CHAT_ID\"|" /opt/tblocker/config.yaml
+    sed -i "s|^BlockDuration:.*$|BlockDuration: $BLOCK_DURATION|" /opt/tblocker/config.yaml
 
     if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
         sed -i 's|^SendWebhook:.*$|SendWebhook: true|' /opt/tblocker/config.yaml
@@ -138,6 +139,7 @@ update_tblocker_config() {
         sudo sed -i 's|^UsernameRegex:.*$|UsernameRegex: "email: (\\\\S+)"|' /opt/tblocker/config.yaml
         sudo sed -i "s|^AdminBotToken:.*$|AdminBotToken: \"$ADMIN_BOT_TOKEN\"|" /opt/tblocker/config.yaml
         sudo sed -i "s|^AdminChatID:.*$|AdminChatID: \"$ADMIN_CHAT_ID\"|" /opt/tblocker/config.yaml
+        sudo sed -i "s|^BlockDuration:.*$|BlockDuration: $BLOCK_DURATION|" /opt/tblocker/config.yaml
 
         if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
             sudo sed -i 's|^SendWebhook:.*$|SendWebhook: true|' /opt/tblocker/config.yaml
@@ -180,6 +182,11 @@ main() {
         done
         echo "ADMIN_CHAT_ID=$ADMIN_CHAT_ID" >> /tmp/install_vars
 
+        question "Укажите время блокировки пользователя (указывается значение в минутах, по умолчанию 10):"
+        BLOCK_DURATION="$REPLY"
+        BLOCK_DURATION=${BLOCK_DURATION:-10}
+        echo "BLOCK_DURATION=$BLOCK_DURATION" >> /tmp/install_vars
+
         check_webhook
         if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
             echo "WEBHOOK_URL=$WEBHOOK_URL" >> /tmp/install_vars
@@ -206,6 +213,11 @@ main() {
             warn "Telegram ID админа не может быть пустым. Пожалуйста, введите значение."
         done
         echo "ADMIN_CHAT_ID=$ADMIN_CHAT_ID" >> /tmp/install_vars
+
+        question "Укажите время блокировки пользователя (указывается значение в минутах, по умолчанию 10):"
+        BLOCK_DURATION="$REPLY"
+        BLOCK_DURATION=${BLOCK_DURATION:-10}
+        echo "BLOCK_DURATION=$BLOCK_DURATION" >> /tmp/install_vars
 
         check_webhook
         if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
