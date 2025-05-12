@@ -8,21 +8,25 @@ REINSTALL_SUBSCRIPTION=false
 check_component() {
     if [ -f "/opt/remnawave/subscription/docker-compose.yml" ] && (cd /opt/remnawave/subscription && docker compose ps -q | grep -q "remnawave-subscription-page") || [ -f "/opt/remnawave/subscription/app-config.json" ]; then
         info "Обнаружена установка страницы подписок"
-        question "Переустановить страницу подписок? (y/n):"
-        REINSTALL="$REPLY"
-
-        if [ "$REINSTALL" = "y" ]; then
-            warn "Останавливаем и удаляем существующую установку..."
-            cd /opt/remnawave/subscription && docker compose down
-            docker rmi remnawave/subscription-page:latest 2>/dev/null || true
-            rm -f /opt/remnawave/subscription/app-config.json
-            rm -f /opt/remnawave/subscription/docker-compose.yml
-            REINSTALL_SUBSCRIPTION=true
-        else
-            info "Отказано в переустановке страницы подписок"
-            read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-            exit 0
-        fi
+        while true; do
+            question "Переустановить страницу подписок? (y/n):"
+            REINSTALL="$REPLY"
+            if [[ "$REINSTALL" == "y" || "$REINSTALL" == "Y" ]]; then
+                warn "Останавливаем и удаляем существующую установку..."
+                cd /opt/remnawave/subscription && docker compose down
+                docker rmi remnawave/subscription-page:latest 2>/dev/null || true
+                rm -f /opt/remnawave/subscription/app-config.json
+                rm -f /opt/remnawave/subscription/docker-compose.yml
+                REINSTALL_SUBSCRIPTION=true
+                break
+            elif [[ "$REINSTALL" == "n" || "$REINSTALL" == "N" ]]; then
+                info "Отказано в переустановке страницы подписок"
+                read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+                exit 0
+            else
+                warn "Пожалуйста, введите только 'y' или 'n'"
+            fi
+        done
     else
         REINSTALL_SUBSCRIPTION=true
     fi

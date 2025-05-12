@@ -15,23 +15,28 @@ check_component() {
     case $component in
         "panel")
             if [ -f "$path/docker-compose.yml" ] && (cd "$path" && docker compose ps -q | grep -q "remnawave") || [ -f "$env_file" ]; then
-                info "Обнаружена установка панели"
-                question "Переустановить панель? (y/n):"
-                REINSTALL="$REPLY"
-
-                if [ "$REINSTALL" = "y" ]; then
-                    warn "Останавливаем и удаляем существующую установку..."
-                    cd "$path" && docker compose down
-                    docker rmi remnawave/panel:latest 2>/dev/null || true
-                    docker rmi remnawave/redis:latest 2>/dev/null || true
-                    docker rmi remnawave/postgres:latest 2>/dev/null || true
-                    rm -f "$env_file"
-                    rm -f "$path/docker-compose.yml"
-                    REINSTALL_PANEL=true
-                else
-                    info "Отказано в переустановке панели"
-                    REINSTALL_PANEL=false
-                fi
+                info "Обнаружена установка Remnawave"
+                while true; do
+                    question "Переустановить Remnawave? (y/n):"
+                    REINSTALL="$REPLY"
+                    if [[ "$REINSTALL" == "y" || "$REINSTALL" == "Y" ]]; then
+                        warn "Останавливаем и удаляем существующую установку..."
+                        cd "$path" && docker compose down
+                        docker rmi remnawave/panel:latest 2>/dev/null || true
+                        docker rmi remnawave/redis:latest 2>/dev/null || true
+                        docker rmi remnawave/postgres:latest 2>/dev/null || true
+                        rm -f "$env_file"
+                        rm -f "$path/docker-compose.yml"
+                        REINSTALL_PANEL=true
+                        break
+                    elif [[ "$REINSTALL" == "n" || "$REINSTALL" == "N" ]]; then
+                        info "Отказано в переустановке Remnawave"
+                        REINSTALL_PANEL=false
+                        break
+                    else
+                        warn "Пожалуйста, введите только 'y' или 'n'"
+                    fi
+                done
             else
                 REINSTALL_PANEL=true
             fi
@@ -39,20 +44,25 @@ check_component() {
         "subscription")
             if [ -f "$path/docker-compose.yml" ] && (cd "$path" && docker compose ps -q | grep -q "remnawave-subscription-page") || [ -f "$path/app-config.json" ]; then
                 info "Обнаружена установка страницы подписок"
-                question "Переустановить страницу подписок? (y/n):"
-                REINSTALL="$REPLY"
-
-                if [ "$REINSTALL" = "y" ]; then
-                    warn "Останавливаем и удаляем существующую установку..."
-                    cd "$path" && docker compose down
-                    docker rmi remnawave/subscription-page:latest 2>/dev/null || true
-                    rm -f "$path/app-config.json"
-                    rm -f "$path/docker-compose.yml"
-                    REINSTALL_SUBSCRIPTION=true
-                else
-                    info "Отказано в переустановке страницы подписок"
-                    REINSTALL_SUBSCRIPTION=false
-                fi
+                while true; do
+                    question "Переустановить страницу подписок? (y/n):"
+                    REINSTALL="$REPLY"
+                    if [[ "$REINSTALL" == "y" || "$REINSTALL" == "Y" ]]; then
+                        warn "Останавливаем и удаляем существующую установку..."
+                        cd "$path" && docker compose down
+                        docker rmi remnawave/subscription-page:latest 2>/dev/null || true
+                        rm -f "$path/app-config.json"
+                        rm -f "$path/docker-compose.yml"
+                        REINSTALL_SUBSCRIPTION=true
+                        break
+                    elif [[ "$REINSTALL" == "n" || "$REINSTALL" == "N" ]]; then
+                        info "Отказано в переустановке страницы подписок"
+                        REINSTALL_SUBSCRIPTION=false
+                        break
+                    else
+                        warn "Пожалуйста, введите только 'y' или 'n'"
+                    fi
+                done
             else
                 REINSTALL_SUBSCRIPTION=true
             fi
@@ -60,28 +70,33 @@ check_component() {
         "caddy")
             if [ -f "$path/docker-compose.yml" ] || [ -f "$path/Caddyfile" ]; then
                 info "Обнаружена установка Caddy"
-                question "Переустановить Caddy? (y/n):"
-                REINSTALL="$REPLY"
-
-                if [ "$REINSTALL" = "y" ]; then
-                    warn "Останавливаем и удаляем существующую установку..."
-                    if [ -f "$path/docker-compose.yml" ]; then
-                        cd "$path" && docker compose down
-                    fi
-                    if docker ps -a --format '{{.Names}}' | grep -q "remnawave-caddy\|caddy"; then
-                        if [ "$NEED_PROTECTION" = "y" ]; then
-                            docker rmi remnawave/caddy-with-auth:latest 2>/dev/null || true
-                        else
-                            docker rmi caddy:2.9 2>/dev/null || true
+                while true; do
+                    question "Переустановить Caddy? (y/n):"
+                    REINSTALL="$REPLY"
+                    if [[ "$REINSTALL" == "y" || "$REINSTALL" == "Y" ]]; then
+                        warn "Останавливаем и удаляем существующую установку..."
+                        if [ -f "$path/docker-compose.yml" ]; then
+                            cd "$path" && docker compose down
                         fi
+                        if docker ps -a --format '{{.Names}}' | grep -q "remnawave-caddy\|caddy"; then
+                            if [ "$NEED_PROTECTION" = "y" ]; then
+                                docker rmi remnawave/caddy-with-auth:latest 2>/dev/null || true
+                            else
+                                docker rmi caddy:2.9 2>/dev/null || true
+                            fi
+                        fi
+                        rm -f "$path/Caddyfile"
+                        rm -f "$path/docker-compose.yml"
+                        REINSTALL_CADDY=true
+                        break
+                    elif [[ "$REINSTALL" == "n" || "$REINSTALL" == "N" ]]; then
+                        info "Отказано в переустановке Caddy"
+                        REINSTALL_CADDY=false
+                        break
+                    else
+                        warn "Пожалуйста, введите только 'y' или 'n'"
                     fi
-                    rm -f "$path/Caddyfile"
-                    rm -f "$path/docker-compose.yml"
-                    REINSTALL_CADDY=true
-                else
-                    info "Отказано в переустановке Caddy"
-                    REINSTALL_CADDY=false
-                fi
+                done
             else
                 REINSTALL_CADDY=true
             fi
@@ -245,8 +260,17 @@ main() {
         exit 0
     fi
 
-    question "Требуется ли защита панели кастомным путем и защита подписок? (y/n):"
-    NEED_PROTECTION="$REPLY"
+    while true; do
+        question "Требуется ли защита панели кастомным путем и защита подписок? (y/n):"
+        NEED_PROTECTION="$REPLY"
+        if [[ "$NEED_PROTECTION" == "y" || "$NEED_PROTECTION" == "Y" ]]; then
+            break
+        elif [[ "$NEED_PROTECTION" == "n" || "$NEED_PROTECTION" == "N" ]]; then
+            break
+        else
+            warn "Пожалуйста, введите только 'y' или 'n'"
+        fi
+    done
 
     while true; do
         question "Введите домен панели (например, panel.domain.com):"

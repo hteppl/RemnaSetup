@@ -6,17 +6,20 @@ source "/opt/remnasetup/scripts/common/functions.sh"
 check_caddy() {
     if command -v caddy >/dev/null 2>&1; then
         info "Caddy уже установлен"
-        question "Хотите скорректировать конфигурацию Caddy? (y/n):"
-        UPDATE_CONFIG="$REPLY"
-        
-        if [[ "$UPDATE_CONFIG" == "y" || "$UPDATE_CONFIG" == "Y" ]]; then
-            return 0
-        else
-            info "Caddy уже установлен"
-            read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-            exit 0
-            return 1
-        fi
+        while true; do
+            question "Хотите скорректировать конфигурацию Caddy? (y/n):"
+            UPDATE_CONFIG="$REPLY"
+            if [[ "$UPDATE_CONFIG" == "y" || "$UPDATE_CONFIG" == "Y" ]]; then
+                return 0
+            elif [[ "$UPDATE_CONFIG" == "n" || "$UPDATE_CONFIG" == "N" ]]; then
+                info "Caddy уже установлен"
+                read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+                exit 0
+                return 1
+            else
+                warn "Пожалуйста, введите только 'y' или 'n'"
+            fi
+        done
     fi
     return 0
 }
