@@ -256,6 +256,10 @@ request_data() {
                 warn "Telegram ID админа не может быть пустым. Пожалуйста, введите значение."
             done
 
+            question "Укажите время блокировки пользователя (указывается значение в минутах, по умолчанию 10):"
+            BLOCK_DURATION="$REPLY"
+            BLOCK_DURATION=${BLOCK_DURATION:-10}
+
             while true; do
                 question "Требуется настройка отправки вебхуков? (y/n):"
                 WEBHOOK_NEEDED="$REPLY"
@@ -411,6 +415,7 @@ install_tblocker() {
 
     echo "ADMIN_BOT_TOKEN=$ADMIN_BOT_TOKEN" > /tmp/install_vars
     echo "ADMIN_CHAT_ID=$ADMIN_CHAT_ID" >> /tmp/install_vars
+    echo "BLOCK_DURATION=$BLOCK_DURATION" >> /tmp/install_vars
     if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
         echo "WEBHOOK_URL=$WEBHOOK_URL" >> /tmp/install_vars
     fi
@@ -435,6 +440,7 @@ if [[ -f /opt/tblocker/config.yaml ]]; then
     sed -i 's|^UsernameRegex:.*$|UsernameRegex: "email: (\\\\S+)"|' /opt/tblocker/config.yaml
     sed -i "s|^AdminBotToken:.*$|AdminBotToken: \"$ADMIN_BOT_TOKEN\"|" /opt/tblocker/config.yaml
     sed -i "s|^AdminChatID:.*$|AdminChatID: \"$ADMIN_CHAT_ID\"|" /opt/tblocker/config.yaml
+    sed -i "s|^BlockDuration:.*$|BlockDuration: $BLOCK_DURATION|" /opt/tblocker/config.yaml
     
     if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
         sed -i 's|^SendWebhook:.*$|SendWebhook: true|' /opt/tblocker/config.yaml
