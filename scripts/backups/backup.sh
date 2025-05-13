@@ -12,7 +12,7 @@ DB_TAR="remnawave-db-backup-$DATE.tar.gz"
 REDIS_TAR="remnawave-redis-backup-$DATE.tar.gz"
 FINAL_ARCHIVE="remnawave-backup-$DATE.tar.gz"
 
-sudo mkdir -p "$BACKUP_DIR"
+mkdir -p "$BACKUP_DIR"
 
 for cmd in docker tar; do
   if ! command -v $cmd &>/dev/null; then
@@ -60,7 +60,7 @@ docker run --rm \
 info "Архивация..."
 tar czvf "$BACKUP_DIR/$FINAL_ARCHIVE" -C "$BACKUP_DIR" "$DB_TAR" "$REDIS_TAR"
 
-sudo rm "$BACKUP_DIR/$DB_TAR" "$BACKUP_DIR/$REDIS_TAR"
+rm "$BACKUP_DIR/$DB_TAR" "$BACKUP_DIR/$REDIS_TAR"
 
 success "Бэкап готов: $BACKUP_DIR/$FINAL_ARCHIVE"
 read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."

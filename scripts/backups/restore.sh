@@ -27,7 +27,7 @@ for c in $DB_CONTAINER $REDIS_CONTAINER $PANEL_CONTAINER; do
   fi
 done
 
-sudo mkdir -p "$BACKUP_DIR"
+mkdir -p "$BACKUP_DIR"
 info "Папка $BACKUP_DIR создана. Пожалуйста, положите архив в эту папку и нажмите любую клавишу для продолжения."
 read -n 1 -s -r -p "Нажмите любую клавишу для продолжения..."
 
@@ -83,9 +83,9 @@ for cmd in docker tar; do
 done
 
 info "Копирование архива в рабочую папку..."
-sudo rm -rf "$WORK_DIR"
-sudo mkdir -p "$WORK_DIR"
-sudo cp "$ARCHIVE_PATH" "$WORK_DIR/"
+rm -rf "$WORK_DIR"
+mkdir -p "$WORK_DIR"
+cp "$ARCHIVE_PATH" "$WORK_DIR/"
 ARCHIVE_BASENAME=$(basename "$ARCHIVE_PATH")
 WORK_ARCHIVE="$WORK_DIR/$ARCHIVE_BASENAME"
 success "Архив скопирован: $WORK_ARCHIVE"
@@ -105,8 +105,8 @@ docker run --rm \
   -v "$BACKUP_DIR":/backup \
   alpine \
   tar czvf /backup/$RESERVE_REDIS -C /volume .
-sudo tar czvf "$BACKUP_DIR/$RESERVE_ARCHIVE" -C "$BACKUP_DIR" "$RESERVE_DB" "$RESERVE_REDIS"
-sudo rm "$BACKUP_DIR/$RESERVE_DB" "$BACKUP_DIR/$RESERVE_REDIS"
+tar czvf "$BACKUP_DIR/$RESERVE_ARCHIVE" -C "$BACKUP_DIR" "$RESERVE_DB" "$RESERVE_REDIS"
+rm "$BACKUP_DIR/$RESERVE_DB" "$BACKUP_DIR/$RESERVE_REDIS"
 success "Резервная копия текущих данных: $BACKUP_DIR/$RESERVE_ARCHIVE"
 
 info "Останавливаю контейнеры Remnawave..."
@@ -115,8 +115,8 @@ success "Контейнеры остановлены."
 
 info "Распаковка архива в рабочую папку..."
 TMP_RESTORE_DIR="$WORK_DIR/unpack"
-sudo mkdir -p "$TMP_RESTORE_DIR"
-sudo tar xzvf "$WORK_ARCHIVE" -C "$TMP_RESTORE_DIR"
+mkdir -p "$TMP_RESTORE_DIR"
+tar xzvf "$WORK_ARCHIVE" -C "$TMP_RESTORE_DIR"
 success "Архив распакован."
 
 info "Восстанавливаю том $DB_VOLUME..."
@@ -136,7 +136,7 @@ docker run --rm \
 success "Том $REDIS_VOLUME восстановлен."
 
 info "Удаляю рабочую папку восстановления..."
-sudo rm -rf "$WORK_DIR"
+rm -rf "$WORK_DIR"
 success "Рабочая папка удалена."
 
 info "Запускаю контейнеры Remnawave..."
