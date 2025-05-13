@@ -170,9 +170,9 @@ while true; do
       while true; do
         display_backup_menu
         case $REMNAWAVE_OPTION in
-                        1) run_script "${SCRIPT_DIR}/scripts/backups/backup.sh" ;;
-                        2) run_script "${SCRIPT_DIR}/scripts/backups/restore.sh" ;;
-                        8) break ;;
+                        1) sudo bash "${SCRIPT_DIR}/scripts/backups/backup.sh" ;;
+                        2) sudo bash "${SCRIPT_DIR}/scripts/backups/restore.sh" ;;
+                        0) break ;;
                         *) warn "Неверный выбор. Попробуйте снова." ;;
         esac
       done
