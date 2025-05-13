@@ -216,12 +216,29 @@ main() {
         done
 
         while true; do
-            question "Введите пароль администратора:"
+            question "Введите пароль администратора (мин. 8 символов, хотя бы одна заглавная, строчная, цифра и спецсимвол):"
             LOGIN_PASSWORD="$REPLY"
-            if [[ -n "$LOGIN_PASSWORD" ]]; then
-                break
+            if [[ ${#LOGIN_PASSWORD} -lt 8 ]]; then
+                warn "Пароль слишком короткий! Минимум 8 символов."
+                continue
             fi
-            warn "Пароль администратора не может быть пустым. Пожалуйста, введите значение."
+            if ! [[ "$LOGIN_PASSWORD" =~ [A-Z] ]]; then
+                warn "Пароль должен содержать хотя бы одну заглавную букву (A-Z)."
+                continue
+            fi
+            if ! [[ "$LOGIN_PASSWORD" =~ [a-z] ]]; then
+                warn "Пароль должен содержать хотя бы одну строчную букву (a-z)."
+                continue
+            fi
+            if ! [[ "$LOGIN_PASSWORD" =~ [0-9] ]]; then
+                warn "Пароль должен содержать хотя бы одну цифру (0-9)."
+                continue
+            fi
+            if ! [[ "$LOGIN_PASSWORD" =~ [^a-zA-Z0-9] ]]; then
+                warn "Пароль должен содержать хотя бы один специальный символ (!, @, #, $, %, ^, &, *, -, +, =, ? и т.д.)."
+                continue
+            fi
+            break
         done
     fi
 

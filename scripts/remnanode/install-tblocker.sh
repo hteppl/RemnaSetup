@@ -192,6 +192,9 @@ main() {
             echo "WEBHOOK_URL=$WEBHOOK_URL" >> /tmp/install_vars
         fi
 
+        export WEBHOOK_NEEDED
+        export WEBHOOK_URL
+
         update_tblocker_config
     else
         while true; do
@@ -223,6 +226,9 @@ main() {
         if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
             echo "WEBHOOK_URL=$WEBHOOK_URL" >> /tmp/install_vars
         fi
+
+        export WEBHOOK_NEEDED
+        export WEBHOOK_URL
 
         install_tblocker
         setup_crontab
