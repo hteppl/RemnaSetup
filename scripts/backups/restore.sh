@@ -30,6 +30,7 @@ done
 mkdir -p "$BACKUP_DIR"
 info "Папка $BACKUP_DIR создана. Пожалуйста, положите архив в эту папку и нажмите любую клавишу для продолжения."
 read -n 1 -s -r -p "Нажмите любую клавишу для продолжения..."
+echo
 
 while true; do
   mapfile -t ARCHIVES < <(find "$BACKUP_DIR" -maxdepth 1 -type f -name 'remnawave-backup-*.tar.gz' | sort)

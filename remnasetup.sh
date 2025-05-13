@@ -108,7 +108,7 @@ display_main_menu() {
     menu "Главное меню:"
     echo -e "${BLUE}1. Установка/Обновление Remnawave${RESET}"
     echo -e "${BLUE}2. Установка/Обновление Remnanode${RESET}"
-    echo -e "${BLUE}3. Бекап/Восстановление Remnawave (альфа)${RESET}"
+    echo -e "${BLUE}3. Бекап/Восстановление Remnawave${RESET}"
     echo -e "${RED}0. Выход${RESET}"
     echo
     read -p "$(echo -e "${BOLD_CYAN}Выберите пункт меню (0-3):${RESET}") " MAIN_OPTION
