@@ -98,7 +98,7 @@ display_backup_menu() {
     echo -e "${BLUE}2. Восстановление Remnawave${RESET}"
     echo -e "${RED}0. Выход${RESET}"
     echo
-    read -p "$(echo -e "${BOLD_CYAN}Выберите пункт меню (0-2):${RESET}") " MAIN_OPTION
+    read -p "$(echo -e "${BOLD_CYAN}Выберите пункт меню (0-2):${RESET}") " BACKUP_OPTION
     echo
 }
 
@@ -169,9 +169,9 @@ while true; do
     3)
       while true; do
         display_backup_menu
-        case $REMNAWAVE_OPTION in
-                        1) sudo bash "${SCRIPT_DIR}/scripts/backups/backup.sh" ;;
-                        2) sudo bash "${SCRIPT_DIR}/scripts/backups/restore.sh" ;;
+        case $BACKUP_OPTION in
+                        1) run_script "${SCRIPT_DIR}/scripts/backups/backup.sh" ;;
+                        2) run_script "${SCRIPT_DIR}/scripts/backups/restore.sh" ;;
                         0) break ;;
                         *) warn "Неверный выбор. Попробуйте снова." ;;
         esac
