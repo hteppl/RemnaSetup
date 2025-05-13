@@ -100,13 +100,13 @@ docker run --rm \
   -v ${DB_VOLUME}:/volume \
   -v "$BACKUP_DIR":/backup \
   alpine \
-  tar czvf /backup/$RESERVE_DB -C /volume .
+  tar czf /backup/$RESERVE_DB -C /volume .
 docker run --rm \
   -v ${REDIS_VOLUME}:/volume \
   -v "$BACKUP_DIR":/backup \
   alpine \
-  tar czvf /backup/$RESERVE_REDIS -C /volume .
-tar czvf "$BACKUP_DIR/$RESERVE_ARCHIVE" -C "$BACKUP_DIR" "$RESERVE_DB" "$RESERVE_REDIS"
+  tar czf /backup/$RESERVE_REDIS -C /volume .
+tar czf "$BACKUP_DIR/$RESERVE_ARCHIVE" -C "$BACKUP_DIR" "$RESERVE_DB" "$RESERVE_REDIS"
 rm "$BACKUP_DIR/$RESERVE_DB" "$BACKUP_DIR/$RESERVE_REDIS"
 success "Резервная копия текущих данных: $BACKUP_DIR/$RESERVE_ARCHIVE"
 
@@ -117,7 +117,7 @@ success "Контейнеры остановлены."
 info "Распаковка архива в рабочую папку..."
 TMP_RESTORE_DIR="$WORK_DIR/unpack"
 mkdir -p "$TMP_RESTORE_DIR"
-tar xzvf "$WORK_ARCHIVE" -C "$TMP_RESTORE_DIR"
+tar xzf "$WORK_ARCHIVE" -C "$TMP_RESTORE_DIR"
 success "Архив распакован."
 
 info "Восстанавливаю том $DB_VOLUME..."
@@ -125,7 +125,7 @@ docker run --rm \
   -v ${DB_VOLUME}:/volume \
   -v "$TMP_RESTORE_DIR":/backup \
   alpine \
-  sh -c "rm -rf /volume/* && tar xzvf /backup/remnawave-db-backup-*.tar.gz -C /volume"
+  sh -c "rm -rf /volume/* && tar xzf /backup/remnawave-db-backup-*.tar.gz -C /volume"
 success "Том $DB_VOLUME восстановлен."
 
 info "Восстанавливаю том $REDIS_VOLUME..."
@@ -133,7 +133,7 @@ docker run --rm \
   -v ${REDIS_VOLUME}:/volume \
   -v "$TMP_RESTORE_DIR":/backup \
   alpine \
-  sh -c "rm -rf /volume/* && tar xzvf /backup/remnawave-redis-backup-*.tar.gz -C /volume"
+  sh -c "rm -rf /volume/* && tar xzf /backup/remnawave-redis-backup-*.tar.gz -C /volume"
 success "Том $REDIS_VOLUME восстановлен."
 
 info "Удаляю рабочую папку восстановления..."
