@@ -90,6 +90,18 @@ display_remnanode_menu() {
   echo
 }
 
+display_backup_menu() {
+    clear
+    print_header
+    menu "Меню бекапа/восстановления:"
+    echo -e "${BLUE}1. Бекап Remnawave${RESET}"
+    echo -e "${BLUE}2. Восстановление Remnawave${RESET}"
+    echo -e "${RED}0. Выход${RESET}"
+    echo
+    read -p "$(echo -e "${BOLD_CYAN}Выберите пункт меню (0-2):${RESET}") " MAIN_OPTION
+    echo
+}
+
 display_main_menu() {
     clear
     print_header
@@ -156,7 +168,7 @@ while true; do
       ;;
     3)
       while true; do
-        display_remnawave_menu
+        display_backup_menu
         case $REMNAWAVE_OPTION in
                         1) run_script "${SCRIPT_DIR}/scripts/backups/backup.sh" ;;
                         2) run_script "${SCRIPT_DIR}/scripts/backups/restore.sh" ;;
