@@ -80,6 +80,7 @@ chmod +x /opt/remnasetup/remnasetup.sh
 chmod +x /opt/remnasetup/scripts/common/*.sh
 chmod +x /opt/remnasetup/scripts/remnawave/*.sh
 chmod +x /opt/remnasetup/scripts/remnanode/*.sh
+chmod +x /opt/remnasetup/scripts/backups/*.sh
 
 rm -rf "$TEMP_DIR"
 
