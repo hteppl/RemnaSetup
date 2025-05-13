@@ -13,7 +13,6 @@ REDIS_TAR="remnawave-redis-backup-$DATE.tar.gz"
 FINAL_ARCHIVE="remnawave-backup-$DATE.tar.gz"
 
 sudo mkdir -p "$BACKUP_DIR"
-sudo cd "$BACKUP_DIR" || { error "Не удалось перейти в $BACKUP_DIR"; read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."; exit 1; }
 
 for cmd in docker tar; do
   if ! command -v $cmd &>/dev/null; then
@@ -47,21 +46,21 @@ fi
 info "Бэкап тома $DB_VOLUME..."
 docker run --rm \
   -v ${DB_VOLUME}:/volume \
-  -v "$(pwd)":/backup \
+  -v "$BACKUP_DIR":/backup \
   alpine \
   tar czvf /backup/$DB_TAR -C /volume .
 
 info "Бэкап тома $REDIS_VOLUME..."
 docker run --rm \
   -v ${REDIS_VOLUME}:/volume \
-  -v "$(pwd)":/backup \
+  -v "$BACKUP_DIR":/backup \
   alpine \
   tar czvf /backup/$REDIS_TAR -C /volume .
 
 info "Архивация..."
-tar czvf "$FINAL_ARCHIVE" "$DB_TAR" "$REDIS_TAR"
+tar czvf "$BACKUP_DIR/$FINAL_ARCHIVE" -C "$BACKUP_DIR" "$DB_TAR" "$REDIS_TAR"
 
-sudo rm "$DB_TAR" "$REDIS_TAR"
+sudo rm "$BACKUP_DIR/$DB_TAR" "$BACKUP_DIR/$REDIS_TAR"
 
 success "Бэкап готов: $BACKUP_DIR/$FINAL_ARCHIVE"
 read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."

@@ -83,7 +83,7 @@ for cmd in docker tar; do
 done
 
 info "Копирование архива в рабочую папку..."
-rm -rf "$WORK_DIR"
+sudo rm -rf "$WORK_DIR"
 sudo mkdir -p "$WORK_DIR"
 sudo cp "$ARCHIVE_PATH" "$WORK_DIR/"
 ARCHIVE_BASENAME=$(basename "$ARCHIVE_PATH")
@@ -105,8 +105,8 @@ docker run --rm \
   -v "$BACKUP_DIR":/backup \
   alpine \
   tar czvf /backup/$RESERVE_REDIS -C /volume .
-tar czvf "$BACKUP_DIR/$RESERVE_ARCHIVE" -C "$BACKUP_DIR" "$RESERVE_DB" "$RESERVE_REDIS"
-rm "$BACKUP_DIR/$RESERVE_DB" "$BACKUP_DIR/$RESERVE_REDIS"
+sudo tar czvf "$BACKUP_DIR/$RESERVE_ARCHIVE" -C "$BACKUP_DIR" "$RESERVE_DB" "$RESERVE_REDIS"
+sudo rm "$BACKUP_DIR/$RESERVE_DB" "$BACKUP_DIR/$RESERVE_REDIS"
 success "Резервная копия текущих данных: $BACKUP_DIR/$RESERVE_ARCHIVE"
 
 info "Останавливаю контейнеры Remnawave..."
@@ -124,7 +124,7 @@ docker run --rm \
   -v ${DB_VOLUME}:/volume \
   -v "$TMP_RESTORE_DIR":/backup \
   alpine \
-  sh -c "sudo rm -rf /volume/* && tar xzvf /backup/remnawave-db-backup-*.tar.gz -C /volume"
+  sh -c "rm -rf /volume/* && tar xzvf /backup/remnawave-db-backup-*.tar.gz -C /volume"
 success "Том $DB_VOLUME восстановлен."
 
 info "Восстанавливаю том $REDIS_VOLUME..."
@@ -132,7 +132,7 @@ docker run --rm \
   -v ${REDIS_VOLUME}:/volume \
   -v "$TMP_RESTORE_DIR":/backup \
   alpine \
-  sh -c "sudo rm -rf /volume/* && tar xzvf /backup/remnawave-redis-backup-*.tar.gz -C /volume"
+  sh -c "rm -rf /volume/* && tar xzvf /backup/remnawave-redis-backup-*.tar.gz -C /volume"
 success "Том $REDIS_VOLUME восстановлен."
 
 info "Удаляю рабочую папку восстановления..."
