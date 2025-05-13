@@ -48,17 +48,17 @@ docker run --rm \
   -v ${DB_VOLUME}:/volume \
   -v "$BACKUP_DIR":/backup \
   alpine \
-  tar czvf /backup/$DB_TAR -C /volume .
+  tar czf /backup/$DB_TAR -C /volume .
 
 info "Бэкап тома $REDIS_VOLUME..."
 docker run --rm \
   -v ${REDIS_VOLUME}:/volume \
   -v "$BACKUP_DIR":/backup \
   alpine \
-  tar czvf /backup/$REDIS_TAR -C /volume .
+  tar czf /backup/$REDIS_TAR -C /volume .
 
 info "Архивация..."
-tar czvf "$BACKUP_DIR/$FINAL_ARCHIVE" -C "$BACKUP_DIR" "$DB_TAR" "$REDIS_TAR"
+tar czf "$BACKUP_DIR/$FINAL_ARCHIVE" -C "$BACKUP_DIR" "$DB_TAR" "$REDIS_TAR"
 
 rm "$BACKUP_DIR/$DB_TAR" "$BACKUP_DIR/$REDIS_TAR"
 
