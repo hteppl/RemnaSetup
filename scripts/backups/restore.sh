@@ -16,7 +16,7 @@ info "Восстановление Remnawave из бэкапа"
 
 for v in $DB_VOLUME $REDIS_VOLUME; do
   if ! docker volume inspect $v &>/dev/null; then
-    error "Docker volume $v не найден! Восстанавливать нечего."
+    error "Docker volume $v не найден! Проверьте, что Remnawave установлен."
     read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."; exit 1
   fi
 done
