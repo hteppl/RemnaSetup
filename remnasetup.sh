@@ -94,11 +94,12 @@ display_main_menu() {
     clear
     print_header
     menu "Главное меню:"
-    echo -e "${BLUE}1. Установка/обновление Remnawave${RESET}"
-    echo -e "${BLUE}2. Установка/обновление Remnanode${RESET}"
+    echo -e "${BLUE}1. Установка/Обновление Remnawave${RESET}"
+    echo -e "${BLUE}2. Установка/Обновление Remnanode${RESET}"
+    echo -e "${BLUE}3. Бекап/Восстановление Remnawave (альфа)${RESET}"
     echo -e "${RED}0. Выход${RESET}"
     echo
-    read -p "$(echo -e "${BOLD_CYAN}Выберите пункт меню (0-2):${RESET}") " MAIN_OPTION
+    read -p "$(echo -e "${BOLD_CYAN}Выберите пункт меню (0-3):${RESET}") " MAIN_OPTION
     echo
 }
 
@@ -148,6 +149,17 @@ while true; do
                         5) run_script "${SCRIPT_DIR}/scripts/remnanode/install-bbr.sh" ;;
                         6) run_script "${SCRIPT_DIR}/scripts/remnanode/install-warp.sh" ;;
                         7) run_script "${SCRIPT_DIR}/scripts/remnanode/update.sh" ;;
+                        8) break ;;
+                        *) warn "Неверный выбор. Попробуйте снова." ;;
+        esac
+      done
+      ;;
+    3)
+      while true; do
+        display_remnawave_menu
+        case $REMNAWAVE_OPTION in
+                        1) run_script "${SCRIPT_DIR}/scripts/backups/backup.sh" ;;
+                        2) run_script "${SCRIPT_DIR}/scripts/backups/restore.sh" ;;
                         8) break ;;
                         *) warn "Неверный выбор. Попробуйте снова." ;;
         esac
