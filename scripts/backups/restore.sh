@@ -27,10 +27,9 @@ for c in $DB_CONTAINER $REDIS_CONTAINER $PANEL_CONTAINER; do
   fi
 done
 
-if [[ ! -d "$BACKUP_DIR" ]]; then
-  warn "Папка $BACKUP_DIR не найдена. Создайте её командой: sudo mkdir -p $BACKUP_DIR && sudo chown $(whoami) $BACKUP_DIR"
-  read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."; exit 1
-fi
+sudo mkdir -p "$BACKUP_DIR"
+info "Папка $BACKUP_DIR создана. Пожалуйста, положите архив в эту папку и нажмите любую клавишу для продолжения."
+read -n 1 -s -r -p "Нажмите любую клавишу для продолжения..."
 
 while true; do
   mapfile -t ARCHIVES < <(find "$BACKUP_DIR" -maxdepth 1 -type f -name 'remnawave-backup-*.tar.gz' | sort)
@@ -85,8 +84,8 @@ done
 
 info "Копирование архива в рабочую папку..."
 rm -rf "$WORK_DIR"
-mkdir -p "$WORK_DIR"
-cp "$ARCHIVE_PATH" "$WORK_DIR/"
+sudo mkdir -p "$WORK_DIR"
+sudo cp "$ARCHIVE_PATH" "$WORK_DIR/"
 ARCHIVE_BASENAME=$(basename "$ARCHIVE_PATH")
 WORK_ARCHIVE="$WORK_DIR/$ARCHIVE_BASENAME"
 success "Архив скопирован: $WORK_ARCHIVE"
@@ -116,8 +115,8 @@ success "Контейнеры остановлены."
 
 info "Распаковка архива в рабочую папку..."
 TMP_RESTORE_DIR="$WORK_DIR/unpack"
-mkdir -p "$TMP_RESTORE_DIR"
-tar xzvf "$WORK_ARCHIVE" -C "$TMP_RESTORE_DIR"
+sudo mkdir -p "$TMP_RESTORE_DIR"
+sudo tar xzvf "$WORK_ARCHIVE" -C "$TMP_RESTORE_DIR"
 success "Архив распакован."
 
 info "Восстанавливаю том $DB_VOLUME..."
@@ -125,7 +124,7 @@ docker run --rm \
   -v ${DB_VOLUME}:/volume \
   -v "$TMP_RESTORE_DIR":/backup \
   alpine \
-  sh -c "rm -rf /volume/* && tar xzvf /backup/remnawave-db-backup-*.tar.gz -C /volume"
+  sh -c "sudo rm -rf /volume/* && tar xzvf /backup/remnawave-db-backup-*.tar.gz -C /volume"
 success "Том $DB_VOLUME восстановлен."
 
 info "Восстанавливаю том $REDIS_VOLUME..."
@@ -133,11 +132,11 @@ docker run --rm \
   -v ${REDIS_VOLUME}:/volume \
   -v "$TMP_RESTORE_DIR":/backup \
   alpine \
-  sh -c "rm -rf /volume/* && tar xzvf /backup/remnawave-redis-backup-*.tar.gz -C /volume"
+  sh -c "sudo rm -rf /volume/* && tar xzvf /backup/remnawave-redis-backup-*.tar.gz -C /volume"
 success "Том $REDIS_VOLUME восстановлен."
 
 info "Удаляю рабочую папку восстановления..."
-rm -rf "$WORK_DIR"
+sudo rm -rf "$WORK_DIR"
 success "Рабочая папка удалена."
 
 info "Запускаю контейнеры Remnawave..."
