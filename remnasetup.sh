@@ -96,9 +96,10 @@ display_backup_menu() {
     menu "Меню бекапа/восстановления:"
     echo -e "${BLUE}1. Бекап Remnawave${RESET}"
     echo -e "${BLUE}2. Восстановление Remnawave${RESET}"
+    echo -e "${BLUE}3. Авто-бекап(альфа)${RESET}"
     echo -e "${RED}0. Выход${RESET}"
     echo
-    read -p "$(echo -e "${BOLD_CYAN}Выберите пункт меню (0-2):${RESET}") " BACKUP_OPTION
+    read -p "$(echo -e "${BOLD_CYAN}Выберите пункт меню (0-3):${RESET}") " BACKUP_OPTION
     echo
 }
 
@@ -172,6 +173,7 @@ while true; do
         case $BACKUP_OPTION in
                         1) run_script "${SCRIPT_DIR}/scripts/backups/backup.sh" ;;
                         2) run_script "${SCRIPT_DIR}/scripts/backups/restore.sh" ;;
+                        3) run_script "${SCRIPT_DIR}/scripts/backups/auto_backup.sh" ;;
                         0) break ;;
                         *) warn "Неверный выбор. Попробуйте снова." ;;
         esac
