@@ -53,9 +53,9 @@ for i in "${!ARCHIVES[@]}"; do
 done
 
 while true; do
-  read -p "Введите номер бэкапа для восстановления: " CHOICE
-  if [[ "$CHOICE" =~ ^[0-9]+$ ]] && (( CHOICE >= 1 && CHOICE <= ${#ARCHIVES[@]} )); then
-    ARCHIVE_PATH="${ARCHIVES[$((CHOICE-1))]}"
+  question "Введите номер бэкапа для восстановления:"
+  if [[ "$REPLY" =~ ^[0-9]+$ ]] && (( REPLY >= 1 && REPLY <= ${#ARCHIVES[@]} )); then
+    ARCHIVE_PATH="${ARCHIVES[$((REPLY-1))]}"
     info "Выбран архив: $ARCHIVE_PATH"
     break
   else
