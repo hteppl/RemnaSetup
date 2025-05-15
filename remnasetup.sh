@@ -96,7 +96,7 @@ display_backup_menu() {
     menu "Меню бекапа/восстановления:"
     echo -e "${BLUE}1. Бекап Remnawave${RESET}"
     echo -e "${BLUE}2. Восстановление Remnawave${RESET}"
-    echo -e "${BLUE}3. Авто-бекап(альфа)${RESET}"
+    echo -e "${BLUE}3. Авто-бекап${RESET}"
     echo -e "${RED}0. Выход${RESET}"
     echo
     read -p "$(echo -e "${BOLD_CYAN}Выберите пункт меню (0-3):${RESET}") " BACKUP_OPTION

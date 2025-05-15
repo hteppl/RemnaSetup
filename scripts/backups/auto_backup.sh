@@ -17,6 +17,7 @@ check_time_format() {
     return 0
 }
 
+info "Текущее время сервера: $(date +%H:%M)"
 while true; do
     question "Введите время авто бэкапа (например 23:00):"
     if check_time_format "$REPLY"; then
