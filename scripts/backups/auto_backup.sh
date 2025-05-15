@@ -17,16 +17,47 @@ check_time_format() {
     return 0
 }
 
-info "Текущее время сервера: $(date +%H:%M)"
+cleanup_old_crons() {
+    info "Очистка старых задач бэкапа..."
+    crontab -l 2>/dev/null | grep -v "$AUTO_BACKUP_DIR/backup.sh" | crontab -
+}
+
 while true; do
-    question "Введите время авто бэкапа (например 23:00):"
-    if check_time_format "$REPLY"; then
-        BACKUP_TIME="$REPLY"
-        break
-    else
-        warn "Неверный формат времени. Используйте 24-часовой формат (например: 23:00)"
-    fi
+    question "Выберите режим бэкапа (y - раз в сутки, n - каждые n часов):"
+    case $REPLY in
+        [Yy]* ) BACKUP_MODE="daily"; break;;
+        [Nn]* ) BACKUP_MODE="hourly"; break;;
+        * ) warn "Пожалуйста, ответьте y или n";;
+    esac
 done
+
+if [ "$BACKUP_MODE" = "daily" ]; then
+    info "Текущее время сервера: $(date +%H:%M)"
+    while true; do
+        question "Введите время авто бэкапа (например 23:00):"
+        if check_time_format "$REPLY"; then
+            BACKUP_TIME="$REPLY"
+            break
+        else
+            warn "Неверный формат времени. Используйте 24-часовой формат (например: 23:00)"
+        fi
+    done
+
+    HOUR=${BACKUP_TIME%%:*}
+    MINUTE=${BACKUP_TIME#*:}
+    CRON_SCHEDULE="$MINUTE $HOUR * * *"
+else
+    while true; do
+        question "Введите интервал между бэкапами в часах (1-23):"
+        if [[ "$REPLY" =~ ^[1-9]$|^1[0-9]$|^2[0-3]$ ]]; then
+            INTERVAL_HOURS="$REPLY"
+            break
+        else
+            warn "Пожалуйста, введите число от 1 до 23"
+        fi
+    done
+    CRON_SCHEDULE="0 */$INTERVAL_HOURS * * *"
+fi
 
 question "Введите максимальное время хранения бэкапа в днях (по умолчанию 3):"
 STORAGE_DAYS="$REPLY"
@@ -45,7 +76,7 @@ if [ "$USE_TELEGRAM" = true ]; then
     question "Введите токен бота:"
     BOT_TOKEN="$REPLY"
     
-    question "Введите chat_id:"
+    question "Введите свой chat_id:"
     CHAT_ID="$REPLY"
 
     cp "$SCRIPT_DIR/backup_script_tg.sh" "$AUTO_BACKUP_DIR/backup.sh"
@@ -59,11 +90,16 @@ sed -i "s/-mtime +3/-mtime +$STORAGE_DAYS/" "$AUTO_BACKUP_DIR/backup.sh"
 
 chmod +x "$AUTO_BACKUP_DIR/backup.sh"
 
-HOUR=${BACKUP_TIME%%:*}
-MINUTE=${BACKUP_TIME#*:}
-(crontab -l 2>/dev/null; echo "$MINUTE $HOUR * * * $AUTO_BACKUP_DIR/backup.sh") | crontab -
+cleanup_old_crons
 
-success "Автобэкап настроен на время $BACKUP_TIME"
+(crontab -l 2>/dev/null; echo "$CRON_SCHEDULE $AUTO_BACKUP_DIR/backup.sh") | crontab -
+
+success "Автобэкап настроен"
+if [ "$BACKUP_MODE" = "daily" ]; then
+    success "Бэкап будет выполняться ежедневно в $BACKUP_TIME"
+else
+    success "Бэкап будет выполняться каждые $INTERVAL_HOURS часов"
+fi
 success "Бэкапы будут храниться $STORAGE_DAYS дней"
 if [ "$USE_TELEGRAM" = true ]; then
     success "Настроена отправка в Telegram"
