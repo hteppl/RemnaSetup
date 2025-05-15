@@ -54,47 +54,28 @@ update_caddy_config() {
 }
 
 main() {
+    while true; do
+        question "Введите доменное для self-style (например, noda1.domain.com):"
+        DOMAIN="$REPLY"
+        if [[ -n "$DOMAIN" ]]; then
+            break
+        fi
+        warn "Домен не может быть пустым. Пожалуйста, введите значение."
+    done
+
+    while true; do
+        question "Введите порт для self-style (по умолчанию 8443):"
+        MONITOR_PORT="$REPLY"
+        MONITOR_PORT=${MONITOR_PORT:-8443}
+        if [[ "$MONITOR_PORT" =~ ^[0-9]+$ ]]; then
+            break
+        fi
+        warn "Порт должен быть числом."
+    done
+
     if check_caddy; then
-        while true; do
-            question "Введите доменное для self-style (например, noda1.domain.com):"
-            DOMAIN="$REPLY"
-            if [[ -n "$DOMAIN" ]]; then
-                break
-            fi
-            warn "Домен не может быть пустым. Пожалуйста, введите значение."
-        done
-
-        while true; do
-            question "Введите порт для self-style (по умолчанию 8443):"
-            MONITOR_PORT="$REPLY"
-            MONITOR_PORT=${MONITOR_PORT:-8443}
-            if [[ "$MONITOR_PORT" =~ ^[0-9]+$ ]]; then
-                break
-            fi
-            warn "Порт должен быть числом."
-        done
-
         update_caddy_config
     else
-        while true; do
-            question "Введите доменное для self-style (например, noda1.domain.com):"
-            DOMAIN="$REPLY"
-            if [[ -n "$DOMAIN" ]]; then
-                break
-            fi
-            warn "Домен не может быть пустым. Пожалуйста, введите значение."
-        done
-
-        while true; do
-            question "Введите порт для self-style (по умолчанию 8443):"
-            MONITOR_PORT="$REPLY"
-            MONITOR_PORT=${MONITOR_PORT:-8443}
-            if [[ "$MONITOR_PORT" =~ ^[0-9]+$ ]]; then
-                break
-            fi
-            warn "Порт должен быть числом."
-        done
-
         install_caddy
         setup_site
         update_caddy_config
