@@ -94,7 +94,7 @@ check_components() {
 request_data() {
     if [[ "$SKIP_CADDY" != "true" ]]; then
         while true; do
-            question "Введите доменное имя для self-style (например, noda1.domain.com, n для пропуска):"
+            question "Введите доменное имя для self-styl (например, noda1.domain.com, n для пропуска):"
             DOMAIN="$REPLY"
             if [[ "$DOMAIN" == "n" || "$DOMAIN" == "N" ]]; then
                 while true; do
@@ -120,7 +120,7 @@ request_data() {
 
         if [[ "$SKIP_CADDY" != "true" ]]; then
             while true; do
-                question "Введите порт для self-style (по умолчанию 8443, n для пропуска):"
+                question "Введите порт для self-styl (по умолчанию 8443, n для пропуска):"
                 MONITOR_PORT="$REPLY"
                 if [[ "$MONITOR_PORT" == "n" || "$MONITOR_PORT" == "N" ]]; then
                     while true; do
