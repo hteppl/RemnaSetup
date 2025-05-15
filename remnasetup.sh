@@ -156,7 +156,7 @@ while true; do
         display_remnanode_menu
         case $REMNANODE_OPTION in
                         1) run_script "${SCRIPT_DIR}/scripts/remnanode/install-full.sh" ;;
-                        2) run_script "${SCRIPT_DIR}/scripts/remnanode/install-panel.sh" ;;
+                        2) run_script "${SCRIPT_DIR}/scripts/remnanode/install-node.sh" ;;
                         3) run_script "${SCRIPT_DIR}/scripts/remnanode/install-caddy.sh" ;;
                         4) run_script "${SCRIPT_DIR}/scripts/remnanode/install-tblocker.sh" ;;
                         5) run_script "${SCRIPT_DIR}/scripts/remnanode/install-bbr.sh" ;;
