@@ -47,7 +47,7 @@ generate_jwt() {
 generate_short_ids() {
     local ids=""
     for i in {1..20}; do
-        id=$(head -c 8 /dev/urandom | xxd -p)
+        id=$(openssl rand -hex 8)
         if [ $i -eq 20 ]; then
             ids="${ids}\"$id\""
         else
