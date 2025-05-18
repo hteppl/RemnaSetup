@@ -3,6 +3,26 @@
 source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
 
+check_warp() {
+    if command -v warp-cli >/dev/null 2>&1; then
+        info "WARP уже установлен"
+        while true; do
+            question "Хотите переустановить WARP? (y/n):"
+            REINSTALL="$REPLY"
+            if [[ "$REINSTALL" == "y" || "$REINSTALL" == "Y" ]]; then
+                return 1
+            elif [[ "$REINSTALL" == "n" || "$REINSTALL" == "N" ]]; then
+                info "Переустановка отменена. Вернитесь в меню."
+                read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+                exit 0
+            else
+                warn "Пожалуйста, введите только 'y' или 'n'"
+            fi
+        done
+    fi
+    return 0
+}
+
 check_connection() {
     if warp-cli --accept-tos status | grep -q "Status update: Connected"; then
         return 1
@@ -82,20 +102,10 @@ install_warp() {
     warn "Порт $WARP_PORT не нужно открывать!"
 }
 
-main() {
-    local need_reinstall=0
-    if command -v warp-cli >/dev/null 2>&1; then
-        info "WARP уже установлен"
-        question "Хотите переустановить WARP? (y/n):"
-        read -r reinstall
-        if [[ ! "$reinstall" =~ ^[Yy]$ ]]; then
-            info "Переустановка отменена. Вернитесь в меню."
-            read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-            exit 0
-        fi
-        need_reinstall=1
-    fi
 
+main() {
+    check_warp
+    need_reinstall=$?
     while true; do
         question "Введите порт для WARP (1000-65535, по умолчанию 40000):"
         WARP_PORT="$REPLY"
@@ -112,7 +122,7 @@ main() {
 
     if [ $need_reinstall -eq 1 ]; then
         info "Удаление WARP..."
-        systemctl stop warp-svc
+        systemctl stop warp-svc || killall -9 warp-svc
         systemctl disable warp-svc
         apt remove -y cloudflare-warp
         apt autoremove -y
