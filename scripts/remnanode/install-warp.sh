@@ -8,21 +8,12 @@ check_warp() {
         info "WARP уже установлен"
         question "Хотите переустановить WARP? (y/n):"
         read -r reinstall
-        if [[ "$reinstall" =~ ^[Yy]$ ]]; then
-            info "Удаление WARP..."
-            systemctl stop warp-svc
-            systemctl disable warp-svc
-            apt remove -y cloudflare-warp
-            apt autoremove -y
-            rm -f /etc/apt/sources.list.d/cloudflare-client.list
-            rm -f /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
-            rm -rf /var/lib/cloudflare-warp
-            return 0
-        else
+        if [[ ! "$reinstall" =~ ^[Yy]$ ]]; then
             info "Переустановка отменена. Вернитесь в меню."
             read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
             exit 0
         fi
+        return 1
     fi
     return 0
 }
@@ -107,8 +98,9 @@ install_warp() {
 }
 
 main() {
-    if ! check_warp; then
-        return 0
+    local need_reinstall=0
+    if check_warp; then
+        need_reinstall=1
     fi
 
     while true; do
@@ -125,6 +117,17 @@ main() {
         fi
         warn "Порт должен быть числом от 1000 до 65535."
     done
+
+    if [ $need_reinstall -eq 1 ]; then
+        info "Удаление WARP..."
+        systemctl stop warp-svc
+        systemctl disable warp-svc
+        apt remove -y cloudflare-warp
+        apt autoremove -y
+        rm -f /etc/apt/sources.list.d/cloudflare-client.list
+        rm -f /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+        rm -rf /var/lib/cloudflare-warp
+    fi
 
     install_warp "$WARP_PORT"
     read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
