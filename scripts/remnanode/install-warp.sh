@@ -4,8 +4,8 @@ source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
 
 check_warp() {
-    if command -v wireproxy >/dev/null 2>&1; then
-        info "WARP (WireProxy) уже установлен"
+    if command -v warp-cli >/dev/null 2>&1; then
+        info "WARP уже установлен"
         info "Переустановка невозможна. Вернитесь в меню."
         read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
         exit 0
@@ -15,27 +15,35 @@ check_warp() {
 
 install_warp() {
     local WARP_PORT="$1"
-    info "Установка WARP (WireProxy)..."
+    info "Установка WARP..."
 
-    if ! command -v expect >/dev/null 2>&1; then
-        info "Устанавливается пакет expect для автоматизации установки WARP..."
-        sudo apt update -y
-        sudo apt install -y expect
+    if [ -f /etc/os-release ]; then
+        source /etc/os-release
+        if [ "$ID" = "debian" ]; then
+            NETCAT_PKG="netcat-traditional"
+        else
+            NETCAT_PKG="netcat-openbsd"
+        fi
     fi
 
-    wget -N https://gitlab.com/fscarmen/warp/-/raw/main/menu.sh -O menu.sh
-    chmod +x menu.sh
+    info "Добавление ключа и репозитория Cloudflare WARP..."
+    curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+    echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/cloudflare-client.list
 
-    expect <<EOF
-spawn bash menu.sh w
-expect "Choose:" { send "1\r" }
-expect "Choose:" { send "1\r" }
-expect "Please customize the Client port" { send "$WARP_PORT\r" }
-expect "Choose:" { send "1\r" }
-expect eof
-EOF
-    rm -f menu.sh
-    success "WARP успешно установлен!"
+    info "Обновление репозиториев..."
+    apt update
+
+    info "Установка WARP и необходимых пакетов..."
+    apt install -y cloudflare-warp $NETCAT_PKG
+
+    info "Настройка WARP..."
+    warp-cli --accept-tos registration new
+    warp-cli --accept-tos mode proxy
+    warp-cli --accept-tos proxy port $WARP_PORT
+    warp-cli --accept-tos connect
+
+    success "WARP успешно установлен и настроен!"
+    info "SOCKS прокси доступен по адресу: 127.0.0.1:$WARP_PORT"
 }
 
 main() {
