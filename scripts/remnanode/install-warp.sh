@@ -3,21 +3,6 @@
 source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
 
-check_warp() {
-    if command -v warp-cli >/dev/null 2>&1; then
-        info "WARP уже установлен"
-        question "Хотите переустановить WARP? (y/n):"
-        read -r reinstall
-        if [[ ! "$reinstall" =~ ^[Yy]$ ]]; then
-            info "Переустановка отменена. Вернитесь в меню."
-            read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-            exit 0
-        fi
-        return 1
-    fi
-    return 0
-}
-
 check_connection() {
     if warp-cli --accept-tos status | grep -q "Status update: Connected"; then
         return 1
@@ -99,7 +84,15 @@ install_warp() {
 
 main() {
     local need_reinstall=0
-    if check_warp; then
+    if command -v warp-cli >/dev/null 2>&1; then
+        info "WARP уже установлен"
+        question "Хотите переустановить WARP? (y/n):"
+        read -r reinstall
+        if [[ ! "$reinstall" =~ ^[Yy]$ ]]; then
+            info "Переустановка отменена. Вернитесь в меню."
+            read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+            exit 0
+        fi
         need_reinstall=1
     fi
 
@@ -107,7 +100,6 @@ main() {
         question "Введите порт для WARP (1000-65535, по умолчанию 40000):"
         WARP_PORT="$REPLY"
         WARP_PORT=${WARP_PORT:-40000}
-        
         if [[ "$WARP_PORT" =~ ^[0-9]+$ ]] && [ "$WARP_PORT" -ge 1000 ] && [ "$WARP_PORT" -le 65535 ]; then
             if nc -z 127.0.0.1 "$WARP_PORT" 2>/dev/null; then
                 error "Порт $WARP_PORT уже занят. Выберите другой порт."
