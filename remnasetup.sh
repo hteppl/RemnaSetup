@@ -79,7 +79,7 @@ display_remnanode_menu() {
   menu "Меню Remnanode:"
   echo -e "${BLUE}1. Полная установка (Remnanode + Caddy + Tblocker + BBR + WARP)${RESET}"
   echo -e "${BLUE}2. Только Remnanode${RESET}"
-  echo -e "${BLUE}3. Только Caddy + self-styl${RESET}"
+  echo -e "${BLUE}3. Только Caddy + self-steal${RESET}"
   echo -e "${BLUE}4. Только Tblocker${RESET}"
   echo -e "${BLUE}5. Только BBR${RESET}"
   echo -e "${BLUE}6. Установить WARP${RESET}"
