@@ -36,6 +36,12 @@ install_warp() {
     info "Установка WARP и необходимых пакетов..."
     apt install -y cloudflare-warp $NETCAT_PKG
 
+    info "Ожидание запуска сервиса WARP..."
+    sleep 5
+    while ! systemctl is-active --quiet warp-svc; do
+        sleep 2
+    done
+
     info "Настройка WARP..."
     warp-cli --accept-tos registration new
     warp-cli --accept-tos mode proxy
