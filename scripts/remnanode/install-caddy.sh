@@ -55,7 +55,7 @@ update_caddy_config() {
 
 main() {
     while true; do
-        question "Введите доменное для self-styl (например, noda1.domain.com):"
+        question "Введите доменное для self-steal (например, noda1.domain.com):"
         DOMAIN="$REPLY"
         if [[ -n "$DOMAIN" ]]; then
             break
@@ -64,7 +64,7 @@ main() {
     done
 
     while true; do
-        question "Введите порт для self-styl (по умолчанию 8443):"
+        question "Введите порт для self-steal (по умолчанию 8443):"
         MONITOR_PORT="$REPLY"
         MONITOR_PORT=${MONITOR_PORT:-8443}
         if [[ "$MONITOR_PORT" =~ ^[0-9]+$ ]]; then
