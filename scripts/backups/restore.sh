@@ -70,16 +70,17 @@ if [ "$SOURCE" = "telegram" ]; then
     question "Введите свой chat_id:"
     CHAT_ID="$REPLY"
     
-    info "Отправьте архив в бота или ответьте на сообщение с архивом и нажмите любую клавишу для продолжения..."
-    read -n 1 -s -r
-    
-    info "Получение списка бэкапов из Telegram..."
-    mapfile -t TG_BACKUPS < <(get_telegram_backups "$BOT_TOKEN" "$CHAT_ID")
-    
-    if [ ${#TG_BACKUPS[@]} -eq 0 ]; then
-        error "Не найдено бэкапов в Telegram"
-        read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."; exit 1
-    fi
+    while true; do
+        info "Отправьте архив боту в сообщениях и нажмите любую клавишу для продолжения..."
+        read -n 1 -s -r
+        info "Получение списка бэкапов из Telegram..."
+        mapfile -t TG_BACKUPS < <(get_telegram_backups "$BOT_TOKEN" "$CHAT_ID")
+        if [ ${#TG_BACKUPS[@]} -eq 0 ]; then
+            warn "Не найдено бэкапов в Telegram. Пожалуйста, отправьте архив напрямую боту и попробуйте снова."
+        else
+            break
+        fi
+    done
     
     echo "Доступные бэкапы в Telegram:"
     for i in "${!TG_BACKUPS[@]}"; do
@@ -197,7 +198,7 @@ rm -f "$BACKUP_DIR/db_backup.tar.gz" "$BACKUP_DIR/.env" "$BACKUP_DIR/docker-comp
 if [ "$SOURCE" = "telegram" ]; then
     curl -F "chat_id=$CHAT_ID" \
          -F document=@"$BACKUP_DIR/$RESERVE_ARCHIVE" \
-         "https://api.telegram.org/bot$BOT_TOKEN/sendDocument"
+         "https://api.telegram.org/bot$BOT_TOKEN/sendDocument" >/dev/null 2>&1
 fi
 
 success "Резервная копия текущих данных: $BACKUP_DIR/$RESERVE_ARCHIVE"
