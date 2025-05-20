@@ -229,11 +229,12 @@ docker run --rm \
     sh -c "rm -rf /volume/*"
 
 info "Восстанавливаю базу данных..."
+DB_BACKUP_FILE=$(ls "$TMP_RESTORE_DIR"/remnawave-db-backup-*.tar.gz 2>/dev/null | head -n1)
 docker run --rm \
     -v ${DB_VOLUME}:/volume \
     -v "$TMP_RESTORE_DIR":/backup \
     alpine \
-    tar xzf /backup/remnawave-db-backup-*.tar.gz -C /volume
+    tar xzf /backup/$(basename "$DB_BACKUP_FILE") -C /volume
 
 info "Удаляю временные файлы..."
 rm -rf "$WORK_DIR"
