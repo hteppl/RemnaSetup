@@ -64,6 +64,16 @@ STORAGE_DAYS="$REPLY"
 STORAGE_DAYS=${STORAGE_DAYS:-3}
 
 while true; do
+    question "Введите пароль для архива (минимум 8 символов):"
+    read -s PASSWORD
+    if [ ${#PASSWORD} -ge 8 ]; then
+        break
+    else
+        warn "Пароль должен содержать минимум 8 символов"
+    fi
+done
+
+while true; do
     question "Хотите отправку бэкапа в телеграм бота? (y/n):"
     case $REPLY in
         [Yy]* ) USE_TELEGRAM=true; break;;
@@ -86,6 +96,7 @@ else
     cp "$SCRIPT_DIR/backup_script.sh" "$AUTO_BACKUP_DIR/backup.sh"
 fi
 
+sed -i "s/PASSWORD=\"\"/PASSWORD=\"$PASSWORD\"/" "$AUTO_BACKUP_DIR/backup.sh"
 sed -i "s/-mtime +3/-mtime +$STORAGE_DAYS/" "$AUTO_BACKUP_DIR/backup.sh"
 
 chmod +x "$AUTO_BACKUP_DIR/backup.sh"

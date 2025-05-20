@@ -3,11 +3,12 @@
 BACKUP_DIR="/opt/backups"
 DATE=$(date +%F_%H-%M-%S)
 DB_VOLUME="remnawave-db-data"
-REDIS_VOLUME="remnawave-redis-data"
+REMWAVE_DIR="/opt/remnawave"
 
 DB_TAR="remnawave-db-backup-$DATE.tar.gz"
-REDIS_TAR="remnawave-redis-backup-$DATE.tar.gz"
-FINAL_ARCHIVE="remnawave-backup-$DATE.tar.gz"
+FINAL_ARCHIVE="remnawave-backup-$DATE.7z"
+
+PASSWORD=""
 
 mkdir -p "$BACKUP_DIR"
 
@@ -17,16 +18,13 @@ docker run --rm \
   alpine \
   tar czf /backup/$DB_TAR -C /volume .
 
-docker run --rm \
-  -v ${REDIS_VOLUME}:/volume \
-  -v "$BACKUP_DIR":/backup \
-  alpine \
-  tar czf /backup/$REDIS_TAR -C /volume .
+cp "$REMWAVE_DIR/.env" "$BACKUP_DIR/"
+cp "$REMWAVE_DIR/docker-compose.yml" "$BACKUP_DIR/"
 
-tar czf "$BACKUP_DIR/$FINAL_ARCHIVE" -C "$BACKUP_DIR" "$DB_TAR" "$REDIS_TAR"
+7z a -t7z -m0=lzma2 -mx=9 -mfb=273 -md=64m -ms=on -p"$PASSWORD" "$BACKUP_DIR/$FINAL_ARCHIVE" "$BACKUP_DIR/$DB_TAR" "$BACKUP_DIR/.env" "$BACKUP_DIR/docker-compose.yml"
 
-rm "$BACKUP_DIR/$DB_TAR" "$BACKUP_DIR/$REDIS_TAR"
+rm "$BACKUP_DIR/$DB_TAR" "$BACKUP_DIR/.env" "$BACKUP_DIR/docker-compose.yml"
 
-find "$BACKUP_DIR" -name "remnawave-backup-*.tar.gz" -type f -mtime +3 -delete
+find "$BACKUP_DIR" -name "remnawave-backup-*.7z" -type f -mtime +3 -delete
 
 exit 0 
