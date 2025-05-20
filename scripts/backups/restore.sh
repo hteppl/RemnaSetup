@@ -8,26 +8,11 @@ WORK_DIR="$BACKUP_DIR/restore_work"
 DATE=$(date +%F_%H-%M-%S)
 DB_VOLUME="remnawave-db-data"
 REDIS_VOLUME="remnawave-redis-data"
-DB_CONTAINER="remnawave-db"
-REDIS_CONTAINER="remnawave-redis"
+REMWAVE_DIR="/opt/remnawave"
 PANEL_CONTAINER="remnawave"
+DB_CONTAINER="remnawave-db"
 
 info "Восстановление Remnawave из бэкапа"
-
-for v in $DB_VOLUME $REDIS_VOLUME; do
-  if ! docker volume inspect $v &>/dev/null; then
-    error "Docker volume $v не найден! Проверьте, что Remnawave установлен."
-    read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."; exit 1
-  fi
-done
-for c in $DB_CONTAINER $REDIS_CONTAINER $PANEL_CONTAINER; do
-  if ! docker ps -a --format '{{.Names}}' | grep -qw "$c"; then
-    error "Контейнер $c не найден! Проверьте, что Remnawave установлен."
-    read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."; exit 1
-  fi
-done
-
-mkdir -p "$BACKUP_DIR"
 
 get_telegram_backups() {
     local bot_token=$1
@@ -38,7 +23,7 @@ get_telegram_backups() {
 
     local backups=()
     while IFS= read -r line; do
-        if [[ $line =~ remnawave-backup-[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}\.tar\.gz ]]; then
+        if [[ $line =~ remnawave-backup-[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}\.7z ]]; then
             backups+=("$line")
         fi
     done < <(jq -r '.result[].message.document.file_name' "$temp_file" 2>/dev/null)
@@ -58,7 +43,6 @@ download_telegram_backup() {
     
     if [ -n "$file_id" ]; then
         local file_path=$(curl -s "https://api.telegram.org/bot${bot_token}/getFile?file_id=${file_id}" | jq -r '.result.file_path')
-
         curl -s "https://api.telegram.org/file/bot${bot_token}/${file_path}" -o "$BACKUP_DIR/$file_name"
         rm -f "$temp_file"
         return 0
@@ -77,12 +61,17 @@ while true; do
     esac
 done
 
+mkdir -p "$BACKUP_DIR"
+
 if [ "$SOURCE" = "telegram" ]; then
     question "Введите токен бота:"
     BOT_TOKEN="$REPLY"
     
     question "Введите свой chat_id:"
     CHAT_ID="$REPLY"
+    
+    info "Отправьте архив в бота или ответьте на сообщение с архивом и нажмите любую клавишу для продолжения..."
+    read -n 1 -s -r
     
     info "Получение списка бэкапов из Telegram..."
     mapfile -t TG_BACKUPS < <(get_telegram_backups "$BOT_TOKEN" "$CHAT_ID")
@@ -113,9 +102,9 @@ if [ "$SOURCE" = "telegram" ]; then
         error "Не удалось скачать бэкап из Telegram"
         read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."; exit 1
     fi
-    success "Бэкап успешно скачан"
+    ARCHIVE_PATH="$BACKUP_DIR/$SELECTED_BACKUP"
 else
-    mapfile -t ARCHIVES < <(find "$BACKUP_DIR" -maxdepth 1 -type f -name 'remnawave-backup-*.tar.gz' | sort)
+    mapfile -t ARCHIVES < <(find "$BACKUP_DIR" -maxdepth 1 -type f -name 'remnawave-backup-*.7z' | sort)
     
     if [[ ${#ARCHIVES[@]} -eq 0 ]]; then
         info "Папка $BACKUP_DIR создана. Пожалуйста, положите архив в эту папку и нажмите любую клавишу для продолжения."
@@ -123,7 +112,7 @@ else
         echo
         
         while true; do
-            mapfile -t ARCHIVES < <(find "$BACKUP_DIR" -maxdepth 1 -type f -name 'remnawave-backup-*.tar.gz' | sort)
+            mapfile -t ARCHIVES < <(find "$BACKUP_DIR" -maxdepth 1 -type f -name 'remnawave-backup-*.7z' | sort)
             if [[ ${#ARCHIVES[@]} -eq 0 ]]; then
                 warn "В папке $BACKUP_DIR не найдено архивов бэкапа. Положите нужный архив в эту папку."
                 echo "Нажмите любую клавишу для продолжения или n для отмены."
@@ -155,91 +144,84 @@ else
     done
 fi
 
-for cmd in docker tar; do
-    if ! command -v $cmd &>/dev/null; then
-        warn "$cmd не найден. Пытаюсь установить..."
-        if command -v apt-get &>/dev/null; then
-            sudo apt-get update && sudo apt-get install -y $cmd
-        elif command -v yum &>/dev/null; then
-            sudo yum install -y $cmd
-        elif command -v apk &>/dev/null; then
-            sudo apk add $cmd
-        else
-            error "Не удалось установить $cmd. Установите вручную."
-            read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."; exit 1
-        fi
-        if ! command -v $cmd &>/dev/null; then
-            error "$cmd не установлен. Установите вручную."
-            read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."; exit 1
-        fi
-    fi
-done
+question "Введите пароль от архива:"
+read -s PASSWORD
+echo
 
-info "Копирование архива в рабочую папку..."
-rm -rf "$WORK_DIR"
-mkdir -p "$WORK_DIR"
-if [ "$SOURCE" = "telegram" ]; then
-    cp "$BACKUP_DIR/$SELECTED_BACKUP" "$WORK_DIR/"
-    WORK_ARCHIVE="$WORK_DIR/$SELECTED_BACKUP"
-else
-    cp "$ARCHIVE_PATH" "$WORK_DIR/"
-    ARCHIVE_BASENAME=$(basename "$ARCHIVE_PATH")
-    WORK_ARCHIVE="$WORK_DIR/$ARCHIVE_BASENAME"
+if ! command -v docker &>/dev/null; then
+    warn "Docker не найден. Пытаюсь установить..."
+    sudo curl -fsSL https://get.docker.com | sh
+    sudo systemctl start docker
+    sudo systemctl enable docker
 fi
-success "Архив скопирован: $WORK_ARCHIVE"
 
-info "Создаю резервную копию текущих данных..."
-RESERVE_DB="remnawave-db-backup-before-restore-$DATE.tar.gz"
-RESERVE_REDIS="remnawave-redis-backup-before-restore-$DATE.tar.gz"
-RESERVE_ARCHIVE="remnawave-backup-before-restore-$DATE.tar.gz"
+if [ ! -d "$REMWAVE_DIR" ]; then
+    info "Создаю директорию Remnawave..."
+    mkdir -p "$REMWAVE_DIR"
+fi
 
-docker run --rm \
-  -v ${DB_VOLUME}:/volume \
-  -v "$BACKUP_DIR":/backup \
-  alpine \
-  tar czf /backup/$RESERVE_DB -C /volume .
-docker run --rm \
-  -v ${REDIS_VOLUME}:/volume \
-  -v "$BACKUP_DIR":/backup \
-  alpine \
-  tar czf /backup/$RESERVE_REDIS -C /volume .
-tar czf "$BACKUP_DIR/$RESERVE_ARCHIVE" -C "$BACKUP_DIR" "$RESERVE_DB" "$RESERVE_REDIS"
-rm "$BACKUP_DIR/$RESERVE_DB" "$BACKUP_DIR/$RESERVE_REDIS"
-success "Резервная копия текущих данных: $BACKUP_DIR/$RESERVE_ARCHIVE"
-
-info "Останавливаю контейнеры Remnawave..."
-docker stop $PANEL_CONTAINER $DB_CONTAINER $REDIS_CONTAINER 2>/dev/null
-success "Контейнеры остановлены."
-
-info "Распаковка архива в рабочую папку..."
+info "Проверка архива..."
 TMP_RESTORE_DIR="$WORK_DIR/unpack"
 mkdir -p "$TMP_RESTORE_DIR"
-tar xzf "$WORK_ARCHIVE" -C "$TMP_RESTORE_DIR"
-success "Архив распакован."
+7z x -p"$PASSWORD" "$ARCHIVE_PATH" -o"$TMP_RESTORE_DIR" 2>/dev/null
+if [ $? -ne 0 ]; then
+    error "Неверный пароль или поврежденный архив"
+    read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."; exit 1
+fi
 
-info "Восстанавливаю том $DB_VOLUME..."
+info "Создаю резервную копию текущих данных..."
+RESERVE_ARCHIVE="remnawave-backup-before-restore-$DATE.7z"
+
+if [ -f "$REMWAVE_DIR/.env" ] && [ -f "$REMWAVE_DIR/docker-compose.yml" ]; then
+    cp "$REMWAVE_DIR/.env" "$BACKUP_DIR/"
+    cp "$REMWAVE_DIR/docker-compose.yml" "$BACKUP_DIR/"
+fi
+
+if docker volume inspect $DB_VOLUME &>/dev/null; then
+    docker run --rm \
+        -v ${DB_VOLUME}:/volume \
+        -v "$BACKUP_DIR":/backup \
+        alpine \
+        tar czf /backup/db_backup.tar.gz -C /volume .
+fi
+
+7z a -t7z -m0=lzma2 -mx=9 -mfb=273 -md=64m -ms=on -p"$PASSWORD" "$BACKUP_DIR/$RESERVE_ARCHIVE" "$BACKUP_DIR/db_backup.tar.gz" "$BACKUP_DIR/.env" "$BACKUP_DIR/docker-compose.yml" 2>/dev/null
+rm -f "$BACKUP_DIR/db_backup.tar.gz" "$BACKUP_DIR/.env" "$BACKUP_DIR/docker-compose.yml"
+
+if [ "$SOURCE" = "telegram" ]; then
+    curl -F "chat_id=$CHAT_ID" \
+         -F document=@"$BACKUP_DIR/$RESERVE_ARCHIVE" \
+         "https://api.telegram.org/bot$BOT_TOKEN/sendDocument"
+fi
+
+success "Резервная копия текущих данных: $BACKUP_DIR/$RESERVE_ARCHIVE"
+
+if [ -d "$REMWAVE_DIR" ]; then
+    info "Останавливаю и удаляю контейнеры..."
+    cd "$REMWAVE_DIR" && docker compose down
+    
+    info "Удаляю тома и файлы..."
+    docker volume rm $DB_VOLUME $REDIS_VOLUME 2>/dev/null || true
+    rm -f "$REMWAVE_DIR/.env" "$REMWAVE_DIR/docker-compose.yml"
+fi
+
+info "Восстанавливаю конфигурационные файлы..."
+cp "$TMP_RESTORE_DIR/.env" "$REMWAVE_DIR/"
+cp "$TMP_RESTORE_DIR/docker-compose.yml" "$REMWAVE_DIR/"
+
+info "Восстанавливаю базу данных..."
+docker volume create $DB_VOLUME
 docker run --rm \
-  -v ${DB_VOLUME}:/volume \
-  -v "$TMP_RESTORE_DIR":/backup \
-  alpine \
-  sh -c "rm -rf /volume/* && tar xzf /backup/remnawave-db-backup-*.tar.gz -C /volume"
-success "Том $DB_VOLUME восстановлен."
+    -v ${DB_VOLUME}:/volume \
+    -v "$TMP_RESTORE_DIR":/backup \
+    alpine \
+    sh -c "rm -rf /volume/* && tar xzf /backup/remnawave-db-backup-*.tar.gz -C /volume"
 
-info "Восстанавливаю том $REDIS_VOLUME..."
-docker run --rm \
-  -v ${REDIS_VOLUME}:/volume \
-  -v "$TMP_RESTORE_DIR":/backup \
-  alpine \
-  sh -c "rm -rf /volume/* && tar xzf /backup/remnawave-redis-backup-*.tar.gz -C /volume"
-success "Том $REDIS_VOLUME восстановлен."
-
-info "Удаляю рабочую папку восстановления..."
+info "Удаляю временные файлы..."
 rm -rf "$WORK_DIR"
-success "Рабочая папка удалена."
 
-info "Запускаю контейнеры Remnawave..."
-docker start $DB_CONTAINER $REDIS_CONTAINER $PANEL_CONTAINER 2>/dev/null
-success "Контейнеры запущены."
+info "Запускаю контейнеры..."
+cd "$REMWAVE_DIR" && docker compose up -d
 
 success "Восстановление завершено!"
 read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
