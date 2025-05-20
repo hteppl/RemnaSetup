@@ -16,7 +16,7 @@ mkdir -p "$BACKUP_DIR"
 
 while true; do
   question "Введите пароль для архива (минимум 8 символов):"
-  read -s ARCHIVE_PASSWORD
+  ARCHIVE_PASSWORD="$REPLY"
   if [ ${#ARCHIVE_PASSWORD} -ge 8 ]; then
     break
   else
