@@ -65,7 +65,7 @@ STORAGE_DAYS=${STORAGE_DAYS:-3}
 
 while true; do
     question "Введите пароль для архива (минимум 8 символов):"
-    read -s PASSWORD
+    PASSWORD="$REPLY"
     if [ ${#PASSWORD} -ge 8 ]; then
         break
     else

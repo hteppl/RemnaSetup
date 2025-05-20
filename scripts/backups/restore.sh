@@ -144,9 +144,15 @@ else
     done
 fi
 
-question "Введите пароль от архива:"
-read -s PASSWORD
-echo
+while true; do
+    question "Введите пароль от архива (минимум 8 символов):"
+    PASSWORD="$REPLY"
+    if [ ${#PASSWORD} -ge 8 ]; then
+        break
+    else
+        warn "Пароль должен содержать минимум 8 символов"
+    fi
+done
 
 if ! command -v docker &>/dev/null; then
     warn "Docker не найден. Пытаюсь установить..."
