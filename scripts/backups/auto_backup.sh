@@ -17,13 +17,45 @@ check_time_format() {
     return 0
 }
 
+get_hours_word() {
+    local hours=$1
+    local last_digit=$((hours % 10))
+    local last_two_digits=$((hours % 100))
+    
+    if [ $last_two_digits -ge 11 ] && [ $last_two_digits -le 19 ]; then
+        echo "часов"
+    elif [ $last_digit -eq 1 ]; then
+        echo "час"
+    elif [ $last_digit -ge 2 ] && [ $last_digit -le 4 ]; then
+        echo "часа"
+    else
+        echo "часов"
+    fi
+}
+
+get_days_word() {
+    local days=$1
+    local last_digit=$((days % 10))
+    local last_two_digits=$((days % 100))
+    
+    if [ $last_two_digits -ge 11 ] && [ $last_two_digits -le 19 ]; then
+        echo "дней"
+    elif [ $last_digit -eq 1 ]; then
+        echo "день"
+    elif [ $last_digit -ge 2 ] && [ $last_digit -le 4 ]; then
+        echo "дня"
+    else
+        echo "дней"
+    fi
+} 
+
 cleanup_old_crons() {
-    info "Очистка старых задач бэкапа..."
+    info "Очистка старых задач резервной копии..."
     crontab -l 2>/dev/null | grep -v "$AUTO_BACKUP_DIR/backup.sh" | crontab -
 }
 
 while true; do
-    question "Выберите режим бэкапа (y - раз в сутки, n - каждые n часов):"
+    question "Выберите режим резервной копии (y - раз в сутки, n - каждые n часов):"
     case $REPLY in
         [Yy]* ) BACKUP_MODE="daily"; break;;
         [Nn]* ) BACKUP_MODE="hourly"; break;;
@@ -34,7 +66,7 @@ done
 if [ "$BACKUP_MODE" = "daily" ]; then
     info "Текущее время сервера: $(date +%H:%M)"
     while true; do
-        question "Введите время авто бэкапа (например 23:00):"
+        question "Введите время авто резервной копии (например 23:00):"
         if check_time_format "$REPLY"; then
             BACKUP_TIME="$REPLY"
             break
@@ -48,7 +80,7 @@ if [ "$BACKUP_MODE" = "daily" ]; then
     CRON_SCHEDULE="$MINUTE $HOUR * * *"
 else
     while true; do
-        question "Введите интервал между бэкапами в часах (1-23):"
+        question "Введите интервал между резервными копиями в часах (1-23):"
         if [[ "$REPLY" =~ ^[1-9]$|^1[0-9]$|^2[0-3]$ ]]; then
             INTERVAL_HOURS="$REPLY"
             break
@@ -59,7 +91,7 @@ else
     CRON_SCHEDULE="0 */$INTERVAL_HOURS * * *"
 fi
 
-question "Введите максимальное время хранения бэкапа в днях (по умолчанию 3):"
+question "Введите максимальное время хранения резервной копии в днях (по умолчанию 3):"
 STORAGE_DAYS="$REPLY"
 STORAGE_DAYS=${STORAGE_DAYS:-3}
 
@@ -74,7 +106,7 @@ while true; do
 done
 
 while true; do
-    question "Хотите отправку бэкапа в телеграм бота? (y/n):"
+    question "Хотите отправлять резервную копию в Telegram-бота? (y/n):"
     case $REPLY in
         [Yy]* ) USE_TELEGRAM=true; break;;
         [Nn]* ) USE_TELEGRAM=false; break;;
@@ -83,10 +115,10 @@ while true; do
 done
 
 if [ "$USE_TELEGRAM" = true ]; then
-    question "Введите токен бота:"
+    question "Введите токен Telegram-бота:"
     BOT_TOKEN="$REPLY"
     
-    question "Введите свой chat_id:"
+    question "Введите ваш chat_id в Telegram:"
     CHAT_ID="$REPLY"
 
     cp "$SCRIPT_DIR/backup_script_tg.sh" "$AUTO_BACKUP_DIR/backup.sh"
@@ -105,16 +137,18 @@ cleanup_old_crons
 
 (crontab -l 2>/dev/null; echo "$CRON_SCHEDULE $AUTO_BACKUP_DIR/backup.sh") | crontab -
 
-success "Автобэкап настроен"
+success "Авторезервная копия настроена"
 if [ "$BACKUP_MODE" = "daily" ]; then
-    success "Бэкап будет выполняться ежедневно в $BACKUP_TIME"
+    success "Резервная копия будет выполняться ежедневно в $BACKUP_TIME"
 else
-    success "Бэкап будет выполняться каждые $INTERVAL_HOURS часов"
+    HOURS_WORD=$(get_hours_word "$INTERVAL_HOURS")
+    success "Резервная копия будет выполняться каждые $INTERVAL_HOURS $HOURS_WORD"
 fi
-success "Бэкапы будут храниться $STORAGE_DAYS дней"
+DAYS_WORD=$(get_days_word "$STORAGE_DAYS")
+success "Резервные копии будут храниться $STORAGE_DAYS $DAYS_WORD"
 if [ "$USE_TELEGRAM" = true ]; then
-    success "Настроена отправка в Telegram"
+    success "Настроена отправка в Telegram-бот"
 fi
 
 read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-exit 0 
+exit 0

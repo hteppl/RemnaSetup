@@ -93,10 +93,10 @@ display_remnanode_menu() {
 display_backup_menu() {
     clear
     print_header
-    menu "Меню бекапа/восстановления:"
-    echo -e "${BLUE}1. Бекап Remnawave${RESET}"
-    echo -e "${BLUE}2. Восстановление Remnawave${RESET}"
-    echo -e "${BLUE}3. Авто-бекап${RESET}"
+    menu "Меню резервной копии и восстановления:"
+    echo -e "${BLUE}1. Создать резервную копию Remnawave${RESET}"
+    echo -e "${BLUE}2. Восстановить из резервной копии Remnawave${RESET}"
+    echo -e "${BLUE}3. Настроить автоматическое резервное копирование${RESET}"
     echo -e "${RED}0. Выход${RESET}"
     echo
     read -p "$(echo -e "${BOLD_CYAN}Выберите пункт меню (0-3):${RESET}") " BACKUP_OPTION
@@ -109,7 +109,7 @@ display_main_menu() {
     menu "Главное меню:"
     echo -e "${BLUE}1. Установка/Обновление Remnawave${RESET}"
     echo -e "${BLUE}2. Установка/Обновление Remnanode${RESET}"
-    echo -e "${BLUE}3. Бекап/Восстановление Remnawave${RESET}"
+    echo -e "${BLUE}3. Резервное копирование и восстановление Remnawave${RESET}"
     echo -e "${RED}0. Выход${RESET}"
     echo
     read -p "$(echo -e "${BOLD_CYAN}Выберите пункт меню (0-3):${RESET}") " MAIN_OPTION
