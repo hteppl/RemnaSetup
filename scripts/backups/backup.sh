@@ -10,15 +10,28 @@ REMWAVE_DIR="/opt/remnawave"
 
 DB_TAR="remnawave-db-backup-$DATE.tar.gz"
 FINAL_ARCHIVE="remnawave-backup-$DATE.7z"
+TMP_DIR="$BACKUP_DIR/tmp-$DATE"
 
 mkdir -p "$BACKUP_DIR"
 
-for cmd in docker tar p7zip; do
+while true; do
+  question "Введите пароль для архива (минимум 8 символов):"
+  read -s ARCHIVE_PASSWORD
+  if [ ${#ARCHIVE_PASSWORD} -ge 8 ]; then
+    break
+  else
+    warn "Пароль должен содержать минимум 8 символов"
+  fi
+done
+
+echo
+
+for cmd in docker tar 7z; do
   if ! command -v $cmd &>/dev/null; then
     warn "$cmd не найден. Пытаюсь установить..."
     if command -v apt-get &>/dev/null; then
       sudo apt-get update
-      if [ "$cmd" = "p7zip" ]; then
+      if [ "$cmd" = "7z" ]; then
         sudo apt-get install -y p7zip-full
       else
         sudo apt-get install -y $cmd
@@ -58,31 +71,29 @@ if [ ! -f "$REMWAVE_DIR/docker-compose.yml" ]; then
   read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."; exit 1
 fi
 
+mkdir -p "$TMP_DIR"
+
 info "Бэкап тома $DB_VOLUME..."
 docker run --rm \
   -v ${DB_VOLUME}:/volume \
-  -v "$BACKUP_DIR":/backup \
+  -v "$TMP_DIR":/backup \
   alpine \
   tar czf /backup/$DB_TAR -C /volume .
 
 info "Бэкап конфигурационных файлов..."
-cp "$REMWAVE_DIR/.env" "$BACKUP_DIR/"
-cp "$REMWAVE_DIR/docker-compose.yml" "$BACKUP_DIR/"
-
-while true; do
-  question "Введите пароль для архива (минимум 8 символов):"
-  read -s ARCHIVE_PASSWORD
-  if [ ${#ARCHIVE_PASSWORD} -ge 8 ]; then
-    break
-  else
-    warn "Пароль должен содержать минимум 8 символов"
-  fi
-done
+cp "$REMWAVE_DIR/.env" "$TMP_DIR/"
+cp "$REMWAVE_DIR/docker-compose.yml" "$TMP_DIR/"
 
 info "Создание финального архива с паролем..."
-7z a -t7z -m0=lzma2 -mx=9 -mfb=273 -md=64m -ms=on -p"$ARCHIVE_PASSWORD" "$BACKUP_DIR/$FINAL_ARCHIVE" "$BACKUP_DIR/$DB_TAR" "$BACKUP_DIR/.env" "$BACKUP_DIR/docker-compose.yml"
+7z a -t7z -m0=lzma2 -mx=9 -mfb=273 -md=64m -ms=on -p"$ARCHIVE_PASSWORD" "$BACKUP_DIR/$FINAL_ARCHIVE" "$TMP_DIR/*"
+if [ $? -ne 0 ]; then
+  error "Ошибка создания архива! Проверьте наличие 7z и права на запись."
+  ls -l "$TMP_DIR"
+  rm -rf "$TMP_DIR"
+  exit 1
+fi
 
-rm "$BACKUP_DIR/$DB_TAR" "$BACKUP_DIR/.env" "$BACKUP_DIR/docker-compose.yml"
+rm -rf "$TMP_DIR"
 
 success "Бэкап готов: $BACKUP_DIR/$FINAL_ARCHIVE"
 read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
