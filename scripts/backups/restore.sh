@@ -169,7 +169,7 @@ fi
 info "Проверка архива..."
 TMP_RESTORE_DIR="$WORK_DIR/unpack"
 mkdir -p "$TMP_RESTORE_DIR"
-7z x -p"$PASSWORD" "$ARCHIVE_PATH" -o"$TMP_RESTORE_DIR" 2>/dev/null
+7z x -p"$PASSWORD" "$ARCHIVE_PATH" -o"$TMP_RESTORE_DIR" >/dev/null 2>&1
 if [ $? -ne 0 ]; then
     error "Неверный пароль или поврежденный архив"
     read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."; exit 1
@@ -191,7 +191,7 @@ if docker volume inspect $DB_VOLUME &>/dev/null; then
         tar czf /backup/db_backup.tar.gz -C /volume .
 fi
 
-7z a -t7z -m0=lzma2 -mx=9 -mfb=273 -md=64m -ms=on -p"$PASSWORD" "$BACKUP_DIR/$RESERVE_ARCHIVE" "$BACKUP_DIR/db_backup.tar.gz" "$BACKUP_DIR/.env" "$BACKUP_DIR/docker-compose.yml" 2>/dev/null
+7z a -t7z -m0=lzma2 -mx=9 -mfb=273 -md=64m -ms=on -p"$PASSWORD" "$BACKUP_DIR/$RESERVE_ARCHIVE" "$BACKUP_DIR/db_backup.tar.gz" "$BACKUP_DIR/.env" "$BACKUP_DIR/docker-compose.yml" >/dev/null 2>&1
 rm -f "$BACKUP_DIR/db_backup.tar.gz" "$BACKUP_DIR/.env" "$BACKUP_DIR/docker-compose.yml"
 
 if [ "$SOURCE" = "telegram" ]; then
@@ -215,13 +215,25 @@ info "Восстанавливаю конфигурационные файлы..
 cp "$TMP_RESTORE_DIR/.env" "$REMWAVE_DIR/"
 cp "$TMP_RESTORE_DIR/docker-compose.yml" "$REMWAVE_DIR/"
 
+info "Запускаю контейнеры для инициализации БД..."
+cd "$REMWAVE_DIR" && docker compose up -d
+sleep 10
+
+info "Останавливаю контейнеры..."
+docker compose down
+
+info "Очищаю содержимое БД..."
+docker run --rm \
+    -v ${DB_VOLUME}:/volume \
+    alpine \
+    sh -c "rm -rf /volume/*"
+
 info "Восстанавливаю базу данных..."
-docker volume create $DB_VOLUME
 docker run --rm \
     -v ${DB_VOLUME}:/volume \
     -v "$TMP_RESTORE_DIR":/backup \
     alpine \
-    sh -c "rm -rf /volume/* && tar xzf /backup/remnawave-db-backup-*.tar.gz -C /volume"
+    tar xzf /backup/remnawave-db-backup-*.tar.gz -C /volume
 
 info "Удаляю временные файлы..."
 rm -rf "$WORK_DIR"
