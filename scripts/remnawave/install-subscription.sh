@@ -58,8 +58,8 @@ install_subscription() {
             sed -i "s|SUB_DOMAIN=.*|SUB_DOMAIN=$SUB_DOMAIN|g" .env
         fi
 
-        docker compose restart
-        cd /opt/remnawave/subscription && docker compose up -d
+        cd /opt/remnawave/subscription
+        docker compose down && docker compose up -d
     fi
 }
 

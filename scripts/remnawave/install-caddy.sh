@@ -74,8 +74,8 @@ install_without_protection() {
             sed -i "s|SUB_PORT=.*|SUB_PORT=$SUB_PORT|g" docker-compose.yml
         fi
 
-        cd /opt/remnawave && docker compose restart
-        cd /opt/remnawave/subscription && docker compose restart
+        cd /opt/remnawave && docker compose down && docker compose up -d
+        cd /opt/remnawave/subscription && docker compose down && docker compose up -d
         cd /opt/remnawave/caddy && docker compose up -d
     fi
 }
@@ -116,7 +116,7 @@ install_with_protection() {
         sed -i "s|\$PROJECT_NAME|$PROJECT_NAME|g" docker-compose.yml
         sed -i "s|\$PROJECT_DESCRIPTION|$PROJECT_DESCRIPTION|g" docker-compose.yml
 
-        cd /opt/remnawave && docker compose restart
+        cd /opt/remnawave && docker compose down && docker compose up -d
         cd /opt/remnawave/subscription && docker compose up -d
         cd /opt/remnawave/caddy && docker compose up -d
     fi
