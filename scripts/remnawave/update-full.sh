@@ -2,9 +2,10 @@
 
 source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
+source "/opt/remnasetup/scripts/common/languages.sh"
 
 update_all() {
-    info "Обновление всех компонентов..."
+    info "$(get_string update_full_updating)"
     
     cd /opt/remnawave
     docker compose pull
@@ -14,12 +15,12 @@ update_all() {
     docker compose pull
     docker compose up -d
     
-    success "Все компоненты успешно обновлены!"
+    success "$(get_string update_full_complete)"
 }
 
 main() {
     update_all
-    read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+    read -n 1 -s -r -p "$(get_string update_full_press_key)"
     exit 0
 }
 

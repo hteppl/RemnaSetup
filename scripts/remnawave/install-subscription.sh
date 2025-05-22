@@ -2,17 +2,18 @@
 
 source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
+source "/opt/remnasetup/scripts/common/languages.sh"
 
 REINSTALL_SUBSCRIPTION=false
 
 check_component() {
     if [ -f "/opt/remnawave/subscription/docker-compose.yml" ] && (cd /opt/remnawave/subscription && docker compose ps -q | grep -q "remnawave-subscription-page") || [ -f "/opt/remnawave/subscription/app-config.json" ]; then
-        info "Обнаружена установка страницы подписок"
+        info "$(get_string install_subscription_detected)"
         while true; do
-            question "Переустановить страницу подписок? (y/n):"
+            question "$(get_string install_subscription_reinstall)"
             REINSTALL="$REPLY"
             if [[ "$REINSTALL" == "y" || "$REINSTALL" == "Y" ]]; then
-                warn "Останавливаем и удаляем существующую установку..."
+                warn "$(get_string install_subscription_stopping)"
                 cd /opt/remnawave/subscription && docker compose down
                 docker rmi remnawave/subscription-page:latest 2>/dev/null || true
                 rm -f /opt/remnawave/subscription/app-config.json
@@ -20,11 +21,11 @@ check_component() {
                 REINSTALL_SUBSCRIPTION=true
                 break
             elif [[ "$REINSTALL" == "n" || "$REINSTALL" == "N" ]]; then
-                info "Отказано в переустановке страницы подписок"
-                read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+                info "$(get_string install_subscription_reinstall_denied)"
+                read -n 1 -s -r -p "$(get_string install_subscription_press_key)"
                 exit 0
             else
-                warn "Пожалуйста, введите только 'y' или 'n'"
+                warn "$(get_string install_subscription_please_enter_yn)"
             fi
         done
     else
@@ -34,14 +35,14 @@ check_component() {
 
 install_docker() {
     if ! command -v docker &> /dev/null; then
-        info "Установка Docker..."
+        info "$(get_string install_subscription_installing_docker)"
         sudo curl -fsSL https://get.docker.com | sh
     fi
 }
 
 install_subscription() {
     if [ "$REINSTALL_SUBSCRIPTION" = true ]; then
-        info "Установка страницы подписок Remnawave..."
+        info "$(get_string install_subscription_installing)"
         mkdir -p /opt/remnawave/subscription
         cd /opt/remnawave/subscription
 
@@ -66,7 +67,7 @@ install_subscription() {
 
 check_docker() {
     if command -v docker >/dev/null 2>&1; then
-        info "Docker уже установлен, пропускаем установку."
+        info "$(get_string install_subscription_docker_installed)"
         return 0
     else
         return 1
@@ -77,43 +78,43 @@ main() {
     check_component
 
     while true; do
-        question "Введите домен панели (например, panel.domain.com):"
+        question "$(get_string install_subscription_enter_panel_domain)"
         PANEL_DOMAIN="$REPLY"
         if [[ -n "$PANEL_DOMAIN" ]]; then
             break
         fi
-        warn "Домен панели не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string install_subscription_domain_empty)"
     done
 
     while true; do
-        question "Введите домен подписок (например, sub.domain.com):"
+        question "$(get_string install_subscription_enter_sub_domain)"
         SUB_DOMAIN="$REPLY"
         if [[ -n "$SUB_DOMAIN" ]]; then
             break
         fi
-        warn "Домен подписок не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string install_subscription_domain_empty)"
     done
 
-    question "Введите порт подписок (по умолчанию 3010):"
+    question "$(get_string install_subscription_enter_sub_port)"
     SUB_PORT="$REPLY"
     SUB_PORT=${SUB_PORT:-3010}
 
     while true; do
-        question "Введите имя проекта:"
+        question "$(get_string install_subscription_enter_project_name)"
         PROJECT_NAME="$REPLY"
         if [[ -n "$PROJECT_NAME" ]]; then
             break
         fi
-        warn "Имя проекта не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string install_subscription_project_name_empty)"
     done
 
     while true; do
-        question "Введите описание страницы подписки:"
+        question "$(get_string install_subscription_enter_project_description)"
         PROJECT_DESCRIPTION="$REPLY"
         if [[ -n "$PROJECT_DESCRIPTION" ]]; then
             break
         fi
-        warn "Описание проекта не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string install_subscription_project_description_empty)"
     done
 
     if ! check_docker; then
@@ -121,8 +122,8 @@ main() {
     fi
     install_subscription
 
-    success "Установка завершена!"
-    read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+    success "$(get_string install_subscription_complete)"
+    read -n 1 -s -r -p "$(get_string install_subscription_press_key)"
     exit 0
 }
 

@@ -2,9 +2,10 @@
 
 source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
+source "/opt/remnasetup/scripts/common/languages.sh"
 
 update_panel() {
-    info "Обновление ноды Remnanode..."
+    info "$(get_string "update_node_updating")"
     cd /opt/remnanode
     docker compose pull
     docker compose up -d
@@ -12,8 +13,8 @@ update_panel() {
 
 main() {
     update_panel
-    success "Обновление завершено!"
-    read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+    success "$(get_string "update_node_complete")"
+    read -n 1 -s -r -p "$(get_string "update_node_press_key")"
     exit 0
 }
 

@@ -1,5 +1,6 @@
 #!/bin/bash
 
+source "/opt/remnasetup/scripts/common/languages.sh"
 source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
 
@@ -7,12 +8,12 @@ REINSTALL_PANEL=false
 
 check_component() {
     if [ -f "/opt/remnawave/docker-compose.yml" ] && (cd /opt/remnawave && docker compose ps -q | grep -q "remnawave\|remnawave-db\|remnawave-redis") || [ -f "/opt/remnawave/.env" ]; then
-        info "Обнаружена установка Remnawave"
+        info "$(get_string "install_panel_detected")"
         while true; do
-            question "Переустановить Remnawave? (y/n):"
+            question "$(get_string "install_panel_reinstall")"
             REINSTALL="$REPLY"
             if [[ "$REINSTALL" == "y" || "$REINSTALL" == "Y" ]]; then
-                warn "Останавливаем и удаляем существующую установку..."
+                warn "$(get_string "install_panel_stopping")"
                 cd /opt/remnawave && docker compose down
                 docker rmi remnawave/backend:latest postgres:17 valkey/valkey:8.0.2-alpine 2>/dev/null || true
                 docker volume rm remnawave-db-data remnawave-redis-data 2>/dev/null || true
@@ -21,11 +22,11 @@ check_component() {
                 REINSTALL_PANEL=true
                 break
             elif [[ "$REINSTALL" == "n" || "$REINSTALL" == "N" ]]; then
-                info "Отказано в переустановке Remnawave"
-                read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
-                exit 0
+                info "$(get_string "install_panel_reinstall_denied")"
+                read -n 1 -s -r -p "$(get_string "install_panel_press_key")"
+                exit 1
             else
-                warn "Пожалуйста, введите только 'y' или 'n'"
+                warn "$(get_string "install_panel_please_enter_yn")"
             fi
         done
     else
@@ -35,8 +36,10 @@ check_component() {
 
 install_docker() {
     if ! command -v docker &> /dev/null; then
-        info "Установка Docker..."
-        sudo curl -fsSL https://get.docker.com | sh
+        info "$(get_string "install_panel_installing_docker")"
+        curl -fsSL https://get.docker.com -o get-docker.sh
+        sh get-docker.sh
+        rm get-docker.sh
     fi
 }
 
@@ -110,7 +113,7 @@ update_xray_config() {
 
 install_panel() {
     if [ "$REINSTALL_PANEL" = true ]; then
-        info "Установка панели Remnawave..."
+        info "$(get_string "install_panel_installing")"
         mkdir -p /opt/remnawave
         cd /opt/remnawave
 
@@ -138,7 +141,7 @@ install_panel() {
 
 check_docker() {
     if command -v docker >/dev/null 2>&1; then
-        info "Docker уже установлен, пропускаем установку."
+        info "$(get_string "install_panel_docker_installed")"
         return 0
     else
         return 1
@@ -149,61 +152,61 @@ main() {
     check_component
 
     while true; do
-        question "Введите домен панели (например, panel.domain.com):"
+        question "$(get_string "install_panel_enter_panel_domain")"
         PANEL_DOMAIN="$REPLY"
         if [[ -n "$PANEL_DOMAIN" ]]; then
             break
         fi
-        warn "Домен панели не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string "install_panel_domain_empty")"
     done
 
     while true; do
-        question "Введите домен подписок (например, sub.domain.com):"
+        question "$(get_string "install_panel_enter_sub_domain")"
         SUB_DOMAIN="$REPLY"
         if [[ -n "$SUB_DOMAIN" ]]; then
             break
         fi
-        warn "Домен подписок не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string "install_panel_domain_empty")"
     done
 
-    question "Введите порт панели (по умолчанию 3000):"
+    question "$(get_string "install_panel_enter_panel_port")"
     PANEL_PORT="$REPLY"
     PANEL_PORT=${PANEL_PORT:-3000}
 
     while true; do
-        question "Введите логин для метрик:"
+        question "$(get_string "install_panel_enter_metrics_login")"
         METRICS_USER="$REPLY"
         if [[ -n "$METRICS_USER" ]]; then
             break
         fi
-        warn "Логин для метрик не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string "install_panel_metrics_login_empty")"
     done
 
     while true; do
-        question "Введите пароль для метрик:"
+        question "$(get_string "install_panel_enter_metrics_pass")"
         METRICS_PASS="$REPLY"
         if [[ -n "$METRICS_PASS" ]]; then
             break
         fi
-        warn "Пароль для метрик не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string "install_panel_metrics_pass_empty")"
     done
 
     while true; do
-        question "Введите имя пользователя базы данных:"
+        question "$(get_string "install_panel_enter_db_user")"
         DB_USER="$REPLY"
         if [[ -n "$DB_USER" ]]; then
             break
         fi
-        warn "Имя пользователя базы данных не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string "install_panel_db_user_empty")"
     done
 
     while true; do
-        question "Введите пароль пользователя базы данных:"
+        question "$(get_string "install_panel_enter_db_password")"
         DB_PASSWORD="$REPLY"
         if [[ -n "$DB_PASSWORD" ]]; then
             break
         fi
-        warn "Пароль пользователя базы данных не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string "install_panel_db_password_empty")"
     done
 
     if ! check_docker; then
@@ -213,8 +216,8 @@ main() {
 
     update_xray_config
 
-    success "Установка завершена!"
-    read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+    success "$(get_string "install_panel_complete")"
+    read -n 1 -s -r -p "$(get_string "install_panel_press_key")"
     exit 0
 }
 

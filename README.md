@@ -2,6 +2,8 @@
 
 <div align="center">
 
+[English](README.en.md) | [Русский](README.md)
+
 ![RemnaSetup](https://img.shields.io/badge/RemnaSetup-2.4-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Platform](https://img.shields.io/badge/Platform-Ubuntu%20%7C%20Debian-orange)

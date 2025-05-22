@@ -2,17 +2,18 @@
 
 source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
+source "/opt/remnasetup/scripts/common/languages.sh"
 
 REINSTALL_CADDY=false
 
 check_component() {
     if [ -f "/opt/remnawave/caddy/docker-compose.yml" ] || [ -f "/opt/remnawave/caddy/Caddyfile" ]; then
-        info "Обнаружена установка Caddy"
+        info "$(get_string "install_caddy_detected")"
         while true; do
-            question "Переустановить Caddy? (y/n):"
+            question "$(get_string "install_caddy_reinstall")"
             REINSTALL="$REPLY"
             if [[ "$REINSTALL" == "y" || "$REINSTALL" == "Y" ]]; then
-                warn "Останавливаем и удаляем существующую установку..."
+                warn "$(get_string "install_caddy_stopping")"
                 if [ -f "/opt/remnawave/caddy/docker-compose.yml" ]; then
                     cd /opt/remnawave/caddy && docker compose down
                 fi
@@ -28,11 +29,11 @@ check_component() {
                 REINSTALL_CADDY=true
                 break
             elif [[ "$REINSTALL" == "n" || "$REINSTALL" == "N" ]]; then
-                info "Отказано в переустановке Caddy"
-                read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+                info "$(get_string "install_caddy_reinstall_denied")"
+                read -n 1 -s -r -p "$(get_string "install_caddy_press_key")"
                 exit 0
             else
-                warn "Пожалуйста, введите только 'y' или 'n'"
+                warn "$(get_string "install_caddy_please_enter_yn")"
             fi
         done
     else
@@ -42,14 +43,14 @@ check_component() {
 
 install_docker() {
     if ! command -v docker &> /dev/null; then
-        info "Установка Docker..."
+        info "$(get_string "install_caddy_installing")"
         sudo curl -fsSL https://get.docker.com | sh
     fi
 }
 
 install_without_protection() {
     if [ "$REINSTALL_CADDY" = true ]; then
-        info "Установка Caddy..."
+        info "$(get_string "install_caddy_installing")"
         mkdir -p /opt/remnawave/caddy
         cd /opt/remnawave/caddy
 
@@ -82,7 +83,7 @@ install_without_protection() {
 
 install_with_protection() {
     if [ "$REINSTALL_CADDY" = true ]; then
-        info "Установка Caddy с защитой..."
+        info "$(get_string "install_caddy_installing")"
         mkdir -p /opt/remnawave/caddy
         cd /opt/remnawave/caddy
 
@@ -124,7 +125,7 @@ install_with_protection() {
 
 check_docker() {
     if command -v docker >/dev/null 2>&1; then
-        info "Docker уже установлен, пропускаем установку."
+        info "$(get_string "install_caddy_detected")"
         return 0
     else
         return 1
@@ -135,107 +136,107 @@ main() {
     check_component
 
     while true; do
-        question "Требуется ли защита панели кастомным путем и защита подписок? (y/n):"
+        question "$(get_string "install_caddy_need_protection")"
         NEED_PROTECTION="$REPLY"
         if [[ "$NEED_PROTECTION" == "y" || "$NEED_PROTECTION" == "Y" || "$NEED_PROTECTION" == "n" || "$NEED_PROTECTION" == "N" ]]; then
             break
         fi
-        warn "Пожалуйста, введите только 'y' или 'n'"
+        warn "$(get_string "install_caddy_please_enter_yn")"
     done
 
     while true; do
-        question "Введите домен панели (например, panel.domain.com):"
+        question "$(get_string "install_caddy_enter_panel_domain")"
         PANEL_DOMAIN="$REPLY"
         if [[ -n "$PANEL_DOMAIN" ]]; then
             break
         fi
-        warn "Домен панели не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string "install_caddy_domain_empty")"
     done
 
     while true; do
-        question "Введите домен подписок (например, sub.domain.com):"
+        question "$(get_string "install_caddy_enter_sub_domain")"
         SUB_DOMAIN="$REPLY"
         if [[ -n "$SUB_DOMAIN" ]]; then
             break
         fi
-        warn "Домен подписок не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string "install_caddy_domain_empty")"
     done
 
-    question "Введите порт панели (по умолчанию 3000):"
+    question "$(get_string "install_caddy_enter_panel_port")"
     PANEL_PORT="$REPLY"
     PANEL_PORT=${PANEL_PORT:-3000}
 
-    question "Введите порт подписок (по умолчанию 3010):"
+    question "$(get_string "install_caddy_enter_sub_port")"
     SUB_PORT="$REPLY"
     SUB_PORT=${SUB_PORT:-3010}
 
     if [ "$NEED_PROTECTION" = "y" ]; then
         while true; do
-            question "Введите имя проекта:"
+            question "$(get_string "install_caddy_enter_project_name")"
             PROJECT_NAME="$REPLY"
             if [[ -n "$PROJECT_NAME" ]]; then
                 break
             fi
-            warn "Имя проекта не может быть пустым. Пожалуйста, введите значение."
+            warn "$(get_string "install_caddy_project_name_empty")"
         done
 
         while true; do
-            question "Введите описание страницы подписки:"
+            question "$(get_string "install_caddy_enter_project_description")"
             PROJECT_DESCRIPTION="$REPLY"
             if [[ -n "$PROJECT_DESCRIPTION" ]]; then
                 break
             fi
-            warn "Описание проекта не может быть пустым. Пожалуйста, введите значение."
+            warn "$(get_string "install_caddy_project_description_empty")"
         done
 
         while true; do
-            question "Введите путь доступа к панели (например, supersecretroute):"
+            question "$(get_string "install_caddy_enter_login_route")"
             CUSTOM_LOGIN_ROUTE="$REPLY"
             if [[ -n "$CUSTOM_LOGIN_ROUTE" ]]; then
                 break
             fi
-            warn "Путь доступа к панели не может быть пустым. Пожалуйста, введите значение."
+            warn "$(get_string "install_caddy_login_route_empty")"
         done
 
         while true; do
-            question "Введите логин администратора:"
+            question "$(get_string "install_caddy_enter_admin_login")"
             LOGIN_USERNAME="$REPLY"
             if [[ -n "$LOGIN_USERNAME" ]]; then
                 break
             fi
-            warn "Логин администратора не может быть пустым. Пожалуйста, введите значение."
+            warn "$(get_string "install_caddy_admin_login_empty")"
         done
 
         while true; do
-            question "Введите email администратора:"
+            question "$(get_string "install_caddy_enter_admin_email")"
             LOGIN_EMAIL="$REPLY"
             if [[ -n "$LOGIN_EMAIL" ]]; then
                 break
             fi
-            warn "Email администратора не может быть пустым. Пожалуйста, введите значение."
+            warn "$(get_string "install_caddy_admin_email_empty")"
         done
 
         while true; do
-            question "Введите пароль администратора (мин. 8 символов, хотя бы одна заглавная, строчная, цифра и спецсимвол):"
+            question "$(get_string "install_caddy_enter_admin_password")"
             LOGIN_PASSWORD="$REPLY"
             if [[ ${#LOGIN_PASSWORD} -lt 8 ]]; then
-                warn "Пароль слишком короткий! Минимум 8 символов."
+                warn "$(get_string "install_caddy_password_short")"
                 continue
             fi
             if ! [[ "$LOGIN_PASSWORD" =~ [A-Z] ]]; then
-                warn "Пароль должен содержать хотя бы одну заглавную букву (A-Z)."
+                warn "$(get_string "install_caddy_password_uppercase")"
                 continue
             fi
             if ! [[ "$LOGIN_PASSWORD" =~ [a-z] ]]; then
-                warn "Пароль должен содержать хотя бы одну строчную букву (a-z)."
+                warn "$(get_string "install_caddy_password_lowercase")"
                 continue
             fi
             if ! [[ "$LOGIN_PASSWORD" =~ [0-9] ]]; then
-                warn "Пароль должен содержать хотя бы одну цифру (0-9)."
+                warn "$(get_string "install_caddy_password_number")"
                 continue
             fi
             if ! [[ "$LOGIN_PASSWORD" =~ [^a-zA-Z0-9] ]]; then
-                warn "Пароль должен содержать хотя бы один специальный символ (!, @, #, $, %, ^, &, *, -, +, =, ? и т.д.)."
+                warn "$(get_string "install_caddy_password_special")"
                 continue
             fi
             break
@@ -251,8 +252,8 @@ main() {
         install_without_protection
     fi
 
-    success "Установка завершена!"
-    read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+    success "$(get_string "install_caddy_complete")"
+    read -n 1 -s -r -p "$(get_string "install_caddy_press_key")"
     exit 0
 }
 

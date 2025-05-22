@@ -2,6 +2,7 @@
 
 source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
+source "/opt/remnasetup/scripts/common/languages.sh"
 
 REINSTALL_PANEL=false
 REINSTALL_SUBSCRIPTION=false
@@ -15,12 +16,12 @@ check_component() {
     case $component in
         "panel")
             if [ -f "$path/docker-compose.yml" ] && (cd "$path" && docker compose ps -q | grep -q "remnawave") || [ -f "$env_file" ]; then
-                info "Обнаружена установка Remnawave"
+                info "$(get_string "install_full_detected")"
                 while true; do
-                    question "Переустановить Remnawave? (y/n):"
+                    question "$(get_string "install_full_reinstall")"
                     REINSTALL="$REPLY"
                     if [[ "$REINSTALL" == "y" || "$REINSTALL" == "Y" ]]; then
-                        warn "Останавливаем и удаляем существующую установку..."
+                        warn "$(get_string "install_full_stopping")"
                         cd "$path" && docker compose down
                         docker rmi remnawave/panel:latest 2>/dev/null || true
                         docker rmi remnawave/redis:latest 2>/dev/null || true
@@ -31,11 +32,11 @@ check_component() {
                         REINSTALL_PANEL=true
                         break
                     elif [[ "$REINSTALL" == "n" || "$REINSTALL" == "N" ]]; then
-                        info "Отказано в переустановке Remnawave"
+                        info "$(get_string "install_full_reinstall_denied")"
                         REINSTALL_PANEL=false
                         break
                     else
-                        warn "Пожалуйста, введите только 'y' или 'n'"
+                        warn "$(get_string "install_full_please_enter_yn")"
                     fi
                 done
             else
@@ -44,12 +45,12 @@ check_component() {
             ;;
         "subscription")
             if [ -f "$path/docker-compose.yml" ] && (cd "$path" && docker compose ps -q | grep -q "remnawave-subscription-page") || [ -f "$path/app-config.json" ]; then
-                info "Обнаружена установка страницы подписок"
+                info "$(get_string "install_full_subscription_detected")"
                 while true; do
-                    question "Переустановить страницу подписок? (y/n):"
+                    question "$(get_string "install_full_subscription_reinstall")"
                     REINSTALL="$REPLY"
                     if [[ "$REINSTALL" == "y" || "$REINSTALL" == "Y" ]]; then
-                        warn "Останавливаем и удаляем существующую установку..."
+                        warn "$(get_string "install_full_stopping")"
                         cd "$path" && docker compose down
                         docker rmi remnawave/subscription-page:latest 2>/dev/null || true
                         rm -f "$path/app-config.json"
@@ -57,11 +58,11 @@ check_component() {
                         REINSTALL_SUBSCRIPTION=true
                         break
                     elif [[ "$REINSTALL" == "n" || "$REINSTALL" == "N" ]]; then
-                        info "Отказано в переустановке страницы подписок"
+                        info "$(get_string "install_full_subscription_reinstall_denied")"
                         REINSTALL_SUBSCRIPTION=false
                         break
                     else
-                        warn "Пожалуйста, введите только 'y' или 'n'"
+                        warn "$(get_string "install_full_please_enter_yn")"
                     fi
                 done
             else
@@ -70,12 +71,12 @@ check_component() {
             ;;
         "caddy")
             if [ -f "$path/docker-compose.yml" ] || [ -f "$path/Caddyfile" ]; then
-                info "Обнаружена установка Caddy"
+                info "$(get_string "install_full_caddy_detected")"
                 while true; do
-                    question "Переустановить Caddy? (y/n):"
+                    question "$(get_string "install_full_caddy_reinstall")"
                     REINSTALL="$REPLY"
                     if [[ "$REINSTALL" == "y" || "$REINSTALL" == "Y" ]]; then
-                        warn "Останавливаем и удаляем существующую установку..."
+                        warn "$(get_string "install_full_stopping")"
                         if [ -f "$path/docker-compose.yml" ]; then
                             cd "$path" && docker compose down
                         fi
@@ -91,11 +92,11 @@ check_component() {
                         REINSTALL_CADDY=true
                         break
                     elif [[ "$REINSTALL" == "n" || "$REINSTALL" == "N" ]]; then
-                        info "Отказано в переустановке Caddy"
+                        info "$(get_string "install_full_caddy_reinstall_denied")"
                         REINSTALL_CADDY=false
                         break
                     else
-                        warn "Пожалуйста, введите только 'y' или 'n'"
+                        warn "$(get_string "install_full_please_enter_yn")"
                     fi
                 done
             else
@@ -107,7 +108,7 @@ check_component() {
 
 install_docker() {
     if ! command -v docker &> /dev/null; then
-        info "Установка Docker..."
+        info "$(get_string "install_full_installing_docker")"
         sudo curl -fsSL https://get.docker.com | sh
     fi
 }
@@ -146,7 +147,7 @@ generate_reality_keys() {
 
 install_without_protection() {
     if [ "$REINSTALL_PANEL" = true ]; then
-        info "Установка панели Remnawave..."
+        info "$(get_string "install_full_installing")"
         mkdir -p /opt/remnawave
         cd /opt/remnawave
 
@@ -172,7 +173,7 @@ install_without_protection() {
     fi
 
     if [ "$REINSTALL_SUBSCRIPTION" = true ]; then
-        info "Установка страницы подписок..."
+        info "$(get_string "install_full_installing_subscription")"
         mkdir -p /opt/remnawave/subscription
         cd /opt/remnawave/subscription
 
@@ -188,7 +189,7 @@ install_without_protection() {
     fi
 
     if [ "$REINSTALL_CADDY" = true ]; then
-        info "Установка Caddy..."
+        info "$(get_string "install_full_installing_caddy")"
         mkdir -p /opt/remnawave/caddy
         cd /opt/remnawave/caddy
 
@@ -206,7 +207,7 @@ install_without_protection() {
 
 install_with_protection() {
     if [ "$REINSTALL_PANEL" = true ]; then
-        info "Установка панели Remnawave с защитой..."
+        info "$(get_string "install_full_installing_with_protection")"
         mkdir -p /opt/remnawave
         cd /opt/remnawave
 
@@ -232,7 +233,7 @@ install_with_protection() {
     fi
 
     if [ "$REINSTALL_SUBSCRIPTION" = true ]; then
-        info "Установка страницы подписок с защитой..."
+        info "$(get_string "install_full_installing_subscription_with_protection")"
         mkdir -p /opt/remnawave/subscription
         cd /opt/remnawave/subscription
 
@@ -248,7 +249,7 @@ install_with_protection() {
     fi
 
     if [ "$REINSTALL_CADDY" = true ]; then
-        info "Установка Caddy с защитой..."
+        info "$(get_string "install_full_installing_caddy_with_protection")"
         mkdir -p /opt/remnawave/caddy
         cd /opt/remnawave/caddy
 
@@ -271,7 +272,7 @@ install_with_protection() {
 
 check_docker() {
     if command -v docker >/dev/null 2>&1; then
-        info "Docker уже установлен, пропускаем установку."
+        info "$(get_string "install_full_docker_already_installed")"
         return 0
     else
         return 1
@@ -320,152 +321,152 @@ main() {
     check_component "caddy" "/opt/remnawave/caddy" "/opt/remnawave/caddy/.env"
 
     if [ "$REINSTALL_PANEL" = false ] && [ "$REINSTALL_SUBSCRIPTION" = false ] && [ "$REINSTALL_CADDY" = false ]; then
-        info "Нет компонентов для установки"
-        read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+        info "$(get_string "install_full_no_components")"
+        read -n 1 -s -r -p "$(get_string "install_full_press_key")"
         exit 0
     fi
 
     while true; do
-        question "Требуется ли защита панели кастомным путем и защита подписок? (y/n):"
+        question "$(get_string "install_full_need_protection")"
         NEED_PROTECTION="$REPLY"
         if [[ "$NEED_PROTECTION" == "y" || "$NEED_PROTECTION" == "Y" ]]; then
             break
         elif [[ "$NEED_PROTECTION" == "n" || "$NEED_PROTECTION" == "N" ]]; then
             break
         else
-            warn "Пожалуйста, введите только 'y' или 'n'"
+            warn "$(get_string "install_full_please_enter_yn")"
         fi
     done
 
     while true; do
-        question "Введите домен панели (например, panel.domain.com):"
+        question "$(get_string "install_full_enter_panel_domain")"
         PANEL_DOMAIN="$REPLY"
         if [[ -n "$PANEL_DOMAIN" ]]; then
             break
         fi
-        warn "Домен панели не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string "install_full_domain_empty")"
     done
 
     while true; do
-        question "Введите домен подписок (например, sub.domain.com):"
+        question "$(get_string "install_full_enter_sub_domain")"
         SUB_DOMAIN="$REPLY"
         if [[ -n "$SUB_DOMAIN" ]]; then
             break
         fi
-        warn "Домен подписок не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string "install_full_domain_empty")"
     done
 
-    question "Введите порт панели (по умолчанию 3000):"
+    question "$(get_string "install_full_enter_panel_port")"
     PANEL_PORT="$REPLY"
     PANEL_PORT=${PANEL_PORT:-3000}
 
-    question "Введите порт подписок (по умолчанию 3010):"
+    question "$(get_string "install_full_enter_sub_port")"
     SUB_PORT="$REPLY"
     SUB_PORT=${SUB_PORT:-3010}
 
     while true; do
-        question "Введите логин для метрик:"
+        question "$(get_string "install_full_enter_metrics_login")"
         METRICS_USER="$REPLY"
         if [[ -n "$METRICS_USER" ]]; then
             break
         fi
-        warn "Логин для метрик не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string "install_full_metrics_login_empty")"
     done
 
     while true; do
-        question "Введите пароль для метрик:"
+        question "$(get_string "install_full_enter_metrics_pass")"
         METRICS_PASS="$REPLY"
         if [[ -n "$METRICS_PASS" ]]; then
             break
         fi
-        warn "Пароль для метрик не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string "install_full_metrics_pass_empty")"
     done
 
     while true; do
-        question "Введите имя пользователя базы данных:"
+        question "$(get_string "install_full_enter_db_user")"
         DB_USER="$REPLY"
         if [[ -n "$DB_USER" ]]; then
             break
         fi
-        warn "Имя пользователя базы данных не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string "install_full_db_user_empty")"
     done
 
     while true; do
-        question "Введите пароль пользователя базы данных:"
+        question "$(get_string "install_full_enter_db_password")"
         DB_PASSWORD="$REPLY"
         if [[ -n "$DB_PASSWORD" ]]; then
             break
         fi
-        warn "Пароль пользователя базы данных не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string "install_full_db_password_empty")"
     done
 
     while true; do
-        question "Введите имя проекта:"
+        question "$(get_string "install_full_enter_project_name")"
         PROJECT_NAME="$REPLY"
         if [[ -n "$PROJECT_NAME" ]]; then
             break
         fi
-        warn "Имя проекта не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string "install_full_project_name_empty")"
     done
 
     while true; do
-        question "Введите описание страницы подписки:"
+        question "$(get_string "install_full_enter_project_description")"
         PROJECT_DESCRIPTION="$REPLY"
         if [[ -n "$PROJECT_DESCRIPTION" ]]; then
             break
         fi
-        warn "Описание проекта не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string "install_full_project_description_empty")"
     done
 
     if [ "$NEED_PROTECTION" = "y" ]; then
         while true; do
-            question "Введите путь доступа к панели (например, supersecretroute):"
+            question "$(get_string "install_full_enter_login_route")"
             CUSTOM_LOGIN_ROUTE="$REPLY"
             if [[ -n "$CUSTOM_LOGIN_ROUTE" ]]; then
                 break
             fi
-            warn "Путь доступа к панели не может быть пустым. Пожалуйста, введите значение."
+            warn "$(get_string "install_full_login_route_empty")"
         done
 
         while true; do
-            question "Введите логин администратора:"
+            question "$(get_string "install_full_enter_admin_login")"
             LOGIN_USERNAME="$REPLY"
             if [[ -n "$LOGIN_USERNAME" ]]; then
                 break
             fi
-            warn "Логин администратора не может быть пустым. Пожалуйста, введите значение."
+            warn "$(get_string "install_full_admin_login_empty")"
         done
 
         while true; do
-            question "Введите email администратора:"
+            question "$(get_string "install_full_enter_admin_email")"
             LOGIN_EMAIL="$REPLY"
             if [[ -n "$LOGIN_EMAIL" ]]; then
                 break
             fi
-            warn "Email администратора не может быть пустым. Пожалуйста, введите значение."
+            warn "$(get_string "install_full_admin_email_empty")"
         done
 
         while true; do
-            question "Введите пароль администратора (мин. 8 символов, хотя бы одна заглавная, строчная, цифра и спецсимвол):"
+            question "$(get_string "install_full_enter_admin_password")"
             LOGIN_PASSWORD="$REPLY"
             if [[ ${#LOGIN_PASSWORD} -lt 8 ]]; then
-                warn "Пароль слишком короткий! Минимум 8 символов."
+                warn "$(get_string "install_full_password_short")"
                 continue
             fi
             if ! [[ "$LOGIN_PASSWORD" =~ [A-Z] ]]; then
-                warn "Пароль должен содержать хотя бы одну заглавную букву (A-Z)."
+                warn "$(get_string "install_full_password_uppercase")"
                 continue
             fi
             if ! [[ "$LOGIN_PASSWORD" =~ [a-z] ]]; then
-                warn "Пароль должен содержать хотя бы одну строчную букву (a-z)."
+                warn "$(get_string "install_full_password_lowercase")"
                 continue
             fi
             if ! [[ "$LOGIN_PASSWORD" =~ [0-9] ]]; then
-                warn "Пароль должен содержать хотя бы одну цифру (0-9)."
+                warn "$(get_string "install_full_password_number")"
                 continue
             fi
             if ! [[ "$LOGIN_PASSWORD" =~ [^a-zA-Z0-9] ]]; then
-                warn "Пароль должен содержать хотя бы один специальный символ (!, @, #, $, %, ^, &, *, -, +, =, ? и т.д.)."
+                warn "$(get_string "install_full_password_special")"
                 continue
             fi
             break
@@ -483,8 +484,8 @@ main() {
 
     update_xray_config
 
-    success "Установка завершена!"
-    read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+    success "$(get_string "install_full_complete")"
+    read -n 1 -s -r -p "$(get_string "install_full_press_key")"
     exit 0
 }
 

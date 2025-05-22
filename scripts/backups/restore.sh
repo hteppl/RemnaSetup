@@ -2,6 +2,7 @@
 
 source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
+source "/opt/remnasetup/scripts/common/languages.sh"
 
 BACKUP_DIR="/opt/backups"
 WORK_DIR="$BACKUP_DIR/restore_work"
@@ -12,7 +13,7 @@ REMWAVE_DIR="/opt/remnawave"
 PANEL_CONTAINER="remnawave"
 DB_CONTAINER="remnawave-db"
 
-info "Начинаем восстановление Remnawave из резервной копии"
+info "$(get_string "restore_start")"
 
 get_telegram_backups() {
     local bot_token=$1
@@ -53,72 +54,75 @@ download_telegram_backup() {
 }
 
 while true; do
-    question "Выберите источник восстановления (y - локальный, n - Telegram):"
-    case $REPLY in
-        [Yy]* ) SOURCE="local"; break;;
-        [Nn]* ) SOURCE="telegram"; break;;
-        * ) warn "Пожалуйста, введите y или n для выбора источника. ";;
-    esac
+    question "$(get_string "restore_select_source")"
+    SOURCE="$REPLY"
+    if [[ "$SOURCE" == "y" || "$SOURCE" == "Y" ]]; then
+        break
+    elif [[ "$SOURCE" == "n" || "$SOURCE" == "N" ]]; then
+        break
+    else
+        warn "$(get_string "restore_please_answer_yn")"
+    fi
 done
 
 mkdir -p "$BACKUP_DIR"
 
 if [ "$SOURCE" = "telegram" ]; then
-    question "Введите токен Telegram-бота:"
+    question "$(get_string "restore_enter_bot_token")"
     BOT_TOKEN="$REPLY"
     
-    question "Введите ваш chat_id в Telegram:"
+    question "$(get_string "restore_enter_chat_id")"
     CHAT_ID="$REPLY"
     
     while true; do
-        info "Отправьте архив резервной копии боту или перешлите сообщение с архивом, затем нажмите любую клавишу для продолжения..."
+        info "$(get_string "restore_send_backup")"
         read -n 1 -s -r
-        info "Получаем список доступных резервных копий из Telegram..."
+        info "$(get_string "restore_getting_backups")"
         mapfile -t TG_BACKUPS < <(get_telegram_backups "$BOT_TOKEN" "$CHAT_ID")
         if [ ${#TG_BACKUPS[@]} -eq 0 ]; then
-            warn "Резервные копии не найдены. Пожалуйста, повторите попытку."
+            warn "$(get_string "restore_no_backups")"
         else
             break
         fi
     done
     
-    echo "Доступные резервные копии в Telegram:"
+    echo "$(get_string "restore_available_backups"):"
     for i in "${!TG_BACKUPS[@]}"; do
         echo "$((i+1)). ${TG_BACKUPS[$i]}"
     done
     
     while true; do
-        question "Введите номер архива для восстановления:"
+        question "$(get_string "restore_enter_backup_number")"
         if [[ "$REPLY" =~ ^[0-9]+$ ]] && (( REPLY >= 1 && REPLY <= ${#TG_BACKUPS[@]} )); then
             SELECTED_BACKUP="${TG_BACKUPS[$((REPLY-1))]}"
-            info "Выбран архив: $SELECTED_BACKUP"
+            info "$(get_string "restore_selected_backup" "$SELECTED_BACKUP")"
             break
         else
-            warn "Неверный выбор, пожалуйста, введите корректный номер из списка."
+            warn "$(get_string "restore_invalid_choice")"
         fi
     done
     
-    info "Загружаем архив из Telegram..."
+    info "$(get_string "restore_downloading_archive")"
     if ! download_telegram_backup "$BOT_TOKEN" "$CHAT_ID" "$SELECTED_BACKUP"; then
-        error "Не удалось скачать архив из Telegram"
-        read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."; exit 1
+        error "$(get_string "restore_download_failed")"
+        read -n 1 -s -r -p "$(get_string "restore_press_key")"; exit 1
     fi
     ARCHIVE_PATH="$BACKUP_DIR/$SELECTED_BACKUP"
 else
     mapfile -t ARCHIVES < <(find "$BACKUP_DIR" -maxdepth 1 -type f -name 'remnawave-backup-*.7z' | sort)
     
     if [[ ${#ARCHIVES[@]} -eq 0 ]]; then
-        info "В папке $BACKUP_DIR не найдено архивов. Поместите сюда нужный архив и нажмите любую клавишу для продолжения."
-        read -n 1 -s -r -p "Нажмите любую клавишу для продолжения..."
+        info "$(get_string "restore_no_local_backups" "$BACKUP_DIR")"
+        read -n 1 -s -r -p "$(get_string "restore_press_key_continue")"
         echo
         
         while true; do
             mapfile -t ARCHIVES < <(find "$BACKUP_DIR" -maxdepth 1 -type f -name 'remnawave-backup-*.7z' | sort)
             if [[ ${#ARCHIVES[@]} -eq 0 ]]; then
-                warn "Архивы резервных копий не обнаружены. Положите файл в папку $BACKUP_DIR или нажмите 'n' для отмены восстановления."
+                warn "$(get_string "restore_no_backups_found" "$BACKUP_DIR")"
                 read -n 1 -s KEY
                 if [[ "$KEY" == "n" || "$KEY" == "N" ]]; then
-                    info "Выход из восстановления."
+                    info "$(get_string "restore_exit")"
                     exit 0
                 fi
             else
@@ -127,55 +131,55 @@ else
         done
     fi
     
-    echo "Доступные локальные резервные копии:"
+    echo "$(get_string "restore_available_local_backups"):"
     for i in "${!ARCHIVES[@]}"; do
         echo "$((i+1)). ${ARCHIVES[$i]}"
     done
     
     while true; do
-        question "Введите номер архива для восстановления:"
+        question "$(get_string "restore_enter_backup_number")"
         if [[ "$REPLY" =~ ^[0-9]+$ ]] && (( REPLY >= 1 && REPLY <= ${#ARCHIVES[@]} )); then
             ARCHIVE_PATH="${ARCHIVES[$((REPLY-1))]}"
-            info "Выбран архив: $ARCHIVE_PATH"
+            info "$(get_string "restore_selected_backup" "$ARCHIVE_PATH")"
             break
         else
-            warn "Неверный выбор, пожалуйста, введите корректный номер из списка."
+            warn "$(get_string "restore_invalid_choice")"
         fi
     done
 fi
 
 while true; do
-    question "Введите пароль от архива (минимум 8 символов):"
+    question "$(get_string "restore_enter_password")"
     PASSWORD="$REPLY"
     if [ ${#PASSWORD} -ge 8 ]; then
         break
     else
-        warn "Пароль слишком короткий. Введите пароль длиной не менее 8 символов."
+        warn "$(get_string "restore_password_short")"
     fi
 done
 
 if ! command -v docker &>/dev/null; then
-    warn "Docker не найден. Пытаемся установить..."
+    warn "$(get_string "restore_docker_not_found")"
     sudo curl -fsSL https://get.docker.com | sh
     sudo systemctl start docker
     sudo systemctl enable docker
 fi
 
 if [ ! -d "$REMWAVE_DIR" ]; then
-    info "Создаём директорию Remnawave: $REMWAVE_DIR"
+    info "$(get_string "restore_creating_directory" "$REMWAVE_DIR")"
     mkdir -p "$REMWAVE_DIR"
 fi
 
-info "Проверяем архив..."
+info "$(get_string "restore_checking_archive")"
 TMP_RESTORE_DIR="$WORK_DIR/unpack"
 mkdir -p "$TMP_RESTORE_DIR"
 7z x -p"$PASSWORD" "$ARCHIVE_PATH" -o"$TMP_RESTORE_DIR" >/dev/null 2>&1
 if [ $? -ne 0 ]; then
-    error "Неверный пароль или повреждённый архив. Проверьте правильность введённых данных и попробуйте снова."
-    read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."; exit 1
+    error "$(get_string "restore_invalid_password")"
+    read -n 1 -s -r -p "$(get_string "restore_press_key")"; exit 1
 fi
 
-info "Создаём резервную копию текущих данных перед восстановлением..."
+info "$(get_string "restore_backup_before")"
 RESERVE_ARCHIVE="remnawave-backup-before-restore-$DATE.7z"
 
 if [ -f "$REMWAVE_DIR/.env" ] && [ -f "$REMWAVE_DIR/docker-compose.yml" ]; then
@@ -200,35 +204,35 @@ if [ "$SOURCE" = "telegram" ]; then
          "https://api.telegram.org/bot$BOT_TOKEN/sendDocument" >/dev/null 2>&1
 fi
 
-success "Резервная копия текущих данных сохранена: $BACKUP_DIR/$RESERVE_ARCHIVE"
+success "$(get_string "restore_backup_saved" "$BACKUP_DIR/$RESERVE_ARCHIVE")"
 
 if [ -d "$REMWAVE_DIR" ]; then
-    info "Останавливаем и удаляем текущие контейнеры..."
+    info "$(get_string "restore_stopping_containers")"
     cd "$REMWAVE_DIR" && docker compose down
     
-    info "Удаляем старые тома и файлы..."
+    info "$(get_string "restore_removing_old_data")"
     docker volume rm $DB_VOLUME $REDIS_VOLUME 2>/dev/null || true
     rm -f "$REMWAVE_DIR/.env" "$REMWAVE_DIR/docker-compose.yml"
 fi
 
-info "Восстанавливаем конфигурационные файлы из архива..."
+info "$(get_string "restore_restoring_configs")"
 cp "$TMP_RESTORE_DIR/.env" "$REMWAVE_DIR/"
 cp "$TMP_RESTORE_DIR/docker-compose.yml" "$REMWAVE_DIR/"
 
-info "Запускаем контейнеры для инициализации базы данных..."
+info "$(get_string "restore_starting_containers")"
 cd "$REMWAVE_DIR" && docker compose up -d
 sleep 10
 
-info "Останавливаем контейнеры..."
+info "$(get_string "restore_stopping_containers_again")"
 docker compose down
 
-info "Очищаем содержимое базы данных..."
+info "$(get_string "restore_clearing_database")"
 docker run --rm \
     -v ${DB_VOLUME}:/volume \
     alpine \
     sh -c "rm -rf /volume/*"
 
-info "Восстанавливаем базу данных из резервной копии..."
+info "$(get_string "restore_restoring_database")"
 DB_BACKUP_FILE=$(ls "$TMP_RESTORE_DIR"/remnawave-db-backup-*.tar.gz 2>/dev/null | head -n1)
 docker run --rm \
     -v ${DB_VOLUME}:/volume \
@@ -236,12 +240,12 @@ docker run --rm \
     alpine \
     tar xzf /backup/$(basename "$DB_BACKUP_FILE") -C /volume
 
-info "Удаляем временные файлы..."
+info "$(get_string "restore_removing_temp")"
 rm -rf "$WORK_DIR"
 
-info "Запускаем контейнеры Remnawave..."
+info "$(get_string "restore_starting_remnawave")"
 cd "$REMWAVE_DIR" && docker compose up -d
 
-success "Восстановление завершено успешно!"
-read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+success "$(get_string "restore_complete")"
+read -n 1 -s -r -p "$(get_string "restore_press_key")"
 exit 0 

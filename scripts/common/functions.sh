@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "/opt/remnasetup/scripts/common/colors.sh"
+source "/opt/remnasetup/scripts/common/languages.sh"
 
 info() {
     echo -e "${BOLD_CYAN}[INFO]${RESET} $1"
@@ -20,7 +21,7 @@ success() {
 
 menu() {
     echo -e "${BOLD_MAGENTA}$1${RESET}"
-    read -p "$(echo -e "${BOLD_CYAN}Выберите пункт меню:${RESET}") " choice
+    read -p "$(echo -e "${BOLD_CYAN}$(get_string "select_menu_option"):${RESET}") " choice
     echo "$choice"
 }
 
@@ -34,21 +35,21 @@ command_exists() {
 
 check_root() {
     if [ "$(id -u)" != "0" ]; then
-        error "This script must be run as root"
+        error "$(get_string "root_required")"
         exit 1
     fi
 }
 
 check_directory() {
     if [ ! -d "$1" ]; then
-        error "Directory $1 does not exist"
+        error "$(get_string "directory_not_exist" "$1")"
         exit 1
     fi
 }
 
 check_file() {
     if [ ! -f "$1" ]; then
-        error "File $1 does not exist"
+        error "$(get_string "file_not_exist" "$1")"
         exit 1
     fi
 }

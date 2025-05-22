@@ -2,6 +2,7 @@
 
 source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
+source "/opt/remnasetup/scripts/common/languages.sh"
 
 check_docker() {
     if command -v docker >/dev/null 2>&1; then
@@ -12,25 +13,25 @@ check_docker() {
 }
 
 install_docker() {
-    info "Установка Docker..."
+    info "$(get_string "install_full_node_installing_docker")"
     sudo curl -fsSL https://get.docker.com | sh || {
-        error "Ошибка: Не удалось установить Docker."
+        error "$(get_string "install_full_node_docker_error")"
         exit 1
     }
-    success "Docker успешно установлен!"
+    success "$(get_string "install_full_node_docker_installed_success")"
 }
 
 check_components() {
     if command -v docker >/dev/null 2>&1; then
-        info "Docker уже установлен"
+        info "$(get_string "install_full_node_docker_installed")"
     else
-        info "Docker не установлен"
+        info "$(get_string "install_full_node_docker_not_installed")"
     fi
 
     if [ -f "/opt/remnanode/docker-compose.yml" ]; then
-        info "Remnanode уже установлен"
+        info "$(get_string "install_full_node_remnanode_installed")"
         while true; do
-            question "Хотите скорректировать настройки Remnanode? (y/n):"
+            question "$(get_string "install_full_node_update_remnanode")"
             UPDATE_NODE="$REPLY"
             if [[ "$UPDATE_NODE" == "y" || "$UPDATE_NODE" == "Y" ]]; then
                 UPDATE_REMNANODE=true
@@ -39,15 +40,15 @@ check_components() {
                 SKIP_REMNANODE=true
                 break
             else
-                warn "Пожалуйста, введите только 'y' или 'n'"
+                warn "$(get_string "install_full_node_please_enter_yn")"
             fi
         done
     fi
 
     if command -v caddy >/dev/null 2>&1; then
-        info "Caddy уже установлен"
+        info "$(get_string "install_full_node_caddy_installed")"
         while true; do
-            question "Хотите скорректировать настройки Caddy? (y/n):"
+            question "$(get_string "install_full_node_update_caddy")"
             UPDATE_CADDY="$REPLY"
             if [[ "$UPDATE_CADDY" == "y" || "$UPDATE_CADDY" == "Y" ]]; then
                 UPDATE_CADDY=true
@@ -56,15 +57,15 @@ check_components() {
                 SKIP_CADDY=true
                 break
             else
-                warn "Пожалуйста, введите только 'y' или 'n'"
+                warn "$(get_string "install_full_node_please_enter_yn")"
             fi
         done
     fi
 
     if [ -f /opt/tblocker/config.yaml ] && systemctl list-units --full -all | grep -q tblocker.service; then
-        info "Tblocker уже установлен"
+        info "$(get_string "install_full_node_tblocker_installed")"
         while true; do
-            question "Хотите скорректировать настройки Tblocker? (y/n):"
+            question "$(get_string "install_full_node_update_tblocker")"
             UPDATE_TBLOCKER="$REPLY"
             if [[ "$UPDATE_TBLOCKER" == "y" || "$UPDATE_TBLOCKER" == "Y" ]]; then
                 UPDATE_TBLOCKER=true
@@ -73,20 +74,20 @@ check_components() {
                 SKIP_TBLOCKER=true
                 break
             else
-                warn "Пожалуйста, введите только 'y' или 'n'"
+                warn "$(get_string "install_full_node_please_enter_yn")"
             fi
         done
     fi
 
     if command -v wireproxy >/dev/null 2>&1; then
-        info "WARP уже установлен, пропускаем установку"
+        info "$(get_string "install_full_node_warp_installed")"
         SKIP_WARP=true
     else
         SKIP_WARP=false
     fi
 
     if sysctl net.ipv4.tcp_congestion_control | grep -q bbr; then
-        info "BBR уже настроен, пропускаем установку"
+        info "$(get_string "install_full_node_bbr_configured")"
         SKIP_BBR=true
     fi
 }
@@ -94,11 +95,11 @@ check_components() {
 request_data() {
     if [[ "$SKIP_CADDY" != "true" ]]; then
         while true; do
-            question "Введите доменное имя для self-steal (например, noda1.domain.com, n для пропуска):"
+            question "$(get_string "install_full_node_enter_domain")"
             DOMAIN="$REPLY"
             if [[ "$DOMAIN" == "n" || "$DOMAIN" == "N" ]]; then
                 while true; do
-                    question "Вы точно хотите пропустить установку Caddy? (y/n):"
+                    question "$(get_string "install_full_node_confirm_skip_caddy")"
                     CONFIRM="$REPLY"
                     if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
                         SKIP_CADDY=true
@@ -106,7 +107,7 @@ request_data() {
                     elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
                         break
                     else
-                        warn "Пожалуйста, введите только 'y' или 'n'"
+                        warn "$(get_string "install_full_node_please_enter_yn")"
                     fi
                 done
                 if [[ "$SKIP_CADDY" == "true" ]]; then
@@ -115,16 +116,16 @@ request_data() {
             elif [[ -n "$DOMAIN" ]]; then
                 break
             fi
-            warn "Доменное имя не может быть пустым. Пожалуйста, введите значение."
+            warn "$(get_string "install_full_node_domain_empty")"
         done
 
         if [[ "$SKIP_CADDY" != "true" ]]; then
             while true; do
-                question "Введите порт для self-steal (по умолчанию 8443, n для пропуска):"
+                question "$(get_string "install_full_node_enter_port")"
                 MONITOR_PORT="$REPLY"
                 if [[ "$MONITOR_PORT" == "n" || "$MONITOR_PORT" == "N" ]]; then
                     while true; do
-                        question "Вы точно хотите пропустить установку Caddy? (y/n):"
+                        question "$(get_string "install_full_node_confirm_skip_caddy")"
                         CONFIRM="$REPLY"
                         if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
                             SKIP_CADDY=true
@@ -132,7 +133,7 @@ request_data() {
                         elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
                             break
                         else
-                            warn "Пожалуйста, введите только 'y' или 'n'"
+                            warn "$(get_string "install_full_node_please_enter_yn")"
                         fi
                     done
                     if [[ "$SKIP_CADDY" == "true" ]]; then
@@ -143,18 +144,18 @@ request_data() {
                 if [[ "$MONITOR_PORT" =~ ^[0-9]+$ ]]; then
                     break
                 fi
-                warn "Порт должен быть числом."
+                warn "$(get_string "install_full_node_port_must_be_number")"
             done
         fi
     fi
 
     if [[ "$SKIP_REMNANODE" != "true" ]]; then
         while true; do
-            question "Введите APP_PORT (по умолчанию 3001, n для пропуска):"
+            question "$(get_string "install_full_node_enter_app_port")"
             APP_PORT="$REPLY"
             if [[ "$APP_PORT" == "n" || "$APP_PORT" == "N" ]]; then
                 while true; do
-                    question "Вы точно хотите пропустить установку Remnanode? (y/n):"
+                    question "$(get_string "install_full_node_confirm_skip_remnanode")"
                     CONFIRM="$REPLY"
                     if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
                         SKIP_REMNANODE=true
@@ -162,7 +163,7 @@ request_data() {
                     elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
                         break
                     else
-                        warn "Пожалуйста, введите только 'y' или 'n'"
+                        warn "$(get_string "install_full_node_please_enter_yn")"
                     fi
                 done
                 if [[ "$SKIP_REMNANODE" == "true" ]]; then
@@ -173,16 +174,16 @@ request_data() {
             if [[ "$APP_PORT" =~ ^[0-9]+$ ]]; then
                 break
             fi
-            warn "Порт должен быть числом."
+            warn "$(get_string "install_full_node_port_must_be_number")"
         done
 
         if [[ "$SKIP_REMNANODE" != "true" ]]; then
             while true; do
-                question "Введите SSL_CERT (можно получить при добавлении ноды в панели, n для пропуска):"
+                question "$(get_string "install_full_node_enter_ssl_cert")"
                 SSL_CERT_FULL="$REPLY"
                 if [[ "$SSL_CERT_FULL" == "n" || "$SSL_CERT_FULL" == "N" ]]; then
                     while true; do
-                        question "Вы точно хотите пропустить установку Remnanode? (y/n):"
+                        question "$(get_string "install_full_node_confirm_skip_remnanode")"
                         CONFIRM="$REPLY"
                         if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
                             SKIP_REMNANODE=true
@@ -190,7 +191,7 @@ request_data() {
                         elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
                             break
                         else
-                            warn "Пожалуйста, введите только 'y' или 'n'"
+                            warn "$(get_string "install_full_node_please_enter_yn")"
                         fi
                     done
                     if [[ "$SKIP_REMNANODE" == "true" ]]; then
@@ -199,18 +200,18 @@ request_data() {
                 elif [[ -n "$SSL_CERT_FULL" ]]; then
                     break
                 fi
-                warn "SSL_CERT не может быть пустым. Пожалуйста, введите значение."
+                warn "$(get_string "install_full_node_ssl_cert_empty")"
             done
         fi
     fi
 
     if [[ "$SKIP_TBLOCKER" != "true" ]]; then
         while true; do
-            question "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений, n для пропуска):"
+            question "$(get_string "install_full_node_enter_bot_token")"
             ADMIN_BOT_TOKEN="$REPLY"
             if [[ "$ADMIN_BOT_TOKEN" == "n" || "$ADMIN_BOT_TOKEN" == "N" ]]; then
                 while true; do
-                    question "Вы точно хотите пропустить установку Tblocker? (y/n):"
+                    question "$(get_string "install_full_node_confirm_skip_tblocker")"
                     CONFIRM="$REPLY"
                     if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
                         SKIP_TBLOCKER=true
@@ -218,7 +219,7 @@ request_data() {
                     elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
                         break
                     else
-                        warn "Пожалуйста, введите только 'y' или 'n'"
+                        warn "$(get_string "install_full_node_please_enter_yn")"
                     fi
                 done
                 if [[ "$SKIP_TBLOCKER" == "true" ]]; then
@@ -227,16 +228,16 @@ request_data() {
             elif [[ -n "$ADMIN_BOT_TOKEN" ]]; then
                 break
             fi
-            warn "Токен бота не может быть пустым. Пожалуйста, введите значение."
+            warn "$(get_string "install_full_node_bot_token_empty")"
         done
 
         if [[ "$SKIP_TBLOCKER" != "true" ]]; then
             while true; do
-                question "Введите Telegram ID админа для Tblocker (n для пропуска):"
+                question "$(get_string "install_full_node_enter_chat_id")"
                 ADMIN_CHAT_ID="$REPLY"
                 if [[ "$ADMIN_CHAT_ID" == "n" || "$ADMIN_CHAT_ID" == "N" ]]; then
                     while true; do
-                        question "Вы точно хотите пропустить установку Tblocker? (y/n):"
+                        question "$(get_string "install_full_node_confirm_skip_tblocker")"
                         CONFIRM="$REPLY"
                         if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
                             SKIP_TBLOCKER=true
@@ -244,7 +245,7 @@ request_data() {
                         elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
                             break
                         else
-                            warn "Пожалуйста, введите только 'y' или 'n'"
+                            warn "$(get_string "install_full_node_please_enter_yn")"
                         fi
                     done
                     if [[ "$SKIP_TBLOCKER" == "true" ]]; then
@@ -253,30 +254,30 @@ request_data() {
                 elif [[ -n "$ADMIN_CHAT_ID" ]]; then
                     break
                 fi
-                warn "Telegram ID админа не может быть пустым. Пожалуйста, введите значение."
+                warn "$(get_string "install_full_node_chat_id_empty")"
             done
 
-            question "Укажите время блокировки пользователя (указывается значение в минутах, по умолчанию 10):"
+            question "$(get_string "install_full_node_enter_block_duration")"
             BLOCK_DURATION="$REPLY"
             BLOCK_DURATION=${BLOCK_DURATION:-10}
 
             while true; do
-                question "Требуется настройка отправки вебхуков? (y/n):"
+                question "$(get_string "install_full_node_need_webhook")"
                 WEBHOOK_NEEDED="$REPLY"
                 if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
                     while true; do
-                        question "Укажите адрес вебхука (пример portal.domain.com/tblocker/webhook):"
+                        question "$(get_string "install_full_node_enter_webhook")"
                         WEBHOOK_URL="$REPLY"
                         if [[ -n "$WEBHOOK_URL" ]]; then
                             break
                         fi
-                        warn "Адрес вебхука не может быть пустым. Пожалуйста, введите значение."
+                        warn "$(get_string "install_full_node_webhook_empty")"
                     done
                     break
                 elif [[ "$WEBHOOK_NEEDED" == "n" || "$WEBHOOK_NEEDED" == "N" ]]; then
                     break
                 else
-                    warn "Пожалуйста, введите только 'y' или 'n'"
+                    warn "$(get_string "install_full_node_please_enter_yn")"
                 fi
             done
         fi
@@ -284,11 +285,11 @@ request_data() {
 
     if [[ "$SKIP_WARP" != "true" ]]; then
         while true; do
-            question "Введите порт для WARP (1000-65535, по умолчанию 40000, n для пропуска):"
+            question "$(get_string "install_full_node_enter_warp_port")"
             WARP_PORT="$REPLY"
             if [[ "$WARP_PORT" == "n" || "$WARP_PORT" == "N" ]]; then
                 while true; do
-                    question "Вы точно хотите пропустить установку WARP? (y/n):"
+                    question "$(get_string "install_full_node_confirm_skip_warp")"
                     CONFIRM="$REPLY"
                     if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
                         SKIP_WARP=true
@@ -296,7 +297,7 @@ request_data() {
                     elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
                         break
                     else
-                        warn "Пожалуйста, введите только 'y' или 'n'"
+                        warn "$(get_string "install_full_node_please_enter_yn")"
                     fi
                 done
                 if [[ "$SKIP_WARP" == "true" ]]; then
@@ -307,13 +308,13 @@ request_data() {
             if [[ "$WARP_PORT" =~ ^[0-9]+$ ]] && [ "$WARP_PORT" -ge 1000 ] && [ "$WARP_PORT" -le 65535 ]; then
                 break
             fi
-            warn "Порт должен быть числом от 1000 до 65535."
+            warn "$(get_string "install_full_node_warp_port_range")"
         done
     fi
 
     if [[ "$SKIP_BBR" != "true" ]]; then
         while true; do
-            question "Требуется установка BBR? (y/n):"
+            question "$(get_string "install_full_node_need_bbr")"
             BBR_ANSWER="$REPLY"
             if [[ "$BBR_ANSWER" == "n" || "$BBR_ANSWER" == "N" ]]; then
                 SKIP_BBR=true
@@ -322,16 +323,16 @@ request_data() {
                 SKIP_BBR=false
                 break
             else
-                warn "Пожалуйста, введите только 'y' или 'n'"
+                warn "$(get_string "install_full_node_please_enter_yn")"
             fi
         done
     fi
 }
 
 install_warp() {
-    info "Установка WARP (WireProxy)..."
+    info "$(get_string "install_full_node_installing_warp")"
     if ! command -v expect >/dev/null 2>&1; then
-        info "Устанавливается пакет expect для автоматизации установки WARP..."
+        info "$(get_string "install_full_node_installing_expect")"
         sudo apt update -y
         sudo apt install -y expect
     fi
@@ -348,38 +349,38 @@ expect "Choose:" { send "1\r" }
 expect eof
 EOF
     rm -f menu.sh
-    success "WARP успешно установлен!"
+    success "$(get_string "install_full_node_warp_installed_success")"
 }
 
 install_bbr() {
-    info "Настройка TCP BBR..."
+    info "$(get_string "install_full_node_installing_bbr")"
     sudo sh -c 'modprobe tcp_bbr && sysctl net.ipv4.tcp_available_congestion_control && sysctl -w net.ipv4.tcp_congestion_control=bbr && echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf && sysctl -p'
-    success "BBR успешно настроен!"
+    success "$(get_string "install_full_node_bbr_installed_success")"
 }
 
 install_caddy() {
-    info "Установка Caddy..."
+    info "$(get_string "install_full_node_installing_caddy")"
     sudo apt install -y curl debian-keyring debian-archive-keyring apt-transport-https
     curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --yes --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
     curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
     sudo apt update -y
     sudo apt install -y caddy
 
-    info "Настройка сайта маскировки..."
+    info "$(get_string "install_full_node_setup_site")"
     sudo chmod -R 777 /var
     sudo mkdir -p /var/www/site
     sudo cp -r "/opt/remnasetup/data/site/"* /var/www/site/
 
-    info "Обновление конфигурации Caddy..."
+    info "$(get_string "install_full_node_updating_caddy_config")"
     sudo cp "/opt/remnasetup/data/caddy/caddyfile-node" /etc/caddy/Caddyfile
     sudo sed -i "s/\$DOMAIN/$DOMAIN/g" /etc/caddy/Caddyfile
     sudo sed -i "s/\$MONITOR_PORT/$MONITOR_PORT/g" /etc/caddy/Caddyfile
     sudo systemctl restart caddy
-    success "Caddy успешно установлен!"
+    success "$(get_string "install_full_node_caddy_installed_success")"
 }
 
 install_remnanode() {
-    info "Установка Remnanode..."
+    info "$(get_string "install_full_node_installing_remnanode")"
     sudo chmod -R 777 /opt
     mkdir -p /opt/remnanode
     sudo chown $USER:$USER /opt/remnanode
@@ -389,25 +390,25 @@ install_remnanode() {
     echo "$SSL_CERT_FULL" >> .env
 
     if [ -f /opt/tblocker/config.yaml ] && systemctl list-units --full -all | grep -q tblocker.service; then
-        info "Tblocker уже установлен, используем docker-compose с интеграцией"
+        info "$(get_string "install_full_node_tblocker_integration")"
         cp "/opt/remnasetup/data/docker/node-tblocker-compose.yml" docker-compose.yml
     elif [[ -n "$ADMIN_BOT_TOKEN" && -n "$ADMIN_CHAT_ID" ]]; then
-        info "Данные Tblocker предоставлены, используем docker-compose с интеграцией"
+        info "$(get_string "install_full_node_tblocker_data_provided")"
         cp "/opt/remnasetup/data/docker/node-tblocker-compose.yml" docker-compose.yml
     else
-        info "Используем стандартный docker-compose"
+        info "$(get_string "install_full_node_using_standard_compose")"
         cp "/opt/remnasetup/data/docker/node-compose.yml" docker-compose.yml
     fi
 
     sudo docker compose up -d || {
-        error "Ошибка: Не удалось запустить Remnanode. Убедитесь, что Docker настроен корректно."
+        error "$(get_string "install_full_node_remnanode_error")"
         exit 1
     }
-    success "Remnanode успешно установлен!"
+    success "$(get_string "install_full_node_remnanode_installed_success")"
 }
 
 install_tblocker() {
-    info "Установка Tblocker..."
+    info "$(get_string "install_full_node_installing_tblocker")"
     sudo mkdir -p /opt/tblocker
     sudo chmod -R 777 /opt/tblocker
     sudo mkdir -p /var/lib/toblock
@@ -424,12 +425,12 @@ install_tblocker() {
 source /tmp/install_vars
 
 curl -fsSL git.new/install -o /tmp/tblocker-install.sh || {
-    error "Ошибка: Не удалось скачать скрипт Tblocker."
+    error "$(get_string "install_full_node_tblocker_download_error")"
     exit 1
 }
 
 printf "\n\n\n" | bash /tmp/tblocker-install.sh || {
-    error "Ошибка: Не удалось выполнить скрипт Tblocker."
+    error "$(get_string "install_full_node_tblocker_script_error")"
     exit 1
 }
 
@@ -449,14 +450,14 @@ if [[ -f /opt/tblocker/config.yaml ]]; then
         sed -i 's|^SendWebhook:.*$|SendWebhook: false|' /opt/tblocker/config.yaml
     fi
 else
-    error "Ошибка: Файл /opt/tblocker/config.yaml не найден."
+    error "$(get_string "install_full_node_tblocker_config_error")"
     exit 1
 fi
 
 exit
 ROOT_EOF
 
-    info "Настройка crontab..."
+    info "$(get_string "install_full_node_setup_crontab")"
     crontab -l > /tmp/crontab_tmp 2>/dev/null || true
     echo "0 * * * * truncate -s 0 /var/lib/toblock/access.log" >> /tmp/crontab_tmp
     echo "0 * * * * truncate -s 0 /var/lib/toblock/error.log" >> /tmp/crontab_tmp
@@ -465,16 +466,16 @@ ROOT_EOF
 
     sudo systemctl restart tblocker.service
     rm -f /tmp/install_vars
-    success "Tblocker успешно установлен!"
+    success "$(get_string "install_full_node_tblocker_installed_success")"
 }
 
 main() {
-    info "Начало полной установки Remnanode..."
+    info "$(get_string "install_full_node_start")"
 
     check_components
     request_data
 
-    info "Обновление пакетов системы..."
+    info "$(get_string "install_full_node_updating_packages")"
     sudo apt update -y
 
     if ! check_docker; then
@@ -514,8 +515,8 @@ main() {
         install_tblocker
     fi
     
-    success "Установка завершена!"
-    read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+    success "$(get_string "install_full_node_complete")"
+    read -n 1 -s -r -p "$(get_string "install_full_node_press_key")"
     exit 0
 }
 
