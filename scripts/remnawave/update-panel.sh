@@ -2,18 +2,19 @@
 
 source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
+source "/opt/remnasetup/scripts/common/languages.sh"
 
 update_panel() {
-    info "Обновление Remnawave..."
+    info "$(get_string update_panel_updating)"
     cd /opt/remnawave
     docker compose pull
     docker compose up -d
-    success "Remnawave успешно обновлен!"
+    success "$(get_string update_panel_complete)"
 }
 
 main() {
     update_panel
-    read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+    read -n 1 -s -r -p "$(get_string update_panel_press_key)"
     exit 0
 }
 

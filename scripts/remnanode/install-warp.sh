@@ -2,12 +2,13 @@
 
 source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
+source "/opt/remnasetup/scripts/common/languages.sh"
 
 check_warp() {
     if command -v wireproxy >/dev/null 2>&1; then
-        info "WARP (WireProxy) уже установлен"
-        info "Переустановка невозможна. Вернитесь в меню."
-        read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+        info "$(get_string "install_warp_already_installed")"
+        info "$(get_string "install_warp_reinstall_not_possible")"
+        read -n 1 -s -r -p "$(get_string "install_warp_press_key")"
         exit 0
     fi
     return 0
@@ -15,10 +16,10 @@ check_warp() {
 
 install_warp() {
     local WARP_PORT="$1"
-    info "Установка WARP (WireProxy)..."
+    info "$(get_string "install_warp_installing")"
 
     if ! command -v expect >/dev/null 2>&1; then
-        info "Устанавливается пакет expect для автоматизации установки WARP..."
+        info "$(get_string "install_warp_installing_expect")"
         sudo apt update -y
         sudo apt install -y expect
     fi
@@ -35,7 +36,7 @@ expect "Choose:" { send "1\r" }
 expect eof
 EOF
     rm -f menu.sh
-    success "WARP успешно установлен!"
+    success "$(get_string "install_warp_installed_success")"
 }
 
 main() {
@@ -44,18 +45,18 @@ main() {
     fi
 
     while true; do
-        question "Введите порт для WARP (1000-65535, по умолчанию 40000):"
+        question "$(get_string "install_warp_enter_port")"
         WARP_PORT="$REPLY"
         WARP_PORT=${WARP_PORT:-40000}
         
         if [[ "$WARP_PORT" =~ ^[0-9]+$ ]] && [ "$WARP_PORT" -ge 1000 ] && [ "$WARP_PORT" -le 65535 ]; then
             break
         fi
-        warn "Порт должен быть числом от 1000 до 65535."
+        warn "$(get_string "install_warp_port_range")"
     done
 
     install_warp "$WARP_PORT"
-    read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+    read -n 1 -s -r -p "$(get_string "install_warp_press_key")"
     exit 0
 }
 

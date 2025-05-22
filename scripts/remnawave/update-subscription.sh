@@ -2,18 +2,19 @@
 
 source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
+source "/opt/remnasetup/scripts/common/languages.sh"
 
 update_subscription() {
-    info "Обновление Subscription..."
+    info "$(get_string update_subscription_updating)"
     cd /opt/remnawave/subscription
     docker compose pull
     docker compose up -d
-    success "Subscription успешно обновлен!"
+    success "$(get_string update_subscription_complete)"
 }
 
 main() {
     update_subscription
-    read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+    read -n 1 -s -r -p "$(get_string update_subscription_press_key)"
     exit 0
 }
 

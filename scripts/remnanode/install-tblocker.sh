@@ -2,20 +2,21 @@
 
 source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
+source "/opt/remnasetup/scripts/common/languages.sh"
 
 check_remnanode() {
     if sudo docker ps -q --filter "name=remnanode" | grep -q .; then
-        info "Remnanode установлен"
+        info "$(get_string "install_tblocker_remnanode_installed")"
         while true; do
-            question "Хотите обновить docker-compose файл для интеграции с Tblocker? (y/n):"
+            question "$(get_string "install_tblocker_update_docker")"
             UPDATE_DOCKER="$REPLY"
             if [[ "$UPDATE_DOCKER" == "y" || "$UPDATE_DOCKER" == "Y" ]]; then
                 return 0
             elif [[ "$UPDATE_DOCKER" == "n" || "$UPDATE_DOCKER" == "N" ]]; then
-                info "Remnanode установлен, отказ от обновления docker-compose"
+                info "$(get_string "install_tblocker_remnanode_installed")"
                 return 1
             else
-                warn "Пожалуйста, введите только 'y' или 'n'"
+                warn "$(get_string "install_tblocker_please_enter_yn")"
             fi
         done
     fi
@@ -23,30 +24,30 @@ check_remnanode() {
 }
 
 update_docker_compose() {
-    info "Обновление docker-compose файла..."
+    info "$(get_string "install_tblocker_update_compose")"
     cd /opt/remnanode
     sudo docker compose down
     rm -f docker-compose.yml
     cp "/opt/remnasetup/data/docker/node-tblocker-compose.yml" docker-compose.yml
     sudo docker compose up -d
-    success "Docker-compose файл обновлен!"
+    success "$(get_string "install_tblocker_compose_updated")"
 }
 
 check_tblocker() {
     if [ -f /opt/tblocker/config.yaml ] && systemctl list-units --full -all | grep -q tblocker.service; then
-        info "Tblocker уже установлен"
+        info "$(get_string "install_tblocker_already_installed")"
         while true; do
-            question "Желаете обновить конфигурацию? (y/n):"
+            question "$(get_string "install_tblocker_update_config")"
             UPDATE_CONFIG="$REPLY"
             if [[ "$UPDATE_CONFIG" == "y" || "$UPDATE_CONFIG" == "Y" ]]; then
                 return 0
             elif [[ "$UPDATE_CONFIG" == "n" || "$UPDATE_CONFIG" == "N" ]]; then
-                info "Tblocker уже установлен"
-                read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+                info "$(get_string "install_tblocker_already_installed")"
+                read -n 1 -s -r -p "$(get_string "install_tblocker_press_key")"
                 exit 0
                 return 1
             else
-                warn "Пожалуйста, введите только 'y' или 'n'"
+                warn "$(get_string "install_tblocker_please_enter_yn")"
             fi
         done
     fi
@@ -55,39 +56,39 @@ check_tblocker() {
 
 check_webhook() {
     while true; do
-        question "Требуется настройка отправки вебхуков? (y/n):"
+        question "$(get_string "install_tblocker_need_webhook")"
         WEBHOOK_NEEDED="$REPLY"
         if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
             while true; do
-                question "Укажите адрес вебхука (пример portal.domain.com/tblocker/webhook):"
+                question "$(get_string "install_tblocker_enter_webhook")"
                 WEBHOOK_URL="$REPLY"
                 if [[ -n "$WEBHOOK_URL" ]]; then
                     break
                 fi
-                warn "Адрес вебхука не может быть пустым. Пожалуйста, введите значение."
+                warn "$(get_string "install_tblocker_webhook_empty")"
             done
             return 0
         elif [[ "$WEBHOOK_NEEDED" == "n" || "$WEBHOOK_NEEDED" == "N" ]]; then
             return 1
         else
-            warn "Пожалуйста, введите только 'y' или 'n'"
+            warn "$(get_string "install_tblocker_please_enter_yn")"
         fi
     done
 }
 
 setup_crontab() {
-    info "Настройка crontab..."
+    info "$(get_string "install_tblocker_setup_crontab")"
     crontab -l > /tmp/crontab_tmp 2>/dev/null || true
     echo "0 * * * * truncate -s 0 /var/lib/toblock/access.log" >> /tmp/crontab_tmp
     echo "0 * * * * truncate -s 0 /var/lib/toblock/error.log" >> /tmp/crontab_tmp
 
     crontab /tmp/crontab_tmp
     rm /tmp/crontab_tmp
-    success "Crontab настроен!"
+    success "$(get_string "install_tblocker_crontab_configured")"
 }
 
 install_tblocker() {
-    info "Установка Tblocker..."
+    info "$(get_string "install_tblocker_installing")"
     sudo mkdir -p /opt/tblocker
     sudo chmod -R 777 /opt/tblocker
     sudo mkdir -p /var/lib/toblock
@@ -96,12 +97,12 @@ install_tblocker() {
 source /tmp/install_vars
 
 curl -fsSL git.new/install -o /tmp/tblocker-install.sh || {
-    error "Ошибка: Не удалось скачать скрипт Tblocker."
+    error "$(get_string "install_tblocker_download_error")"
     exit 1
 }
 
 printf "\n\n\n" | bash /tmp/tblocker-install.sh || {
-    error "Ошибка: Не удалось выполнить скрипт Tblocker."
+    error "$(get_string "install_tblocker_script_error")"
     exit 1
 }
 
@@ -121,7 +122,7 @@ if [[ -f /opt/tblocker/config.yaml ]]; then
         sed -i 's|^SendWebhook:.*$|SendWebhook: false|' /opt/tblocker/config.yaml
     fi
 else
-    error "Ошибка: Файл /opt/tblocker/config.yaml не найден."
+    error "$(get_string "install_tblocker_config_error")"
     exit 1
 fi
 
@@ -129,11 +130,11 @@ exit
 ROOT_EOF
 
     sudo systemctl restart tblocker.service
-    success "Tblocker успешно установлен!"
+    success "$(get_string "install_tblocker_installed_success")"
 }
 
 update_tblocker_config() {
-    info "Обновление конфигурации Tblocker..."
+    info "$(get_string "install_tblocker_updating_config")"
     if [[ -f /opt/tblocker/config.yaml ]]; then
         sudo sed -i 's|^LogFile:.*$|LogFile: "/var/lib/toblock/access.log"|' /opt/tblocker/config.yaml
         sudo sed -i 's|^UsernameRegex:.*$|UsernameRegex: "email: (\\\\S+)"|' /opt/tblocker/config.yaml
@@ -149,9 +150,9 @@ update_tblocker_config() {
         fi
         
         sudo systemctl restart tblocker.service
-        success "Конфигурация Tblocker обновлена!"
+        success "$(get_string "install_tblocker_config_updated")"
     else
-        error "Ошибка: Файл /opt/tblocker/config.yaml не найден."
+        error "$(get_string "install_tblocker_config_error")"
         exit 1
     fi
 }
@@ -163,26 +164,26 @@ main() {
 
     if check_tblocker; then
         while true; do
-            question "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений):"
+            question "$(get_string "install_tblocker_enter_bot_token")"
             ADMIN_BOT_TOKEN="$REPLY"
             if [[ -n "$ADMIN_BOT_TOKEN" ]]; then
                 break
             fi
-            warn "Токен бота не может быть пустым. Пожалуйста, введите значение."
+            warn "$(get_string "install_tblocker_bot_token_empty")"
         done
         echo "ADMIN_BOT_TOKEN=$ADMIN_BOT_TOKEN" > /tmp/install_vars
 
         while true; do
-            question "Введите Telegram ID админа для Tblocker:"
+            question "$(get_string "install_tblocker_enter_chat_id")"
             ADMIN_CHAT_ID="$REPLY"
             if [[ -n "$ADMIN_CHAT_ID" ]]; then
                 break
             fi
-            warn "Telegram ID админа не может быть пустым. Пожалуйста, введите значение."
+            warn "$(get_string "install_tblocker_chat_id_empty")"
         done
         echo "ADMIN_CHAT_ID=$ADMIN_CHAT_ID" >> /tmp/install_vars
 
-        question "Укажите время блокировки пользователя (указывается значение в минутах, по умолчанию 10):"
+        question "$(get_string "install_tblocker_enter_block_duration")"
         BLOCK_DURATION="$REPLY"
         BLOCK_DURATION=${BLOCK_DURATION:-10}
         echo "BLOCK_DURATION=$BLOCK_DURATION" >> /tmp/install_vars
@@ -198,26 +199,26 @@ main() {
         update_tblocker_config
     else
         while true; do
-            question "Введите токен бота для Tblocker (создайте бота в @BotFather для оповещений):"
+            question "$(get_string "install_tblocker_enter_bot_token")"
             ADMIN_BOT_TOKEN="$REPLY"
             if [[ -n "$ADMIN_BOT_TOKEN" ]]; then
                 break
             fi
-            warn "Токен бота не может быть пустым. Пожалуйста, введите значение."
+            warn "$(get_string "install_tblocker_bot_token_empty")"
         done
         echo "ADMIN_BOT_TOKEN=$ADMIN_BOT_TOKEN" > /tmp/install_vars
 
         while true; do
-            question "Введите Telegram ID админа для Tblocker:"
+            question "$(get_string "install_tblocker_enter_chat_id")"
             ADMIN_CHAT_ID="$REPLY"
             if [[ -n "$ADMIN_CHAT_ID" ]]; then
                 break
             fi
-            warn "Telegram ID админа не может быть пустым. Пожалуйста, введите значение."
+            warn "$(get_string "install_tblocker_chat_id_empty")"
         done
         echo "ADMIN_CHAT_ID=$ADMIN_CHAT_ID" >> /tmp/install_vars
 
-        question "Укажите время блокировки пользователя (указывается значение в минутах, по умолчанию 10):"
+        question "$(get_string "install_tblocker_enter_block_duration")"
         BLOCK_DURATION="$REPLY"
         BLOCK_DURATION=${BLOCK_DURATION:-10}
         echo "BLOCK_DURATION=$BLOCK_DURATION" >> /tmp/install_vars
@@ -235,8 +236,8 @@ main() {
     fi
 
     rm -f /tmp/install_vars
-    success "Установка завершена!"
-    read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+    success "$(get_string "install_tblocker_complete")"
+    read -n 1 -s -r -p "$(get_string "install_tblocker_press_key")"
     exit 0
 }
 

@@ -2,10 +2,11 @@
 
 source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
+source "/opt/remnasetup/scripts/common/languages.sh"
 
 check_docker() {
     if command -v docker >/dev/null 2>&1; then
-        info "Docker уже установлен, пропускаем установку."
+        info "$(get_string "install_node_docker_installed")"
         return 0
     else
         return 1
@@ -13,29 +14,29 @@ check_docker() {
 }
 
 install_docker() {
-    info "Установка Docker..."
+    info "$(get_string "install_node_installing_docker")"
     sudo curl -fsSL https://get.docker.com | sh || {
-        error "Ошибка: Не удалось установить Docker."
+        error "$(get_string "install_node_docker_error")"
         exit 1
     }
-    success "Docker успешно установлен!"
+    success "$(get_string "install_node_docker_success")"
 }
 
 check_remnanode() {
     if [ -f "/opt/remnanode/docker-compose.yml" ]; then
-        info "Remnanode уже установлен"
+        info "$(get_string "install_node_already_installed")"
         while true; do
-            question "Хотите скорректировать настройки Remnanode? (y/n):"
+            question "$(get_string "install_node_update_settings")"
             REINSTALL="$REPLY"
             if [[ "$REINSTALL" == "y" || "$REINSTALL" == "Y" ]]; then
                 return 0
             elif [[ "$REINSTALL" == "n" || "$REINSTALL" == "N" ]]; then
-                info "Remnanode уже установлен"
-                read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+                info "$(get_string "install_node_already_installed")"
+                read -n 1 -s -r -p "$(get_string "install_node_press_key")"
                 exit 0
                 return 1
             else
-                warn "Пожалуйста, введите только 'y' или 'n'"
+                warn "$(get_string "install_node_please_enter_yn")"
             fi
         done
     fi
@@ -43,7 +44,7 @@ check_remnanode() {
 }
 
 install_remnanode() {
-    info "Установка Remnanode..."
+    info "$(get_string "install_node_installing")"
     sudo chmod -R 777 /opt
     mkdir -p /opt/remnanode
     sudo chown $USER:$USER /opt/remnanode
@@ -59,10 +60,10 @@ install_remnanode() {
     fi
 
     sudo docker compose up -d || {
-        error "Ошибка: Не удалось запустить Remnanode. Убедитесь, что Docker настроен корректно."
+        error "$(get_string "install_node_error")"
         exit 1
     }
-    success "Remnanode успешно установлен!"
+    success "$(get_string "install_node_success")"
 }
 
 main() {
@@ -72,31 +73,31 @@ main() {
     fi
 
     while true; do
-        question "Введите APP_PORT (по умолчанию 3001):"
+        question "$(get_string "install_node_enter_app_port")"
         APP_PORT="$REPLY"
         APP_PORT=${APP_PORT:-3001}
         if [[ "$APP_PORT" =~ ^[0-9]+$ ]]; then
             break
         fi
-        warn "Порт должен быть числом."
+        warn "$(get_string "install_node_port_must_be_number")"
     done
 
     while true; do
-        question "Введите SSL_CERT (можно получить при добавлении ноды в панели):"
+        question "$(get_string "install_node_enter_ssl_cert")"
         SSL_CERT_FULL="$REPLY"
         if [[ -n "$SSL_CERT_FULL" ]]; then
             break
         fi
-        warn "SSL_CERT не может быть пустым. Пожалуйста, введите значение."
+        warn "$(get_string "install_node_ssl_cert_empty")"
     done
 
     while true; do
-        question "Будет ли использоваться Tblocker? (y/n):"
+        question "$(get_string "install_node_use_tblocker")"
         USE_TBLOCKER="$REPLY"
         if [[ "$USE_TBLOCKER" == "y" || "$USE_TBLOCKER" == "Y" || "$USE_TBLOCKER" == "n" || "$USE_TBLOCKER" == "N" ]]; then
             break
         fi
-        warn "Пожалуйста, введите только 'y' или 'n'"
+        warn "$(get_string "install_node_please_enter_yn")"
     done
 
     if ! check_docker; then
@@ -105,8 +106,8 @@ main() {
 
     install_remnanode
 
-    success "Установка завершена!"
-    read -n 1 -s -r -p "Нажмите любую клавишу для возврата в меню..."
+    success "$(get_string "install_node_complete")"
+    read -n 1 -s -r -p "$(get_string "install_node_press_key")"
     exit 0
 }
 
