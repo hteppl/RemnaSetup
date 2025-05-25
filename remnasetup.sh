@@ -48,7 +48,7 @@ print_header() {
         echo -e "${GREEN}RemnaSetup by capybara${RESET}"
         echo -e "${CYAN}Project: https://github.com/Capybara-z/RemnaSetup${RESET}"
         echo -e "${YELLOW}Contacts: @KaTTuBaRa${RESET}"
-        echo -e "${CYAN}Version: 2.4${RESET}"
+        echo -e "${CYAN}Version: 2.5${RESET}"
         echo
         echo -e "${MAGENTA}────────────────────────────────────────────────────────────${RESET}"
         echo -e "${YELLOW}Made with support from:${RESET}"
@@ -58,7 +58,7 @@ print_header() {
         echo -e "${GREEN}RemnaSetup by capybara${RESET}"
         echo -e "${CYAN}Проект: https://github.com/Capybara-z/RemnaSetup${RESET}"
         echo -e "${YELLOW}Контакты: @KaTTuBaRa${RESET}"
-        echo -e "${CYAN}Версия: 2.4${RESET}"
+        echo -e "${CYAN}Версия: 2.5${RESET}"
         echo
         echo -e "${MAGENTA}────────────────────────────────────────────────────────────${RESET}"
         echo -e "${YELLOW}Сделано при поддержке проекта:${RESET}"
