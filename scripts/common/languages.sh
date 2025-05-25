@@ -101,6 +101,9 @@ LANG_STRINGS["en_auto_backup_telegram_configured"]="Telegram bot sending configu
 LANG_STRINGS["en_auto_backup_enter_password"]="Enter archive password (minimum 8 characters):"
 LANG_STRINGS["en_auto_backup_password_short"]="Password must be at least 8 characters long"
 LANG_STRINGS["en_auto_backup_press_key"]="Press any key to return to menu..."
+LANG_STRINGS["en_auto_backup_cron_not_found"]="Cron is not installed. Installing..."
+LANG_STRINGS["en_auto_backup_cron_installed"]="Cron installed and started."
+LANG_STRINGS["en_auto_backup_cron_install_failed"]="Failed to install cron. Please install it manually."
 
 LANG_STRINGS["ru_auto_backup_cleanup_old_crons"]="Очистка старых задач резервной копии..."
 LANG_STRINGS["ru_auto_backup_select_mode"]="Выберите режим резервной копии (y - раз в сутки, n - каждые n часов):"
@@ -122,6 +125,9 @@ LANG_STRINGS["ru_auto_backup_telegram_configured"]="Настроена отпр�
 LANG_STRINGS["ru_auto_backup_enter_password"]="Введите пароль для архива (минимум 8 символов):"
 LANG_STRINGS["ru_auto_backup_password_short"]="Пароль должен содержать минимум 8 символов"
 LANG_STRINGS["ru_auto_backup_press_key"]="Нажмите любую клавишу для возврата в меню..."
+LANG_STRINGS["ru_auto_backup_cron_not_found"]="Cron не установлен. Устанавливаю..."
+LANG_STRINGS["ru_auto_backup_cron_installed"]="Cron установлен и запущен."
+LANG_STRINGS["ru_auto_backup_cron_install_failed"]="Не удалось установить cron. Пожалуйста, установите вручную."
 
 LANG_STRINGS["en_auto_backup_hours_1"]="hour"
 LANG_STRINGS["en_auto_backup_hours_2_4"]="hours"

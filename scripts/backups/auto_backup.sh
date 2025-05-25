@@ -10,6 +10,13 @@ SCRIPT_DIR="/opt/remnasetup/data/backup"
 
 mkdir -p "$AUTO_BACKUP_DIR"
 
+LANGUAGE_FILE="/opt/remnasetup/.language"
+if [ -f "$LANGUAGE_FILE" ]; then
+    LANGUAGE=$(cat "$LANGUAGE_FILE")
+else
+    LANGUAGE="ru"
+fi
+
 check_time_format() {
     local time=$1
     if [[ ! $time =~ ^([01]?[0-9]|2[0-3]):[0-5][0-9]$ ]]; then
@@ -47,6 +54,30 @@ get_days_word() {
         get_string "auto_backup_days_2_4"
     else
         get_string "auto_backup_days_5_20"
+    fi
+}
+
+ensure_cron_installed() {
+    if ! command -v crontab &>/dev/null; then
+        info "$(get_string auto_backup_cron_not_found)"
+        if command -v apt-get &>/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y cron
+            sudo systemctl enable cron
+            sudo systemctl start cron
+        elif command -v yum &>/dev/null; then
+            sudo yum install -y cronie
+            sudo systemctl enable crond
+            sudo systemctl start crond
+        elif command -v apk &>/dev/null; then
+            sudo apk add dcron
+            sudo rc-update add crond
+            sudo service crond start
+        else
+            error "$(get_string auto_backup_cron_install_failed)"
+            exit 1
+        fi
+        success "$(get_string auto_backup_cron_installed)"
     fi
 }
 
@@ -125,6 +156,7 @@ if [ "$USE_TELEGRAM" = true ]; then
     cp "$SCRIPT_DIR/backup_script_tg.sh" "$AUTO_BACKUP_DIR/backup.sh"
     sed -i "s/BOT_TOKEN=\"\"/BOT_TOKEN=\"$BOT_TOKEN\"/" "$AUTO_BACKUP_DIR/backup.sh"
     sed -i "s/CHAT_ID=\"\"/CHAT_ID=\"$CHAT_ID\"/" "$AUTO_BACKUP_DIR/backup.sh"
+    sed -i "s/LANGUAGE=\"\"/LANGUAGE=\"$LANGUAGE\"/" "$AUTO_BACKUP_DIR/backup.sh"
 else
     cp "$SCRIPT_DIR/backup_script.sh" "$AUTO_BACKUP_DIR/backup.sh"
 fi
@@ -133,6 +165,8 @@ sed -i "s/PASSWORD=\"\"/PASSWORD=\"$PASSWORD\"/" "$AUTO_BACKUP_DIR/backup.sh"
 sed -i "s/-mtime +3/-mtime +$STORAGE_DAYS/" "$AUTO_BACKUP_DIR/backup.sh"
 
 chmod +x "$AUTO_BACKUP_DIR/backup.sh"
+
+ensure_cron_installed
 
 cleanup_old_crons
 
