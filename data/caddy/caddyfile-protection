@@ -61,7 +61,6 @@ https://{$REMNAWAVE_PANEL_DOMAIN} {
 	}
 
 	route /api/* {
-		authorize with panelpolicy
 		reverse_proxy http://remnawave:$PANEL_PORT
 	}
 
