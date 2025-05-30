@@ -165,6 +165,11 @@ if ! command -v docker &>/dev/null; then
     sudo systemctl enable docker
 fi
 
+if ! command -v 7z &>/dev/null; then
+    warn "$(get_string "restore_7z_not_found")"
+    sudo apt-get install -y p7zip-full
+fi
+
 if [ ! -d "$REMWAVE_DIR" ]; then
     info "$(get_string "restore_creating_directory" "$REMWAVE_DIR")"
     mkdir -p "$REMWAVE_DIR"
