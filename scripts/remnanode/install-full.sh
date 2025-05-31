@@ -80,18 +80,21 @@ check_components() {
     fi
 
     if command -v warp-cli >/dev/null 2>&1; then
-        if warp-cli status 2>&1 | grep -q "Status: Connected"; then
-            info "$(get_string "install_full_node_warp_installed")"
-            SKIP_WARP=true
-        else
-            expect <<EOF
-spawn warp-cli status
-expect "Accept Terms of Service and Privacy Policy?" { send "y\r" }
-expect eof
-EOF
-            info "$(get_string "install_full_node_warp_installed")"
-            SKIP_WARP=true
-        fi
+        info "$(get_string "install_full_node_warp_installed")"
+        while true; do
+            question "$(get_string "install_full_node_update_warp")"
+            RECONFIGURE="$REPLY"
+            if [[ "$RECONFIGURE" == "y" || "$RECONFIGURE" == "Y" ]]; then
+                SKIP_WARP=false
+                break
+            elif [[ "$RECONFIGURE" == "n" || "$RECONFIGURE" == "N" ]]; then
+                SKIP_WARP=true
+                info "$(get_string "install_full_node_warp_skip")"
+                break
+            else
+                warn "$(get_string "install_full_node_please_enter_yn")"
+            fi
+        done
     else
         SKIP_WARP=false
     fi
@@ -350,18 +353,45 @@ install_warp() {
     curl -L https://raw.githubusercontent.com/Skrepysh/tools/refs/heads/main/install-warp-cli.sh > install-warp-cli.sh
     chmod +x install-warp-cli.sh
 
-    expect <<EOF
+    if command -v warp-cli >/dev/null 2>&1; then
+        expect <<EOF
 spawn ./install-warp-cli.sh
-expect "Select action (0-3):" { send "1\r" }
-expect "Enter WARP-Plus key" { send "\r" }
-expect "Enter port for WARP" { send "$WARP_PORT\r" }
+expect "Select action (0-3):"
+send "3\r"
+
+expect "Enter WARP-Plus key (leave blank if you don't have a key):"
+send "\r"
+
+expect "Enter port for WARP"
+send "$WARP_PORT\r"
+
 expect eof
 EOF
+    else
+        expect <<EOF
+spawn ./install-warp-cli.sh
+expect "Select action (0-3):"
+send "1\r"
+
+expect "Enter WARP-Plus key (leave blank if you don't have a key):"
+send "\r"
+
+expect "Enter port for WARP"
+send "$WARP_PORT\r"
+
+expect eof
+EOF
+    fi
 
     expect <<EOF
 spawn warp-cli status
-expect "Accept Terms of Service and Privacy Policy?" { send "y\r" }
-expect eof
+expect {
+    -re "Accept Terms of Service and Privacy Policy\\? \\[y/N\\]" {
+        send "y\r"
+        exp_continue
+    }
+    eof
+}
 EOF
 
     rm -f install-warp-cli.sh

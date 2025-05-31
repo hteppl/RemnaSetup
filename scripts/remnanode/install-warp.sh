@@ -44,17 +44,29 @@ install_warp() {
     if command -v warp-cli >/dev/null 2>&1; then
         expect <<EOF
 spawn ./install-warp-cli.sh
-expect "Select action (0-3):" { send "3\r" }
-expect "Enter WARP-Plus key (leave blank if you don't have a key):" { send "\r" }
-expect "Enter port for WARP" { send "$WARP_PORT\r" }
+expect "Select action (0-3):"
+send "3\r"
+
+expect "Enter WARP-Plus key (leave blank if you don't have a key):"
+send "\r"
+
+expect "Enter port for WARP"
+send "$WARP_PORT\r"
+
 expect eof
 EOF
     else
         expect <<EOF
 spawn ./install-warp-cli.sh
-expect "Select action (0-3):" { send "1\r" }
-expect "Enter WARP-Plus key (leave blank if you don't have a key):" { send "\r" }
-expect "Enter port for WARP" { send "$WARP_PORT\r" }
+expect "Select action (0-3):"
+send "1\r"
+
+expect "Enter WARP-Plus key (leave blank if you don't have a key):"
+send "\r"
+
+expect "Enter port for WARP"
+send "$WARP_PORT\r"
+
 expect eof
 EOF
     fi
