@@ -5,7 +5,14 @@ source "/opt/remnasetup/scripts/common/functions.sh"
 source "/opt/remnasetup/scripts/common/languages.sh"
 
 check_warp() {
-    if command -v wireproxy >/dev/null 2>&1; then
+    if command -v warp-cli >/dev/null 2>&1; then
+        if ! warp-cli status 2>&1 | grep -q "Status: Connected"; then
+            expect <<EOF
+spawn warp-cli status
+expect "Accept Terms of Service and Privacy Policy?" { send "y\r" }
+expect eof
+EOF
+        fi
         info "$(get_string "install_warp_already_installed")"
         info "$(get_string "install_warp_reinstall_not_possible")"
         read -n 1 -s -r -p "$(get_string "install_warp_press_key")"
@@ -18,24 +25,24 @@ install_warp() {
     local WARP_PORT="$1"
     info "$(get_string "install_warp_installing")"
 
-    if ! command -v expect >/dev/null 2>&1; then
-        info "$(get_string "install_warp_installing_expect")"
-        sudo apt update -y
-        sudo apt install -y expect
-    fi
-
-    wget -N https://gitlab.com/fscarmen/warp/-/raw/main/menu.sh -O menu.sh
-    chmod +x menu.sh
+    curl -L https://raw.githubusercontent.com/Skrepysh/tools/refs/heads/main/install-warp-cli.sh > install-warp-cli.sh
+    chmod +x install-warp-cli.sh
 
     expect <<EOF
-spawn bash menu.sh w
-expect "Choose:" { send "1\r" }
-expect "Choose:" { send "1\r" }
-expect "Please customize the Client port" { send "$WARP_PORT\r" }
-expect "Choose:" { send "1\r" }
+spawn ./install-warp-cli.sh
+expect "Select action (0-3):" { send "1\r" }
+expect "Enter WARP-Plus key" { send "\r" }
+expect "Enter port for WARP" { send "$WARP_PORT\r" }
 expect eof
 EOF
-    rm -f menu.sh
+
+    expect <<EOF
+spawn warp-cli status
+expect "Accept Terms of Service and Privacy Policy?" { send "y\r" }
+expect eof
+EOF
+
+    rm -f install-warp-cli.sh
     success "$(get_string "install_warp_installed_success")"
 }
 
