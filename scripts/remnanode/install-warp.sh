@@ -35,6 +35,7 @@ install_warp() {
         expect <<EOF
 spawn ./install-warp-cli.sh
 expect "Select action (0-3):" { send "3\r" }
+expect "Enter WARP-Plus key" { send "\r" }
 expect "Enter port for WARP" { send "$WARP_PORT\r" }
 expect eof
 EOF
