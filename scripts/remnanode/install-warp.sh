@@ -25,6 +25,12 @@ install_warp() {
     local WARP_PORT="$1"
     info "$(get_string "install_warp_installing")"
 
+    if ! command -v expect >/dev/null 2>&1; then
+        info "$(get_string "install_full_node_installing_expect")"
+        sudo apt update -y
+        sudo apt install -y expect
+    fi
+
     curl -L https://raw.githubusercontent.com/Skrepysh/tools/refs/heads/main/install-warp-cli.sh > install-warp-cli.sh
     chmod +x install-warp-cli.sh
 
