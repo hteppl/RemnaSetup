@@ -31,13 +31,22 @@ install_warp() {
     curl -L https://raw.githubusercontent.com/Skrepysh/tools/refs/heads/main/install-warp-cli.sh > install-warp-cli.sh
     chmod +x install-warp-cli.sh
 
-    expect <<EOF
+    if command -v warp-cli >/dev/null 2>&1; then
+        expect <<EOF
+spawn ./install-warp-cli.sh
+expect "Select action (0-3):" { send "3\r" }
+expect "Enter port for WARP" { send "$WARP_PORT\r" }
+expect eof
+EOF
+    else
+        expect <<EOF
 spawn ./install-warp-cli.sh
 expect "Select action (0-3):" { send "1\r" }
 expect "Enter WARP-Plus key" { send "\r" }
 expect "Enter port for WARP" { send "$WARP_PORT\r" }
 expect eof
 EOF
+    fi
 
     expect <<EOF
 spawn warp-cli status
