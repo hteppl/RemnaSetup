@@ -80,15 +80,18 @@ check_components() {
     fi
 
     if command -v warp-cli >/dev/null 2>&1; then
-        if ! warp-cli status 2>&1 | grep -q "Status: Connected"; then
+        if warp-cli status 2>&1 | grep -q "Status: Connected"; then
+            info "$(get_string "install_full_node_warp_installed")"
+            SKIP_WARP=true
+        else
             expect <<EOF
 spawn warp-cli status
 expect "Accept Terms of Service and Privacy Policy?" { send "y\r" }
 expect eof
 EOF
+            info "$(get_string "install_full_node_warp_installed")"
+            SKIP_WARP=true
         fi
-        info "$(get_string "install_full_node_warp_installed")"
-        SKIP_WARP=true
     else
         SKIP_WARP=false
     fi

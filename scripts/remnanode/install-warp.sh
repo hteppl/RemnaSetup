@@ -5,14 +5,11 @@ source "/opt/remnasetup/scripts/common/functions.sh"
 source "/opt/remnasetup/scripts/common/languages.sh"
 
 check_warp() {
-    if command -v warp-cli >/dev/null 2>&1; then
-        if ! warp-cli status 2>&1 | grep -q "Status: Connected"; then
-            expect <<EOF
-spawn warp-cli status
-expect "Accept Terms of Service and Privacy Policy?" { send "y\r" }
-expect eof
-EOF
-        fi
+    if ! command -v warp-cli >/dev/null 2>&1; then
+        return 0
+    fi
+
+    if warp-cli status 2>&1 | grep -q "Status: Connected"; then
         info "$(get_string "install_warp_already_installed")"
         info "$(get_string "install_warp_reinstall_not_possible")"
         read -n 1 -s -r -p "$(get_string "install_warp_press_key")"
