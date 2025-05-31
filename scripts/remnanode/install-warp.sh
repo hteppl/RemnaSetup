@@ -11,9 +11,19 @@ check_warp() {
 
     if warp-cli status 2>&1 | grep -q "Status: Connected"; then
         info "$(get_string "install_warp_already_installed")"
-        info "$(get_string "install_warp_reinstall_not_possible")"
-        read -n 1 -s -r -p "$(get_string "install_warp_press_key")"
-        exit 0
+        while true; do
+            question "$(get_string "install_warp_reconfigure")"
+            RECONFIGURE="$REPLY"
+            if [[ "$RECONFIGURE" == "y" || "$RECONFIGURE" == "Y" ]]; then
+                return 0
+            elif [[ "$RECONFIGURE" == "n" || "$RECONFIGURE" == "N" ]]; then
+                info "$(get_string "install_warp_already_installed")"
+                read -n 1 -s -r -p "$(get_string "install_warp_press_key")"
+                exit 0
+            else
+                warn "$(get_string "install_warp_please_enter_yn")"
+            fi
+        done
     fi
     return 0
 }

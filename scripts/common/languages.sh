@@ -525,7 +525,8 @@ LANG_STRINGS["ru_install_tblocker_press_key"]="Нажмите любую кла�
 
 # Remnanode-install-warp
 LANG_STRINGS["en_install_warp_already_installed"]="WARP (WireProxy) is already installed"
-LANG_STRINGS["en_install_warp_reinstall_not_possible"]="Reinstallation is not possible. Return to menu."
+LANG_STRINGS["en_install_warp_reconfigure"]="Do you want to reconfigure WARP? (y/n):"
+LANG_STRINGS["en_install_warp_please_enter_yn"]="Please enter only 'y' or 'n'"
 LANG_STRINGS["en_install_warp_press_key"]="Press any key to return to menu..."
 LANG_STRINGS["en_install_warp_installing"]="Installing WARP (WireProxy)..."
 LANG_STRINGS["en_install_warp_installing_expect"]="Installing expect package for WARP installation automation..."
@@ -534,7 +535,8 @@ LANG_STRINGS["en_install_warp_enter_port"]="Enter port for WARP (1000-65535, def
 LANG_STRINGS["en_install_warp_port_range"]="Port must be a number between 1000 and 65535."
 
 LANG_STRINGS["ru_install_warp_already_installed"]="WARP (WireProxy) уже установлен"
-LANG_STRINGS["ru_install_warp_reinstall_not_possible"]="Переустановка невозможна. Вернитесь в меню."
+LANG_STRINGS["ru_install_warp_reconfigure"]="Хотите перенастроить WARP? (y/n):"
+LANG_STRINGS["ru_install_warp_please_enter_yn"]="Пожалуйста, введите только 'y' или 'n'"
 LANG_STRINGS["ru_install_warp_press_key"]="Нажмите любую клавишу для возврата в меню..."
 LANG_STRINGS["ru_install_warp_installing"]="Установка WARP (WireProxy)..."
 LANG_STRINGS["ru_install_warp_installing_expect"]="Устанавливается пакет expect для автоматизации установки WARP..."
