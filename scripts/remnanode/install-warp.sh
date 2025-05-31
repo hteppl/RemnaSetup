@@ -35,7 +35,7 @@ install_warp() {
         expect <<EOF
 spawn ./install-warp-cli.sh
 expect "Select action (0-3):" { send "3\r" }
-expect "Enter WARP-Plus key" { send "\r" }
+expect "Enter WARP-Plus key (leave blank if you don't have a key):" { send "\r" }
 expect "Enter port for WARP" { send "$WARP_PORT\r" }
 expect eof
 EOF
@@ -43,7 +43,7 @@ EOF
         expect <<EOF
 spawn ./install-warp-cli.sh
 expect "Select action (0-3):" { send "1\r" }
-expect "Enter WARP-Plus key" { send "\r" }
+expect "Enter WARP-Plus key (leave blank if you don't have a key):" { send "\r" }
 expect "Enter port for WARP" { send "$WARP_PORT\r" }
 expect eof
 EOF
@@ -51,8 +51,13 @@ EOF
 
     expect <<EOF
 spawn warp-cli status
-expect "Accept Terms of Service and Privacy Policy?" { send "y\r" }
-expect eof
+expect {
+    -re "Accept Terms of Service and Privacy Policy\\? \\[y/N\\]" {
+        send "y\r"
+        exp_continue
+    }
+    eof
+}
 EOF
 
     rm -f install-warp-cli.sh
