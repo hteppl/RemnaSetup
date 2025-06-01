@@ -43,6 +43,7 @@ FREE_SPACE=$(df -h "$BACKUP_DIR" | awk 'NR==2{print $4}')
 
 if [ "$LANGUAGE" = "en" ]; then
     MSG=$(cat <<EOF
+#Remnawave
 ✅ Remnawave backup successfully created!
 
 🗓️ Date: $DATE
@@ -59,6 +60,7 @@ EOF
 )
 else
     MSG=$(cat <<EOF
+#Remnawave
 ✅ Резервная копия Remnawave успешно создана!
 
 🗓️ Дата: $DATE
