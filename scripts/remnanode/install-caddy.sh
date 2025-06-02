@@ -74,13 +74,12 @@ main() {
         warn "$(get_string "install_caddy_node_port_must_be_number")"
     done
 
-    if check_caddy; then
-        update_caddy_config
-    else
+    if ! command -v caddy >/dev/null 2>&1; then
         install_caddy
         setup_site
-        update_caddy_config
     fi
+
+    update_caddy_config
 
     success "$(get_string "install_caddy_node_installation_complete")"
     read -n 1 -s -r -p "$(get_string "install_caddy_node_press_key")"
