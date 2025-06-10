@@ -41,7 +41,22 @@ setup_site() {
     info "$(get_string "install_caddy_node_setup_site")"
     sudo chmod -R 777 /var
     sudo mkdir -p /var/www/site
+
+    RANDOM_META_ID=$(openssl rand -hex 16)
+    RANDOM_CLASS=$(openssl rand -hex 8)
+    RANDOM_COMMENT=$(openssl rand -hex 12)
+
+    META_NAMES=("render-id" "view-id" "page-id" "config-id")
+    RANDOM_META_NAME=${META_NAMES[$RANDOM % ${#META_NAMES[@]}]}
+    
     sudo cp -r "/opt/remnasetup/data/site/"* /var/www/site/
+
+    sudo sed -i "/<meta name=\"viewport\"/a \    <meta name=\"$RANDOM_META_NAME\" content=\"$RANDOM_META_ID\">\n    <!-- $RANDOM_COMMENT -->" /var/www/site/index.html
+    sudo sed -i "s/<body/<body class=\"$RANDOM_CLASS\"/" /var/www/site/index.html
+
+    sudo sed -i "1i /* $RANDOM_COMMENT */" /var/www/site/assets/style.css
+    sudo sed -i "1i // $RANDOM_COMMENT" /var/www/site/assets/main.js
+    
     success "$(get_string "install_caddy_node_site_configured")"
 }
 
@@ -55,6 +70,10 @@ update_caddy_config() {
 }
 
 main() {
+    if ! check_caddy; then
+        return 1
+    fi
+
     while true; do
         question "$(get_string "install_caddy_node_enter_domain")"
         DOMAIN="$REPLY"
