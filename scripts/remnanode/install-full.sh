@@ -475,7 +475,7 @@ install_tblocker() {
         echo "WEBHOOK_URL=$WEBHOOK_URL" >> /tmp/install_vars
     fi
 
-    sudo su - << 'ROOT_EOF'
+    sudo su - << ROOT_EOF
 source /tmp/install_vars
 
 curl -L https://raw.githubusercontent.com/kutovoys/xray-torrent-blocker/main/install.sh -o /tmp/tblocker-install.sh || {
@@ -496,7 +496,7 @@ if [[ -f /opt/tblocker/config.yaml ]]; then
     sed -i "s|^AdminBotToken:.*$|AdminBotToken: \"$ADMIN_BOT_TOKEN\"|" /opt/tblocker/config.yaml
     sed -i "s|^AdminChatID:.*$|AdminChatID: \"$ADMIN_CHAT_ID\"|" /opt/tblocker/config.yaml
     sed -i "s|^BlockDuration:.*$|BlockDuration: $BLOCK_DURATION|" /opt/tblocker/config.yaml
-    
+
     if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
         sed -i 's|^SendWebhook:.*$|SendWebhook: true|' /opt/tblocker/config.yaml
         sed -i "s|^WebhookURL:.*$|WebhookURL: \"https://$WEBHOOK_URL\"|" /opt/tblocker/config.yaml
