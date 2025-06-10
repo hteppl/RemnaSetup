@@ -43,6 +43,7 @@ install_warp() {
 
     if command -v warp-cli >/dev/null 2>&1; then
         expect <<EOF
+set timeout 60
 spawn ./install-warp-cli.sh
 expect "Select action (0-3):"
 send "3\r"
@@ -53,10 +54,12 @@ send "\r"
 expect "Enter port for WARP"
 send "$WARP_PORT\r"
 
-expect eof
+expect "warp-cli has been configured successfully"
+send "\r"
 EOF
     else
         expect <<EOF
+set timeout 60
 spawn ./install-warp-cli.sh
 expect "Select action (0-3):"
 send "1\r"
@@ -67,19 +70,24 @@ send "\r"
 expect "Enter port for WARP"
 send "$WARP_PORT\r"
 
-expect eof
+expect "warp-cli has been configured successfully"
+send "\r"
 EOF
     fi
 
+    sleep 2
     expect <<EOF
+set timeout 60
 spawn warp-cli status
 expect {
-    -re "Accept Terms of Service and Privacy Policy\\? \\[y/N\\]" {
+    "Accept Terms of Service and Privacy Policy" {
         send "y\r"
-        exp_continue
+        expect "Status update: Connected"
     }
-    eof
+    "Status update: Connected" {
+    }
 }
+expect eof
 EOF
 
     rm -f install-warp-cli.sh
