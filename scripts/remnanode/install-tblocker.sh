@@ -61,13 +61,12 @@ check_tblocker() {
                 info "$(get_string "install_tblocker_already_installed")"
                 read -n 1 -s -r -p "$(get_string "install_tblocker_press_key")"
                 exit 0
-                return 1
             else
                 warn "$(get_string "install_tblocker_please_enter_yn")"
             fi
         done
     fi
-    return 0
+    return 1
 }
 
 check_webhook() {
@@ -109,7 +108,7 @@ install_tblocker() {
     sudo chmod -R 777 /opt/tblocker
     sudo mkdir -p /var/lib/toblock
     sudo chmod -R 777 /var/lib/toblock
-    sudo su - << 'ROOT_EOF'
+    sudo su - << ROOT_EOF
 source /tmp/install_vars
 
 curl -L https://raw.githubusercontent.com/kutovoys/xray-torrent-blocker/main/install.sh -o /tmp/tblocker-install.sh || {
