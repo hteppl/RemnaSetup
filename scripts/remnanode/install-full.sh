@@ -470,12 +470,12 @@ install_tblocker() {
     sudo su - << 'ROOT_EOF'
 source /tmp/install_vars
 
-curl -fsSL git.new/install -o /tmp/tblocker-install.sh || {
+curl -L https://raw.githubusercontent.com/kutovoys/xray-torrent-blocker/main/install.sh -o /tmp/tblocker-install.sh || {
     error "$(get_string "install_full_node_tblocker_download_error")"
     exit 1
 }
 
-printf "\n\n\n" | bash /tmp/tblocker-install.sh || {
+printf "$ADMIN_BOT_TOKEN\n$ADMIN_CHAT_ID\n" | bash /tmp/tblocker-install.sh || {
     error "$(get_string "install_full_node_tblocker_script_error")"
     exit 1
 }
