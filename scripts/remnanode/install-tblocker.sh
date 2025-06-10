@@ -5,6 +5,14 @@ source "/opt/remnasetup/scripts/common/functions.sh"
 source "/opt/remnasetup/scripts/common/languages.sh"
 
 check_remnanode() {
+    if ! command -v docker >/dev/null 2>&1; then
+        return 0
+    fi
+
+    if [ ! -d "/opt/remnanode" ]; then
+        return 0
+    fi
+
     if sudo docker ps -q --filter "name=remnanode" | grep -q .; then
         info "$(get_string "install_tblocker_remnanode_installed")"
         while true; do
@@ -24,6 +32,14 @@ check_remnanode() {
 }
 
 update_docker_compose() {
+    if ! command -v docker >/dev/null 2>&1; then
+        return 0
+    fi
+
+    if [ ! -d "/opt/remnanode" ]; then
+        return 0
+    fi
+
     info "$(get_string "install_tblocker_update_compose")"
     cd /opt/remnanode
     sudo docker compose down
