@@ -422,8 +422,27 @@ install_caddy() {
 
     info "$(get_string "install_full_node_setup_site")"
     sudo chmod -R 777 /var
-    sudo mkdir -p /var/www/site
+
+    if [ -d "/var/www/site" ]; then
+        sudo rm -rf /var/www/site/*
+    else
+        sudo mkdir -p /var/www/site
+    fi
+
+    RANDOM_META_ID=$(openssl rand -hex 16)
+    RANDOM_CLASS=$(openssl rand -hex 8)
+    RANDOM_COMMENT=$(openssl rand -hex 12)
+
+    META_NAMES=("render-id" "view-id" "page-id" "config-id")
+    RANDOM_META_NAME=${META_NAMES[$RANDOM % ${#META_NAMES[@]}]}
+    
     sudo cp -r "/opt/remnasetup/data/site/"* /var/www/site/
+
+    sudo sed -i "/<meta name=\"viewport\"/a \    <meta name=\"$RANDOM_META_NAME\" content=\"$RANDOM_META_ID\">\n    <!-- $RANDOM_COMMENT -->" /var/www/site/index.html
+    sudo sed -i "s/<body/<body class=\"$RANDOM_CLASS\"/" /var/www/site/index.html
+
+    sudo sed -i "1i /* $RANDOM_COMMENT */" /var/www/site/assets/style.css
+    sudo sed -i "1i // $RANDOM_COMMENT" /var/www/site/assets/main.js
 
     info "$(get_string "install_full_node_updating_caddy_config")"
     sudo cp "/opt/remnasetup/data/caddy/caddyfile-node" /etc/caddy/Caddyfile
