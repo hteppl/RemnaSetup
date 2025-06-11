@@ -43,8 +43,16 @@ install_docker() {
     fi
 }
 
-generate_jwt() {
+generate_64() {
     openssl rand -hex 64
+}
+
+generate_24() {
+    openssl rand -hex 24
+}
+
+generate_login() {
+    tr -dc 'a-zA-Z' < /dev/urandom | head -c 15
 }
 
 generate_short_ids() {
@@ -120,18 +128,24 @@ install_panel() {
         cp "/opt/remnasetup/data/docker/panel.env" .env
         cp "/opt/remnasetup/data/docker/panel-compose.yml" docker-compose.yml
 
-        JWT_AUTH_SECRET=$(generate_jwt)
-        JWT_API_TOKENS_SECRET=$(generate_jwt)
+        JWT_AUTH_SECRET=$(generate_64)
+        JWT_API_TOKENS_SECRET=$(generate_64)
+        METRICS_USER=$(generate_login)
+        METRICS_PASS=$(generate_64)
+        WEBHOOK_SECRET_HEADER=$(generate_64)
+        DB_USER=$(generate_login)
+        DB_PASSWORD=$(generate_24)
 
         sed -i "s|\$PANEL_DOMAIN|$PANEL_DOMAIN|g" .env
         sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" .env
-        sed -i "s|\$METRICS_USER|$METRICS_USER|g" .env
-        sed -i "s|\$METRICS_PASS|$METRICS_PASS|g" .env
         sed -i "s|\$DB_USER|$DB_USER|g" .env
         sed -i "s|\$DB_PASSWORD|$DB_PASSWORD|g" .env
         sed -i "s|\$JWT_AUTH_SECRET|$JWT_AUTH_SECRET|g" .env
         sed -i "s|\$JWT_API_TOKENS_SECRET|$JWT_API_TOKENS_SECRET|g" .env
         sed -i "s|\$SUB_DOMAIN|$SUB_DOMAIN|g" .env
+        sed -i "s|\$METRICS_USER|$METRICS_USER|g" .env
+        sed -i "s|\$METRICS_PASS|$METRICS_PASS|g" .env
+        sed -i "s|\$WEBHOOK_SECRET_HEADER|$WEBHOOK_SECRET_HEADER|g" .env
 
         sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" docker-compose.yml
 
@@ -172,42 +186,6 @@ main() {
     question "$(get_string "install_panel_enter_panel_port")"
     PANEL_PORT="$REPLY"
     PANEL_PORT=${PANEL_PORT:-3000}
-
-    while true; do
-        question "$(get_string "install_panel_enter_metrics_login")"
-        METRICS_USER="$REPLY"
-        if [[ -n "$METRICS_USER" ]]; then
-            break
-        fi
-        warn "$(get_string "install_panel_metrics_login_empty")"
-    done
-
-    while true; do
-        question "$(get_string "install_panel_enter_metrics_pass")"
-        METRICS_PASS="$REPLY"
-        if [[ -n "$METRICS_PASS" ]]; then
-            break
-        fi
-        warn "$(get_string "install_panel_metrics_pass_empty")"
-    done
-
-    while true; do
-        question "$(get_string "install_panel_enter_db_user")"
-        DB_USER="$REPLY"
-        if [[ -n "$DB_USER" ]]; then
-            break
-        fi
-        warn "$(get_string "install_panel_db_user_empty")"
-    done
-
-    while true; do
-        question "$(get_string "install_panel_enter_db_password")"
-        DB_PASSWORD="$REPLY"
-        if [[ -n "$DB_PASSWORD" ]]; then
-            break
-        fi
-        warn "$(get_string "install_panel_db_password_empty")"
-    done
 
     if ! check_docker; then
         install_docker
