@@ -20,12 +20,12 @@
         ]
       },
       "streamSettings": {
-        "network": "tcp",
+        "network": "raw",
         "security": "reality",
         "realitySettings": {
+          "target": "8443",
           "show": false,
           "xver": 0,
-          "dest": "8443",
           "spiderX": "/",
           "shortIds": [
             $short_id
