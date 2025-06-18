@@ -108,7 +108,7 @@ install_tblocker() {
     sudo chmod -R 777 /opt/tblocker
     sudo mkdir -p /var/lib/toblock
     sudo chmod -R 777 /var/lib/toblock
-    sudo su - << ROOT_EOF
+    sudo su - << 'ROOT_EOF'
 source /tmp/install_vars
 
 curl -L https://raw.githubusercontent.com/kutovoys/xray-torrent-blocker/main/install.sh -o /tmp/tblocker-install.sh || {
@@ -122,27 +122,26 @@ printf "$ADMIN_BOT_TOKEN\n$ADMIN_CHAT_ID\n" | bash /tmp/tblocker-install.sh || {
 }
 
 rm /tmp/tblocker-install.sh
-
-if [[ -f /opt/tblocker/config.yaml ]]; then
-    sed -i 's|^LogFile:.*$|LogFile: "/var/lib/toblock/access.log"|' /opt/tblocker/config.yaml
-    sed -i 's|^UsernameRegex:.*$|UsernameRegex: "email: (\\\\S+)"|' /opt/tblocker/config.yaml
-    sed -i "s|^AdminBotToken:.*$|AdminBotToken: \"$ADMIN_BOT_TOKEN\"|" /opt/tblocker/config.yaml
-    sed -i "s|^AdminChatID:.*$|AdminChatID: \"$ADMIN_CHAT_ID\"|" /opt/tblocker/config.yaml
-    sed -i "s|^BlockDuration:.*$|BlockDuration: $BLOCK_DURATION|" /opt/tblocker/config.yaml
-
-    if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
-        sed -i 's|^SendWebhook:.*$|SendWebhook: true|' /opt/tblocker/config.yaml
-        sed -i "s|^WebhookURL:.*$|WebhookURL: \"https://$WEBHOOK_URL\"|" /opt/tblocker/config.yaml
-    else
-        sed -i 's|^SendWebhook:.*$|SendWebhook: false|' /opt/tblocker/config.yaml
-    fi
-else
-    error "$(get_string "install_tblocker_config_error")"
-    exit 1
-fi
-
 exit
 ROOT_EOF
+
+    if [[ -f /opt/tblocker/config.yaml ]]; then
+        sudo sed -i 's|^LogFile:.*$|LogFile: "/var/lib/toblock/access.log"|' /opt/tblocker/config.yaml
+        sudo sed -i 's|^UsernameRegex:.*$|UsernameRegex: "email: (\\\\S+)"|' /opt/tblocker/config.yaml
+        sudo sed -i "s|^AdminBotToken:.*$|AdminBotToken: \"$ADMIN_BOT_TOKEN\"|" /opt/tblocker/config.yaml
+        sudo sed -i "s|^AdminChatID:.*$|AdminChatID: \"$ADMIN_CHAT_ID\"|" /opt/tblocker/config.yaml
+        sudo sed -i "s|^BlockDuration:.*$|BlockDuration: $BLOCK_DURATION|" /opt/tblocker/config.yaml
+
+        if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
+            sudo sed -i 's|^SendWebhook:.*$|SendWebhook: true|' /opt/tblocker/config.yaml
+            sudo sed -i "s|^WebhookURL:.*$|WebhookURL: \"https://$WEBHOOK_URL\"|" /opt/tblocker/config.yaml
+        else
+            sudo sed -i 's|^SendWebhook:.*$|SendWebhook: false|' /opt/tblocker/config.yaml
+        fi
+    else
+        error "$(get_string "install_tblocker_config_error")"
+        exit 1
+    fi
 
     sudo systemctl restart tblocker.service
     success "$(get_string "install_tblocker_installed_success")"
