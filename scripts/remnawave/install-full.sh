@@ -170,6 +170,9 @@ install_without_protection() {
         DB_USER=$(generate_login)
         DB_PASSWORD=$(generate_24)
 
+        export DB_USER
+        export DB_PASSWORD
+
         sed -i "s|\$PANEL_DOMAIN|$PANEL_DOMAIN|g" .env
         sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" .env
         sed -i "s|\$METRICS_USER|$METRICS_USER|g" .env
@@ -236,6 +239,9 @@ install_with_protection() {
         DB_USER=$(generate_login)
         DB_PASSWORD=$(generate_24)
 
+        export DB_USER
+        export DB_PASSWORD
+
         sed -i "s|\$PANEL_DOMAIN|$PANEL_DOMAIN|g" .env
         sed -i "s|\$PANEL_PORT|$PANEL_PORT|g" .env
         sed -i "s|\$METRICS_USER|$METRICS_USER|g" .env
@@ -300,6 +306,10 @@ check_docker() {
 }
 
 update_xray_config() {
+    if [ -z "$DB_USER" ]; then
+        return 0
+    fi
+    
     local max_attempts=30
     local attempt=1
     while [ $attempt -le $max_attempts ]; do
