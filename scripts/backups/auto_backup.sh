@@ -86,6 +86,30 @@ cleanup_old_crons() {
     crontab -l 2>/dev/null | grep -v "$AUTO_BACKUP_DIR/backup.sh" | crontab -
 }
 
+ensure_backup_dependencies() {
+    for cmd in docker tar 7z; do
+        if ! command -v $cmd &>/dev/null; then
+            if command -v apt-get &>/dev/null; then
+                sudo apt-get update
+                if [ "$cmd" = "7z" ]; then
+                    sudo apt-get install -y p7zip-full
+                else
+                    sudo apt-get install -y $cmd
+                fi
+            elif command -v yum &>/dev/null; then
+                sudo yum install -y $cmd
+            elif command -v apk &>/dev/null; then
+                sudo apk add $cmd
+            else
+                exit 1
+            fi
+            if ! command -v $cmd &>/dev/null; then
+                exit 1
+            fi
+        fi
+    done
+}
+
 while true; do
     question "$(get_string "auto_backup_select_mode")"
     case $REPLY in
@@ -167,6 +191,8 @@ sed -i "s/-mtime +3/-mtime +$STORAGE_DAYS/" "$AUTO_BACKUP_DIR/backup.sh"
 chmod +x "$AUTO_BACKUP_DIR/backup.sh"
 
 ensure_cron_installed
+
+ensure_backup_dependencies
 
 cleanup_old_crons
 
