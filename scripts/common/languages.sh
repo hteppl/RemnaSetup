@@ -807,6 +807,27 @@ LANG_STRINGS["ru_update_subscription_updating"]="Обновление Subscripti
 LANG_STRINGS["ru_update_subscription_complete"]="Subscription успешно обновлен!"
 LANG_STRINGS["ru_update_subscription_press_key"]="Нажмите любую клавишу для возврата в меню..."
 
+# IPv6 Management
+LANG_STRINGS["en_ipv6_menu"]="IPv6 Management Menu"
+LANG_STRINGS["en_ipv6_status_enabled"]="IPv6 is currently ENABLED"
+LANG_STRINGS["en_ipv6_status_disabled"]="IPv6 is currently DISABLED"
+LANG_STRINGS["en_ipv6_disabling"]="Disabling IPv6..."
+LANG_STRINGS["en_ipv6_enabling"]="Enabling IPv6..."
+LANG_STRINGS["en_ipv6_disabled_success"]="IPv6 has been successfully disabled"
+LANG_STRINGS["en_ipv6_enabled_success"]="IPv6 has been successfully enabled"
+LANG_STRINGS["en_ipv6_already_disabled"]="IPv6 is already disabled"
+LANG_STRINGS["en_ipv6_already_enabled"]="IPv6 is already enabled"
+
+LANG_STRINGS["ru_ipv6_menu"]="Меню управления IPv6"
+LANG_STRINGS["ru_ipv6_status_enabled"]="IPv6 в настоящее время ВКЛЮЧЕН"
+LANG_STRINGS["ru_ipv6_status_disabled"]="IPv6 в настоящее время ОТКЛЮЧЕН"
+LANG_STRINGS["ru_ipv6_disabling"]="Отключение IPv6..."
+LANG_STRINGS["ru_ipv6_enabling"]="Включение IPv6..."
+LANG_STRINGS["ru_ipv6_disabled_success"]="IPv6 успешно отключен"
+LANG_STRINGS["ru_ipv6_enabled_success"]="IPv6 успешно включен"
+LANG_STRINGS["ru_ipv6_already_disabled"]="IPv6 уже отключен"
+LANG_STRINGS["ru_ipv6_already_enabled"]="IPv6 уже включен"
+
 get_string() {
     local key="$1"
     local lang_key="${LANGUAGE}_${key}"
