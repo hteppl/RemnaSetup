@@ -45,20 +45,32 @@ enable_ipv6() {
 main() {
     if check_ipv6_status; then
         echo -e "${GREEN}[INFO] $(get_string "ipv6_status_enabled")${RESET}"
-        question "$(get_string "ipv6_disable_confirm")"
-        if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
-            disable_ipv6
-        else
-            info "$(get_string "ipv6_operation_cancelled")"
-        fi
+        while true; do
+            question "$(get_string "ipv6_disable_confirm")"
+            if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
+                disable_ipv6
+                break
+            elif [[ "$REPLY" == "n" || "$REPLY" == "N" ]]; then
+                info "$(get_string "ipv6_operation_cancelled")"
+                break
+            else
+                warn "$(get_string "install_full_node_please_enter_yn")"
+            fi
+        done
     else
         echo -e "${RED}[INFO] $(get_string "ipv6_status_disabled")${RESET}"
-        question "$(get_string "ipv6_enable_confirm")"
-        if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
-            enable_ipv6
-        else
-            info "$(get_string "ipv6_operation_cancelled")"
-        fi
+        while true; do
+            question "$(get_string "ipv6_enable_confirm")"
+            if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
+                enable_ipv6
+                break
+            elif [[ "$REPLY" == "n" || "$REPLY" == "N" ]]; then
+                info "$(get_string "ipv6_operation_cancelled")"
+                break
+            else
+                warn "$(get_string "install_full_node_please_enter_yn")"
+            fi
+        done
     fi
     
     read -n 1 -s -r -p "$(get_string "press_any_key")"
