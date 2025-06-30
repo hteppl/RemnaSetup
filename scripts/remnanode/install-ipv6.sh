@@ -21,8 +21,11 @@ disable_ipv6() {
 net.ipv6.conf.all.disable_ipv6 = 1
 net.ipv6.conf.default.disable_ipv6 = 1
 net.ipv6.conf.lo.disable_ipv6 = 1
-net.ipv6.conf.tun0.disable_ipv6 = 1
 EOF
+
+    if [ -d "/proc/sys/net/ipv6/conf/tun0" ]; then
+        echo "net.ipv6.conf.tun0.disable_ipv6 = 1" | sudo tee -a /etc/sysctl.conf
+    fi
 
     sudo sysctl -p
     
@@ -31,8 +34,8 @@ EOF
 
 enable_ipv6() {
     info "$(get_string "ipv6_enabling")"
-    
-    sudo sed -i '/^# IPv6 Disable$/,/^net\.ipv6\.conf\.tun0\.disable_ipv6 = 1$/d' /etc/sysctl.conf
+
+    sudo sed -i '/^# IPv6 Disable$/,/^net\.ipv6\.conf\..*\.disable_ipv6 = 1$/d' /etc/sysctl.conf
     
     sudo sysctl -p
     
@@ -41,7 +44,7 @@ enable_ipv6() {
 
 main() {
     if check_ipv6_status; then
-        info "$(get_string "ipv6_status_enabled")"
+        echo -e "${GREEN}[INFO] $(get_string "ipv6_status_enabled")${RESET}"
         question "$(get_string "ipv6_disable_confirm")"
         if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
             disable_ipv6
@@ -49,7 +52,7 @@ main() {
             info "$(get_string "ipv6_operation_cancelled")"
         fi
     else
-        info "$(get_string "ipv6_status_disabled")"
+        echo -e "${RED}[INFO] $(get_string "ipv6_status_disabled")${RESET}"
         question "$(get_string "ipv6_enable_confirm")"
         if [[ "$REPLY" == "y" || "$REPLY" == "Y" ]]; then
             enable_ipv6
