@@ -345,6 +345,28 @@ update_xray_config() {
     docker exec -i remnawave-db psql -U "$DB_USER" -d postgres -c "UPDATE xray_config SET config = '$config'::jsonb WHERE uuid = '$uuid';" >/dev/null 2>&1
 }
 
+show_panel_info() {
+    echo ""
+    echo -e "${MAGENTA}────────────────────────────────────────────────────────────${RESET}"
+    echo -e "${BOLD_CYAN}$(get_string "install_full_panel_info_header")${RESET}"
+    echo -e "${MAGENTA}────────────────────────────────────────────────────────────${RESET}"
+
+    if [ "$NEED_PROTECTION" = "y" ]; then
+        echo -e "${BOLD_GREEN}$(get_string "install_full_panel_url")${RESET} ${BLUE}https://${PANEL_DOMAIN}/${CUSTOM_LOGIN_ROUTE}${RESET}"
+    else
+        echo -e "${BOLD_GREEN}$(get_string "install_full_panel_url")${RESET} ${BLUE}https://${PANEL_DOMAIN}${RESET}"
+    fi
+
+    if [ "$NEED_PROTECTION" = "y" ]; then
+        echo -e "${BOLD_GREEN}$(get_string "install_full_email")${RESET} ${YELLOW}${LOGIN_EMAIL}${RESET}"
+        echo -e "${BOLD_GREEN}$(get_string "install_full_username")${RESET} ${YELLOW}${LOGIN_USERNAME}${RESET}"
+        echo -e "${BOLD_GREEN}$(get_string "install_full_password")${RESET} ${YELLOW}${LOGIN_PASSWORD}${RESET}"
+    fi
+    
+    echo -e "${MAGENTA}────────────────────────────────────────────────────────────${RESET}"
+    echo ""
+}
+
 main() {
     check_component "panel" "/opt/remnawave" "/opt/remnawave/.env"
     check_component "subscription" "/opt/remnawave/subscription" "/opt/remnawave/subscription/.env"
@@ -479,6 +501,9 @@ main() {
     update_xray_config
 
     success "$(get_string "install_full_complete")"
+
+    show_panel_info
+    
     read -n 1 -s -r -p "$(get_string "install_full_press_key")"
     exit 0
 }
