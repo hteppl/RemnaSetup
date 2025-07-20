@@ -55,70 +55,6 @@ generate_login() {
     tr -dc 'a-zA-Z' < /dev/urandom | head -c 15
 }
 
-generate_short_ids() {
-    local ids=""
-    for i in {1..20}; do
-        id=$(openssl rand -hex 8)
-        if [ $i -eq 20 ]; then
-            ids="${ids}\"$id\""
-        else
-            ids="${ids}\"$id\",\n"
-        fi
-    done
-    printf "%s" "$ids"
-}
-
-generate_reality_keys() {
-    docker run --rm ghcr.io/xtls/xray-core x25519 > /tmp/xray_keys.txt 2>&1
-    local keys=$(cat /tmp/xray_keys.txt)
-    rm -f /tmp/xray_keys.txt
-
-    if [ -z "$keys" ]; then
-        exit 1
-    fi
-
-    local private_key=$(echo "$keys" | grep "Private key:" | awk '{print $3}')
-    local public_key=$(echo "$keys" | grep "Public key:" | awk '{print $3}')
-
-    printf "%s\n%s" "$private_key" "$public_key"
-}
-
-update_xray_config() {
-    local max_attempts=30
-    local attempt=1
-    while [ $attempt -le $max_attempts ]; do
-        if docker exec -i remnawave-db psql -U "$DB_USER" -d postgres -tAc "SELECT to_regclass('public.xray_config');" | grep -q xray_config; then
-            break
-        fi
-        sleep 2
-        attempt=$((attempt + 1))
-    done
-    if [ $attempt -gt $max_attempts ]; then
-        return 0
-    fi
-
-    local uuid=$(docker exec -i remnawave-db psql -U "$DB_USER" -d postgres -t -c "SELECT uuid FROM xray_config LIMIT 1;" | tr -d '[:space:]')
-    if [ -z "$uuid" ]; then
-        return 0
-    fi
-
-    local short_ids=$(generate_short_ids)
-    local keys_output=$(generate_reality_keys)
-    local private_key=$(echo "$keys_output" | head -n1)
-    local public_key=$(echo "$keys_output" | tail -n1)
-    
-    local config_template=$(cat "/opt/remnasetup/data/config/xray_config.json")
-    
-    local config=$(echo "$config_template" | \
-        sed "s/\$short_id/$short_ids/g" | \
-        sed "s/\$public_key/$public_key/g" | \
-        sed "s/\$private_key/$private_key/g")
-
-    config=$(echo "$config" | sed "s/'/''/g")
-
-    docker exec -i remnawave-db psql -U "$DB_USER" -d postgres -c "UPDATE xray_config SET config = '$config'::jsonb WHERE uuid = '$uuid';" >/dev/null 2>&1
-}
-
 install_panel() {
     if [ "$REINSTALL_PANEL" = true ]; then
         info "$(get_string "install_panel_installing")"
@@ -191,8 +127,6 @@ main() {
         install_docker
     fi
     install_panel
-
-    update_xray_config
 
     success "$(get_string "install_panel_complete")"
     read -n 1 -s -r -p "$(get_string "install_panel_press_key")"
