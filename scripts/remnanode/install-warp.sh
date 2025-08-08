@@ -9,7 +9,8 @@ check_warp() {
         return 0
     fi
 
-    if warp-cli status 2>&1 | grep -q "Status: Connected"; then
+    WARP_STATUS=$(warp-cli status 2>&1)
+    if echo "$WARP_STATUS" | grep -q "Status update:"; then
         info "$(get_string "install_warp_already_installed")"
         while true; do
             question "$(get_string "install_warp_reconfigure")"
@@ -17,7 +18,7 @@ check_warp() {
             if [[ "$RECONFIGURE" == "y" || "$RECONFIGURE" == "Y" ]]; then
                 return 0
             elif [[ "$RECONFIGURE" == "n" || "$RECONFIGURE" == "N" ]]; then
-                info "$(get_string "install_warp_already_installed")"
+                info "$(get_string "install_warp_skip_installation")"
                 read -n 1 -s -r -p "$(get_string "install_warp_press_key")"
                 exit 0
             else
@@ -55,7 +56,6 @@ expect "Enter port for WARP"
 send "$WARP_PORT\r"
 
 expect "warp-cli has been configured successfully"
-send "\r"
 EOF
     else
         expect <<EOF
@@ -71,24 +71,25 @@ expect "Enter port for WARP"
 send "$WARP_PORT\r"
 
 expect "warp-cli has been configured successfully"
-send "\r"
 EOF
     fi
 
-    sleep 2
+    sleep 5
     expect <<EOF
-set timeout 60
+set timeout 10
 spawn warp-cli status
 expect {
     "Accept Terms of Service and Privacy Policy" {
         send "y\r"
-        expect "Status update: Connected"
     }
-    "Status update: Connected" {
+    "Status update:" {
     }
 }
-expect eof
 EOF
+
+    info "$(get_string "install_warp_adding_crontab")"
+    (crontab -l 2>/dev/null; echo "0 */4 * * * sudo systemctl restart warp-svc.service") | crontab -
+    success "$(get_string "install_warp_crontab_added")"
 
     rm -f install-warp-cli.sh
     success "$(get_string "install_warp_installed_success")"
