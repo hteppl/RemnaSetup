@@ -224,81 +224,29 @@ request_data() {
     fi
 
     if [[ "$SKIP_TBLOCKER" != "true" ]]; then
+        question "$(get_string "install_full_node_enter_block_duration")"
+        BLOCK_DURATION="$REPLY"
+        BLOCK_DURATION=${BLOCK_DURATION:-10}
+
         while true; do
-            question "$(get_string "install_full_node_enter_bot_token")"
-            ADMIN_BOT_TOKEN="$REPLY"
-            if [[ "$ADMIN_BOT_TOKEN" == "n" || "$ADMIN_BOT_TOKEN" == "N" ]]; then
+            question "$(get_string "install_full_node_need_webhook")"
+            WEBHOOK_NEEDED="$REPLY"
+            if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
                 while true; do
-                    question "$(get_string "install_full_node_confirm_skip_tblocker")"
-                    CONFIRM="$REPLY"
-                    if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
-                        SKIP_TBLOCKER=true
+                    question "$(get_string "install_full_node_enter_webhook")"
+                    WEBHOOK_URL="$REPLY"
+                    if [[ -n "$WEBHOOK_URL" ]]; then
                         break
-                    elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
-                        break
-                    else
-                        warn "$(get_string "install_full_node_please_enter_yn")"
                     fi
+                    warn "$(get_string "install_full_node_webhook_empty")"
                 done
-                if [[ "$SKIP_TBLOCKER" == "true" ]]; then
-                    break
-                fi
-            elif [[ -n "$ADMIN_BOT_TOKEN" ]]; then
                 break
+            elif [[ "$WEBHOOK_NEEDED" == "n" || "$WEBHOOK_NEEDED" == "N" ]]; then
+                break
+            else
+                warn "$(get_string "install_full_node_please_enter_yn")"
             fi
-            warn "$(get_string "install_full_node_bot_token_empty")"
         done
-
-        if [[ "$SKIP_TBLOCKER" != "true" ]]; then
-            while true; do
-                question "$(get_string "install_full_node_enter_chat_id")"
-                ADMIN_CHAT_ID="$REPLY"
-                if [[ "$ADMIN_CHAT_ID" == "n" || "$ADMIN_CHAT_ID" == "N" ]]; then
-                    while true; do
-                        question "$(get_string "install_full_node_confirm_skip_tblocker")"
-                        CONFIRM="$REPLY"
-                        if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
-                            SKIP_TBLOCKER=true
-                            break
-                        elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
-                            break
-                        else
-                            warn "$(get_string "install_full_node_please_enter_yn")"
-                        fi
-                    done
-                    if [[ "$SKIP_TBLOCKER" == "true" ]]; then
-                        break
-                    fi
-                elif [[ -n "$ADMIN_CHAT_ID" ]]; then
-                    break
-                fi
-                warn "$(get_string "install_full_node_chat_id_empty")"
-            done
-
-            question "$(get_string "install_full_node_enter_block_duration")"
-            BLOCK_DURATION="$REPLY"
-            BLOCK_DURATION=${BLOCK_DURATION:-10}
-
-            while true; do
-                question "$(get_string "install_full_node_need_webhook")"
-                WEBHOOK_NEEDED="$REPLY"
-                if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
-                    while true; do
-                        question "$(get_string "install_full_node_enter_webhook")"
-                        WEBHOOK_URL="$REPLY"
-                        if [[ -n "$WEBHOOK_URL" ]]; then
-                            break
-                        fi
-                        warn "$(get_string "install_full_node_webhook_empty")"
-                    done
-                    break
-                elif [[ "$WEBHOOK_NEEDED" == "n" || "$WEBHOOK_NEEDED" == "N" ]]; then
-                    break
-                else
-                    warn "$(get_string "install_full_node_please_enter_yn")"
-                fi
-            done
-        fi
     fi
 
     if [[ "$SKIP_WARP" != "true" ]]; then
@@ -507,9 +455,6 @@ install_remnanode() {
 
     if [ -f /opt/tblocker/config.yaml ] && systemctl list-units --full -all | grep -q tblocker.service; then
         info "$(get_string "install_full_node_tblocker_integration")"
-        cp "/opt/remnasetup/data/docker/node-tblocker-compose.yml" docker-compose.yml
-    elif [[ -n "$ADMIN_BOT_TOKEN" && -n "$ADMIN_CHAT_ID" ]]; then
-        info "$(get_string "install_full_node_tblocker_data_provided")"
         cp "/opt/remnasetup/data/docker/node-tblocker-compose.yml" docker-compose.yml
     else
         info "$(get_string "install_full_node_using_standard_compose")"
