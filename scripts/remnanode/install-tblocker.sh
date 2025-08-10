@@ -50,7 +50,9 @@ update_docker_compose() {
             if grep -q "volumes:" docker-compose.yml; then
                 sudo sed -i '/volumes:/a\            - /var/log/remnanode:/var/log/remnanode' docker-compose.yml
             else
-                sudo sed -i '/env_file:/a\        volumes:\n            - /var/log/remnanode:/var/log/remnanode' docker-compose.yml
+                sudo sed -i '/env_file:/,/- \.env$/{
+                    /- \.env$/a\        volumes:\n            - /var/log/remnanode:/var/log/remnanode
+                }' docker-compose.yml
             fi
             sudo docker compose up -d
             success "$(get_string "install_tblocker_compose_updated")"

@@ -465,7 +465,9 @@ install_remnanode() {
         if grep -q "volumes:" docker-compose.yml; then
             sed -i '/volumes:/a\            - /var/log/remnanode:/var/log/remnanode' docker-compose.yml
         else
-            sed -i '/env_file:/a\        volumes:\n            - /var/log/remnanode:/var/log/remnanode' docker-compose.yml
+            sed -i '/env_file:/,/- \.env$/{
+                /- \.env$/a\        volumes:\n            - /var/log/remnanode:/var/log/remnanode
+            }' docker-compose.yml
         fi
     fi
 
