@@ -189,6 +189,13 @@ ROOT_EOF
             if ! grep -q "^WebhookTemplate:" /opt/tblocker/config.yaml; then
                 echo "WebhookTemplate: '{\"username\":\"%s\",\"ip\":\"%s\",\"server\":\"%s\",\"action\":\"%s\",\"duration\":%d,\"timestamp\":\"%s\"}'" | sudo tee -a /opt/tblocker/config.yaml
             fi
+            
+        else
+            if grep -q "^SendWebhook:" /opt/tblocker/config.yaml; then
+                sudo sed -i 's|^SendWebhook:.*$|SendWebhook: false|' /opt/tblocker/config.yaml
+            else
+                echo "SendWebhook: false" | sudo tee -a /opt/tblocker/config.yaml
+            fi
         fi
     else
         error "$(get_string "install_tblocker_config_error")"
@@ -229,6 +236,12 @@ update_tblocker_config() {
 
             if ! grep -q "^WebhookTemplate:" /opt/tblocker/config.yaml; then
                 echo "WebhookTemplate: '{\"username\":\"%s\",\"ip\":\"%s\",\"server\":\"%s\",\"action\":\"%s\",\"duration\":%d,\"timestamp\":\"%s\"}'" | sudo tee -a /opt/tblocker/config.yaml
+            fi
+        else
+            if grep -q "^SendWebhook:" /opt/tblocker/config.yaml; then
+                sudo sed -i 's|^SendWebhook:.*$|SendWebhook: false|' /opt/tblocker/config.yaml
+            else
+                echo "SendWebhook: false" | sudo tee -a /opt/tblocker/config.yaml
             fi
         fi
         
