@@ -524,10 +524,6 @@ ROOT_EOF
                 echo "WebhookTemplate: '{\"username\":\"%s\",\"ip\":\"%s\",\"server\":\"%s\",\"action\":\"%s\",\"duration\":%d,\"timestamp\":\"%s\"}'" | sudo tee -a /opt/tblocker/config.yaml
             fi
 
-            if ! grep -q "^WebhookHeaders:" /opt/tblocker/config.yaml; then
-                echo "WebhookHeaders:" | sudo tee -a /opt/tblocker/config.yaml
-                echo "  Content-Type: \"application/json\"" | sudo tee -a /opt/tblocker/config.yaml
-            fi
         else
             if grep -q "^SendWebhook:" /opt/tblocker/config.yaml; then
                 sudo sed -i 's|^SendWebhook:.*$|SendWebhook: false|' /opt/tblocker/config.yaml
@@ -579,10 +575,6 @@ update_tblocker_config() {
                 echo "WebhookTemplate: '{\"username\":\"%s\",\"ip\":\"%s\",\"server\":\"%s\",\"action\":\"%s\",\"duration\":%d,\"timestamp\":\"%s\"}'" | sudo tee -a /opt/tblocker/config.yaml
             fi
 
-            if ! grep -q "^WebhookHeaders:" /opt/tblocker/config.yaml; then
-                echo "WebhookHeaders:" | sudo tee -a /opt/tblocker/config.yaml
-                echo "  Content-Type: \"application/json\"" | sudo tee -a /opt/tblocker/config.yaml
-            fi
         else
             if grep -q "^SendWebhook:" /opt/tblocker/config.yaml; then
                 sudo sed -i 's|^SendWebhook:.*$|SendWebhook: false|' /opt/tblocker/config.yaml
