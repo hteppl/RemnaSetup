@@ -352,8 +352,12 @@ expect {
 EOF
 
     info "$(get_string "install_full_node_adding_warp_crontab")"
-    (crontab -l 2>/dev/null; echo "0 */4 * * * sudo systemctl restart warp-svc.service") | crontab -
-    success "$(get_string "install_full_node_warp_crontab_added")"
+    if ! crontab -l 2>/dev/null | grep -q "systemctl restart warp-svc.service"; then
+        (crontab -l 2>/dev/null; echo "0 */4 * * * sudo systemctl restart warp-svc.service") | crontab -
+        success "$(get_string "install_full_node_warp_crontab_added")"
+    else
+        info "$(get_string "install_full_node_warp_crontab_already_exists")"
+    fi
 
     rm -f install-warp-cli.sh
     success "$(get_string "install_full_node_warp_installed_success")"

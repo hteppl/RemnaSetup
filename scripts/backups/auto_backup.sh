@@ -83,7 +83,12 @@ ensure_cron_installed() {
 
 cleanup_old_crons() {
     info "$(get_string "auto_backup_cleanup_old_crons")"
-    crontab -l 2>/dev/null | grep -v "$AUTO_BACKUP_DIR/backup.sh" | crontab -
+    if crontab -l 2>/dev/null | grep -q "$AUTO_BACKUP_DIR/backup.sh"; then
+        crontab -l 2>/dev/null | grep -v "$AUTO_BACKUP_DIR/backup.sh" | crontab -
+        info "$(get_string "auto_backup_old_crons_removed")"
+    else
+        info "$(get_string "auto_backup_no_old_crons")"
+    fi
 }
 
 ensure_backup_dependencies() {
