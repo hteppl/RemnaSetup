@@ -1,6 +1,6 @@
 services:
   remnawave-db:
-    image: postgres:17
+    image: postgres:17.5
     container_name: 'remnawave-db'
     hostname: remnawave-db
     restart: always
