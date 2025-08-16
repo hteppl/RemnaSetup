@@ -8,4 +8,4 @@ services:
         env_file:
             - .env
         volumes:
-            - /var/lib/toblock:/var/lib/toblock
+            - /var/log/remnanode:/var/log/remnanode
