@@ -22,6 +22,38 @@ install_docker() {
     success "$(get_string "install_node_docker_success")"
 }
 
+setup_logs_and_logrotate() {
+    info "$(get_string "install_node_setup_logs")"
+
+    if [ ! -d "/var/log/remnanode" ]; then
+        sudo mkdir -p /var/log/remnanode
+        sudo chmod -R 777 /var/log/remnanode
+        info "$(get_string "install_node_logs_dir_created")"
+    else
+        info "$(get_string "install_node_logs_dir_exists")"
+    fi
+
+    if ! command -v logrotate >/dev/null 2>&1; then
+        sudo apt update -y && sudo apt install logrotate -y
+    fi
+
+    if [ ! -f "/etc/logrotate.d/remnanode" ] || ! grep -q "copytruncate" /etc/logrotate.d/remnanode; then
+        sudo tee /etc/logrotate.d/remnanode > /dev/null <<EOF
+/var/log/remnanode/*.log {
+    size 50M
+    rotate 5
+    compress
+    missingok
+    notifempty
+    copytruncate
+}
+EOF
+        success "$(get_string "install_node_logs_configured")"
+    else
+        info "$(get_string "install_node_logs_already_configured")"
+    fi
+}
+
 check_remnanode() {
     if [ -f "/opt/remnanode/docker-compose.yml" ]; then
         info "$(get_string "install_node_already_installed")"
@@ -53,11 +85,7 @@ install_remnanode() {
     echo "APP_PORT=$APP_PORT" > .env
     echo "$SSL_CERT_FULL" >> .env
 
-    if [[ "$USE_TBLOCKER" == "y" || "$USE_TBLOCKER" == "Y" ]]; then
-        cp "/opt/remnasetup/data/docker/node-tblocker-compose.yml" docker-compose.yml
-    else
-        cp "/opt/remnasetup/data/docker/node-compose.yml" docker-compose.yml
-    fi
+    cp "/opt/remnasetup/data/docker/node-compose.yml" docker-compose.yml
 
     sudo docker compose up -d || {
         error "$(get_string "install_node_error")"
@@ -91,18 +119,11 @@ main() {
         warn "$(get_string "install_node_ssl_cert_empty")"
     done
 
-    while true; do
-        question "$(get_string "install_node_use_tblocker")"
-        USE_TBLOCKER="$REPLY"
-        if [[ "$USE_TBLOCKER" == "y" || "$USE_TBLOCKER" == "Y" || "$USE_TBLOCKER" == "n" || "$USE_TBLOCKER" == "N" ]]; then
-            break
-        fi
-        warn "$(get_string "install_node_please_enter_yn")"
-    done
-
     if ! check_docker; then
         install_docker
     fi
+
+    setup_logs_and_logrotate
 
     install_remnanode
 

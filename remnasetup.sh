@@ -102,25 +102,23 @@ display_remnanode_menu() {
     print_header
     menu "$(get_string "remnanode_menu")"
     if [ "$LANGUAGE" = "en" ]; then
-        echo -e "${BLUE}1. Full installation (Remnanode + Caddy + Tblocker + BBR + WARP)${RESET}"
+        echo -e "${BLUE}1. Full installation (Remnanode + Caddy + BBR + WARP)${RESET}"
         echo -e "${BLUE}2. Install Remnanode only${RESET}"
         echo -e "${BLUE}3. Install Caddy + self-steal only${RESET}"
-        echo -e "${BLUE}4. Install Tblocker only${RESET}"
-        echo -e "${BLUE}5. IPv6 Management${RESET}"
-        echo -e "${BLUE}6. Install BBR only${RESET}"
-        echo -e "${BLUE}7. Install WARP${RESET}"
-        echo -e "${BLUE}8. Update Remnanode${RESET}"
-        echo -e "${BLUE}9. Back${RESET}"
+        echo -e "${BLUE}4. IPv6 Management${RESET}"
+        echo -e "${BLUE}5. Install BBR only${RESET}"
+        echo -e "${BLUE}6. Install WARP${RESET}"
+        echo -e "${BLUE}7. Update Remnanode${RESET}"
+        echo -e "${BLUE}8. Back${RESET}"
     else
-        echo -e "${BLUE}1. Полная установка (Remnanode + Caddy + Tblocker + BBR + WARP)${RESET}"
+        echo -e "${BLUE}1. Полная установка (Remnanode + Caddy + BBR + WARP)${RESET}"
         echo -e "${BLUE}2. Только Remnanode${RESET}"
         echo -e "${BLUE}3. Только Caddy + self-steal${RESET}"
-        echo -e "${BLUE}4. Только Tblocker${RESET}"
-        echo -e "${BLUE}5. Управление IPv6${RESET}"
-        echo -e "${BLUE}6. Только BBR${RESET}"
-        echo -e "${BLUE}7. Установить WARP${RESET}"
-        echo -e "${BLUE}8. Обновить Remnanode${RESET}"
-        echo -e "${BLUE}9. Назад${RESET}"
+        echo -e "${BLUE}4. Управление IPv6${RESET}"
+        echo -e "${BLUE}5. Только BBR${RESET}"
+        echo -e "${BLUE}6. Установить WARP${RESET}"
+        echo -e "${BLUE}7. Обновить Remnanode${RESET}"
+        echo -e "${BLUE}8. Назад${RESET}"
     fi
     echo
     read -p "$(echo -e "${BOLD_CYAN}$(get_string "select_option"):${RESET}") " REMNANODE_OPTION
@@ -210,12 +208,11 @@ main() {
                         1) run_script "${SCRIPT_DIR}/scripts/remnanode/install-full.sh" ;;
                         2) run_script "${SCRIPT_DIR}/scripts/remnanode/install-node.sh" ;;
                         3) run_script "${SCRIPT_DIR}/scripts/remnanode/install-caddy.sh" ;;
-                        4) run_script "${SCRIPT_DIR}/scripts/remnanode/install-tblocker.sh" ;;
-                        5) run_script "${SCRIPT_DIR}/scripts/remnanode/install-ipv6.sh" ;;
-                        6) run_script "${SCRIPT_DIR}/scripts/remnanode/install-bbr.sh" ;;
-                        7) run_script "${SCRIPT_DIR}/scripts/remnanode/install-warp.sh" ;;
-                        8) run_script "${SCRIPT_DIR}/scripts/remnanode/update.sh" ;;
-                        9) break ;;
+                        4) run_script "${SCRIPT_DIR}/scripts/remnanode/install-ipv6.sh" ;;
+                        5) run_script "${SCRIPT_DIR}/scripts/remnanode/install-bbr.sh" ;;
+                        6) run_script "${SCRIPT_DIR}/scripts/remnanode/install-warp.sh" ;;
+                        7) run_script "${SCRIPT_DIR}/scripts/remnanode/update.sh" ;;
+                        8) break ;;
                         *) warn "$(get_string "invalid_choice")" ;;
                     esac
                 done

@@ -62,23 +62,6 @@ check_components() {
         done
     fi
 
-    if [ -f /opt/tblocker/config.yaml ] && systemctl list-units --full -all | grep -q tblocker.service; then
-        info "$(get_string "install_full_node_tblocker_installed")"
-        while true; do
-            question "$(get_string "install_full_node_update_tblocker")"
-            UPDATE_TBLOCKER="$REPLY"
-            if [[ "$UPDATE_TBLOCKER" == "y" || "$UPDATE_TBLOCKER" == "Y" ]]; then
-                UPDATE_TBLOCKER=true
-                break
-            elif [[ "$UPDATE_TBLOCKER" == "n" || "$UPDATE_TBLOCKER" == "N" ]]; then
-                SKIP_TBLOCKER=true
-                break
-            else
-                warn "$(get_string "install_full_node_please_enter_yn")"
-            fi
-        done
-    fi
-
     if command -v warp-cli >/dev/null 2>&1; then
         WARP_STATUS=$(warp-cli status 2>&1)
         if echo "$WARP_STATUS" | grep -q "Status update:"; then
@@ -221,32 +204,6 @@ request_data() {
                 warn "$(get_string "install_full_node_ssl_cert_empty")"
             done
         fi
-    fi
-
-    if [[ "$SKIP_TBLOCKER" != "true" ]]; then
-        question "$(get_string "install_full_node_enter_block_duration")"
-        BLOCK_DURATION="$REPLY"
-        BLOCK_DURATION=${BLOCK_DURATION:-10}
-
-        while true; do
-            question "$(get_string "install_full_node_need_webhook")"
-            WEBHOOK_NEEDED="$REPLY"
-            if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
-                while true; do
-                    question "$(get_string "install_full_node_enter_webhook")"
-                    WEBHOOK_URL="$REPLY"
-                    if [[ -n "$WEBHOOK_URL" ]]; then
-                        break
-                    fi
-                    warn "$(get_string "install_full_node_webhook_empty")"
-                done
-                break
-            elif [[ "$WEBHOOK_NEEDED" == "n" || "$WEBHOOK_NEEDED" == "N" ]]; then
-                break
-            else
-                warn "$(get_string "install_full_node_please_enter_yn")"
-            fi
-        done
     fi
 
     if [[ "$SKIP_WARP" != "true" ]]; then
@@ -401,12 +358,6 @@ EOF
     fi
 }
 
-install_iptables() {
-    info "$(get_string "install_full_node_installing_iptables")"
-    sudo apt update -y && sudo apt install iptables -y
-    success "$(get_string "install_full_node_iptables_installed")"
-}
-
 install_caddy() {
     info "$(get_string "install_full_node_installing_caddy")"
     sudo apt install -y curl debian-keyring debian-archive-keyring apt-transport-https
@@ -457,142 +408,14 @@ install_remnanode() {
     echo "APP_PORT=$APP_PORT" > .env
     echo "$SSL_CERT_FULL" >> .env
 
-    if [ -f /opt/tblocker/config.yaml ] && systemctl list-units --full -all | grep -q tblocker.service; then
-        info "$(get_string "install_full_node_tblocker_integration")"
-        cp "/opt/remnasetup/data/docker/node-tblocker-compose.yml" docker-compose.yml
-    else
-        info "$(get_string "install_full_node_using_standard_compose")"
-        cp "/opt/remnasetup/data/docker/node-compose.yml" docker-compose.yml
-    fi
-
-    if ! grep -q "/var/log/remnanode:/var/log/remnanode" docker-compose.yml; then
-        if grep -q "volumes:" docker-compose.yml; then
-            sed -i '/volumes:/a\            - /var/log/remnanode:/var/log/remnanode' docker-compose.yml
-        else
-            sed -i '/env_file:/,/- \.env$/{
-                /- \.env$/a\        volumes:\n            - /var/log/remnanode:/var/log/remnanode
-            }' docker-compose.yml
-        fi
-    fi
+    info "$(get_string "install_full_node_using_standard_compose")"
+    cp "/opt/remnasetup/data/docker/node-compose.yml" docker-compose.yml
 
     sudo docker compose up -d || {
         error "$(get_string "install_full_node_remnanode_error")"
         exit 1
     }
     success "$(get_string "install_full_node_remnanode_installed_success")"
-}
-
-install_tblocker() {
-    info "$(get_string "install_full_node_installing_tblocker")"
-
-    setup_logs_and_logrotate
-
-    install_iptables
-
-    sudo su - << 'ROOT_EOF'
-bash <(curl -fsSL git.new/install) << 'INSTALL_INPUT'
-/var/log/remnanode/access.log
-y
-1
-INSTALL_INPUT
-exit
-ROOT_EOF
-    
-    if [[ -f /opt/tblocker/config.yaml ]]; then
-        if grep -q "^UsernameRegex:" /opt/tblocker/config.yaml; then
-            sudo sed -i 's|^UsernameRegex:.*$|UsernameRegex: "email: (\\\\S+)"|' /opt/tblocker/config.yaml
-        else
-            echo 'UsernameRegex: "email: (\\\\S+)"' | sudo tee -a /opt/tblocker/config.yaml
-        fi
-
-        if grep -q "^BlockDuration:" /opt/tblocker/config.yaml; then
-            sudo sed -i "s|^BlockDuration:.*$|BlockDuration: $BLOCK_DURATION|" /opt/tblocker/config.yaml
-        else
-            echo "BlockDuration: $BLOCK_DURATION" | sudo tee -a /opt/tblocker/config.yaml
-        fi
-
-        if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
-            if grep -q "^SendWebhook:" /opt/tblocker/config.yaml; then
-                sudo sed -i 's|^SendWebhook:.*$|SendWebhook: true|' /opt/tblocker/config.yaml
-            else
-                echo "SendWebhook: true" | sudo tee -a /opt/tblocker/config.yaml
-            fi
-            
-            if grep -q "^WebhookURL:" /opt/tblocker/config.yaml; then
-                sudo sed -i "s|^WebhookURL:.*$|WebhookURL: \"https://$WEBHOOK_URL\"|" /opt/tblocker/config.yaml
-            else
-                echo "WebhookURL: \"https://$WEBHOOK_URL\"" | sudo tee -a /opt/tblocker/config.yaml
-            fi
-
-            if ! grep -q "^WebhookTemplate:" /opt/tblocker/config.yaml; then
-                echo "WebhookTemplate: '{\"username\":\"%s\",\"ip\":\"%s\",\"server\":\"%s\",\"action\":\"%s\",\"duration\":%d,\"timestamp\":\"%s\"}'" | sudo tee -a /opt/tblocker/config.yaml
-            fi
-
-        else
-            if grep -q "^SendWebhook:" /opt/tblocker/config.yaml; then
-                sudo sed -i 's|^SendWebhook:.*$|SendWebhook: false|' /opt/tblocker/config.yaml
-            else
-                echo "SendWebhook: false" | sudo tee -a /opt/tblocker/config.yaml
-            fi
-        fi
-    else
-        error "$(get_string "install_full_node_tblocker_config_error")"
-        exit 1
-    fi
-
-    sudo systemctl restart tblocker.service
-    success "$(get_string "install_full_node_tblocker_installed_success")"
-}
-
-update_tblocker_config() {
-    info "$(get_string "install_full_node_updating_tblocker_config")"
-
-    setup_logs_and_logrotate
-    
-    if [[ -f /opt/tblocker/config.yaml ]]; then
-        if grep -q "^UsernameRegex:" /opt/tblocker/config.yaml; then
-            sudo sed -i 's|^UsernameRegex:.*$|UsernameRegex: "email: (\\\\S+)"|' /opt/tblocker/config.yaml
-        else
-            echo 'UsernameRegex: "email: (\\\\S+)"' | sudo tee -a /opt/tblocker/config.yaml
-        fi
-
-        if grep -q "^BlockDuration:" /opt/tblocker/config.yaml; then
-            sudo sed -i "s|^BlockDuration:.*$|BlockDuration: $BLOCK_DURATION|" /opt/tblocker/config.yaml
-        else
-            echo "BlockDuration: $BLOCK_DURATION" | sudo tee -a /opt/tblocker/config.yaml
-        fi
-
-        if [[ "$WEBHOOK_NEEDED" == "y" || "$WEBHOOK_NEEDED" == "Y" ]]; then
-            if grep -q "^SendWebhook:" /opt/tblocker/config.yaml; then
-                sudo sed -i 's|^SendWebhook:.*$|SendWebhook: true|' /opt/tblocker/config.yaml
-            else
-                echo "SendWebhook: true" | sudo tee -a /opt/tblocker/config.yaml
-            fi
-            
-            if grep -q "^WebhookURL:" /opt/tblocker/config.yaml; then
-                sudo sed -i "s|^WebhookURL:.*$|WebhookURL: \"https://$WEBHOOK_URL\"|" /opt/tblocker/config.yaml
-            else
-                echo "WebhookURL: \"https://$WEBHOOK_URL\"" | sudo tee -a /opt/tblocker/config.yaml
-            fi
-
-            if ! grep -q "^WebhookTemplate:" /opt/tblocker/config.yaml; then
-                echo "WebhookTemplate: '{\"username\":\"%s\",\"ip\":\"%s\",\"server\":\"%s\",\"action\":\"%s\",\"duration\":%d,\"timestamp\":\"%s\"}'" | sudo tee -a /opt/tblocker/config.yaml
-            fi
-
-        else
-            if grep -q "^SendWebhook:" /opt/tblocker/config.yaml; then
-                sudo sed -i 's|^SendWebhook:.*$|SendWebhook: false|' /opt/tblocker/config.yaml
-            else
-                echo "SendWebhook: false" | sudo tee -a /opt/tblocker/config.yaml
-            fi
-        fi
-        
-        sudo systemctl restart tblocker.service
-        success "$(get_string "install_full_node_tblocker_config_updated")"
-    else
-        error "$(get_string "install_full_node_tblocker_config_error")"
-        exit 1
-    fi
 }
 
 main() {
@@ -623,6 +446,8 @@ main() {
         fi
         install_caddy
     fi
+
+    setup_logs_and_logrotate
     
     if [[ "$SKIP_REMNANODE" != "true" ]]; then
         if [[ "$UPDATE_REMNANODE" == "true" ]]; then
@@ -631,18 +456,6 @@ main() {
             rm -f docker-compose.yml
         fi
         install_remnanode
-    fi
-    
-    if [[ "$SKIP_TBLOCKER" != "true" ]]; then
-        if [[ "$UPDATE_TBLOCKER" == "true" ]]; then
-            sudo systemctl stop tblocker
-            sudo rm -f /opt/tblocker/config.yaml
-            install_tblocker
-        elif [ -f /opt/tblocker/config.yaml ] && systemctl list-units --full -all | grep -q tblocker.service; then
-            update_tblocker_config
-        else
-            install_tblocker
-        fi
     fi
     
     success "$(get_string "install_full_node_complete")"

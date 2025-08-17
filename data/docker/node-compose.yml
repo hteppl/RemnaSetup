@@ -7,3 +7,5 @@ services:
         network_mode: host
         env_file:
             - .env
+        volumes:
+            - /var/log/remnanode:/var/log/remnanode
