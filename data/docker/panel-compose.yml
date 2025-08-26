@@ -1,6 +1,6 @@
 services:
   remnawave-db:
-    image: postgres:17.5
+    image: postgres:17.6
     container_name: 'remnawave-db'
     hostname: remnawave-db
     restart: always
@@ -24,7 +24,7 @@ services:
       retries: 3
 
   remnawave:
-    image: remnawave/backend:latest
+    image: remnawave/backend:2
     container_name: 'remnawave'
     hostname: remnawave
     restart: always
@@ -34,6 +34,12 @@ services:
       - .env
     networks:
       - remnawave-network
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f http://localhost:${METRICS_PORT:-3001}/health']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     depends_on:
       remnawave-db:
         condition: service_healthy
@@ -41,7 +47,7 @@ services:
         condition: service_healthy
 
   remnawave-redis:
-    image: valkey/valkey:8.0.2-alpine
+    image: valkey/valkey:8.1-alpine
     container_name: remnawave-redis
     hostname: remnawave-redis
     restart: always
@@ -50,7 +56,7 @@ services:
     volumes:
       - remnawave-redis-data:/data
     healthcheck:
-      test: [ "CMD", "valkey-cli", "ping" ]
+      test: ['CMD', 'valkey-cli', 'ping']
       interval: 3s
       timeout: 10s
       retries: 3
