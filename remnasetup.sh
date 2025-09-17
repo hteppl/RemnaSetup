@@ -102,21 +102,21 @@ display_remnanode_menu() {
     print_header
     menu "$(get_string "remnanode_menu")"
     if [ "$LANGUAGE" = "en" ]; then
-        echo -e "${BLUE}1. Full installation (Remnanode + Caddy + BBR + WARP)${RESET}"
+        echo -e "${BLUE}1. Full installation (Remnanode + Caddy + BBR + WARP-NATIVE (by distillium))${RESET}"
         echo -e "${BLUE}2. Install Remnanode only${RESET}"
         echo -e "${BLUE}3. Install Caddy + self-steal only${RESET}"
         echo -e "${BLUE}4. IPv6 Management${RESET}"
         echo -e "${BLUE}5. Install BBR only${RESET}"
-        echo -e "${BLUE}6. Install WARP${RESET}"
+        echo -e "${BLUE}6. Install WARP-NATIVE (by distillium)${RESET}"
         echo -e "${BLUE}7. Update Remnanode${RESET}"
         echo -e "${BLUE}8. Back${RESET}"
     else
-        echo -e "${BLUE}1. Полная установка (Remnanode + Caddy + BBR + WARP)${RESET}"
+        echo -e "${BLUE}1. Полная установка (Remnanode + Caddy + BBR + WARP-NATIVE (by distillium))${RESET}"
         echo -e "${BLUE}2. Только Remnanode${RESET}"
         echo -e "${BLUE}3. Только Caddy + self-steal${RESET}"
         echo -e "${BLUE}4. Управление IPv6${RESET}"
         echo -e "${BLUE}5. Только BBR${RESET}"
-        echo -e "${BLUE}6. Установить WARP${RESET}"
+        echo -e "${BLUE}6. Установить WARP-NATIVE (by distillium)${RESET}"
         echo -e "${BLUE}7. Обновить Remnanode${RESET}"
         echo -e "${BLUE}8. Назад${RESET}"
     fi

@@ -42,9 +42,8 @@
 ### 🌐 Remnanode
 - Установка и настройка ноды
 - Интеграция с Caddy для self-steal
-- Настройка Tblocker для защиты от торрентов
 - Оптимизация сети через BBR
-- Интеграция с WARP
+- Интеграция с WARP-NATIVE (by distillium)
 - Автоматическое обновление компонентов
 
 </td>
@@ -103,12 +102,11 @@
 <td width="50%" align="center">
 
 ### 2️⃣ Remnanode
-- 📦 Полная установка (Remnanode + Caddy + Tblocker + BBR + WARP)
+- 📦 Полная установка (Remnanode + Caddy + Tblocker + BBR + WARP-NATIVE (by distillium))
 - 🚀 Установка Remnanode
 - ⚙️ Установка Caddy + self-steal
-- 🛡️ Установка Tblocker
 - ⚡ Установка BBR
-- 🌐 Установка WARP
+- 🌐 Установка WARP-NATIVE (by distillium)
 - 🔄 Обновление Remnanode
 
 </td>
@@ -162,7 +160,6 @@ curl -fsSL https://raw.githubusercontent.com/Capybara-z/RemnaSetup/refs/heads/ma
    - 🔌 Порты для сервисов
    - 🔑 Учетные данные для базы данных
    - 📊 Настройки метрик
-   - 🤖 Токены для Tblocker
    - 🌐 Параметры WARP
 3. **🗄️ Бэкап и восстановление**
 4. **⚡ Автоматизация**:
