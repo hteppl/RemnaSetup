@@ -53,7 +53,7 @@ print_header() {
         echo -e "${MAGENTA}────────────────────────────────────────────────────────────${RESET}"
         echo -e "${YELLOW}Made with support from:${RESET}"
         echo -e "${CYAN}GitHub SoloBot: https://github.com/Vladless/Solo_bot${RESET}"
-        echo -e "${YELLOW}Contacts: @Vladless${RESET}"
+        echo -e "${YELLOW}Contacts: @solonet_sup${RESET}"
     else
         echo -e "${GREEN}RemnaSetup by capybara${RESET}"
         echo -e "${CYAN}Проект: https://github.com/Capybara-z/RemnaSetup${RESET}"
@@ -63,7 +63,7 @@ print_header() {
         echo -e "${MAGENTA}────────────────────────────────────────────────────────────${RESET}"
         echo -e "${YELLOW}Сделано при поддержке проекта:${RESET}"
         echo -e "${CYAN}GitHub SoloBot: https://github.com/Vladless/Solo_bot${RESET}"
-        echo -e "${YELLOW}Контакты: @Vladless${RESET}"
+        echo -e "${YELLOW}Контакты: @solonet_sup${RESET}"
     fi
     echo -e "${MAGENTA}────────────────────────────────────────────────────────────${RESET}"
     echo
