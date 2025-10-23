@@ -173,6 +173,7 @@ run_script() {
         if [ $result -ne 0 ]; then
             warn "$(get_string "script_error")"
             read -n 1 -s -r -p "$(get_string "press_any_key")"
+            kill -9 $$
         fi
     else
         error "$(get_string "script_not_found"): $script"
