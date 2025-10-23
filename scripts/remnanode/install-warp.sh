@@ -311,7 +311,8 @@ main() {
 
     install_warp_native
     read -n 1 -s -r -p "$(get_string "warp_native_press_key")"
-    exit 0
+    echo ""
+    kill -9 $$
 }
 
 main
