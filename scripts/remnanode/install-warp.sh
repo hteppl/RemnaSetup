@@ -311,7 +311,7 @@ main() {
 
     install_warp_native
     info "$(get_string "warp_native_press_key")"
-    exit 0
+    kill -9 $$
 }
 
 main

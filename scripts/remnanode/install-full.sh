@@ -669,7 +669,7 @@ main() {
     fi
     
     info  "$(get_string "install_full_node_press_key")"
-    exit 0
+    kill -9 $$
 }
 
 main
