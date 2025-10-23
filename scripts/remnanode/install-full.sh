@@ -668,9 +668,8 @@ main() {
         echo ""
     fi
     
-    read -n 1 -s -r -p "$(get_string "install_full_node_press_key")"
-    echo ""
-    kill -9 $$
+    info  "$(get_string "install_full_node_press_key")"
+    exit 0
 }
 
 main

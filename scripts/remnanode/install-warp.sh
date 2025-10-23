@@ -310,9 +310,8 @@ main() {
     fi
 
     install_warp_native
-    read -n 1 -s -r -p "$(get_string "warp_native_press_key")"
-    echo ""
-    kill -9 $$
+    info "$(get_string "warp_native_press_key")"
+    exit 0
 }
 
 main
