@@ -669,7 +669,8 @@ main() {
     fi
     
     read -n 1 -s -r -p "$(get_string "install_full_node_press_key")"
-    exit 0
+    echo ""
+    kill -9 $$
 }
 
 main

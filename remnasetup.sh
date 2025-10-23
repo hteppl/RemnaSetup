@@ -46,7 +46,7 @@ print_header() {
     echo -e "${MAGENTA}────────────────────────────────────────────────────────────${RESET}"
     if [ "$LANGUAGE" = "en" ]; then
         echo -e "${GREEN}RemnaSetup by capybara${RESET}"
-        echo -e "${CYAN}Project: https://github.com/Capybara-z/RemnaSetup${RESET}"
+        echo -e "${CYAN}Project: https://github.com/hteppl/RemnaSetup${RESET}"
         echo -e "${YELLOW}Contacts: @KaTTuBaRa${RESET}"
         echo -e "${CYAN}Version: 2.5${RESET}"
         echo
@@ -56,7 +56,7 @@ print_header() {
         echo -e "${YELLOW}Contacts: @solonet_sup${RESET}"
     else
         echo -e "${GREEN}RemnaSetup by capybara${RESET}"
-        echo -e "${CYAN}Проект: https://github.com/Capybara-z/RemnaSetup${RESET}"
+        echo -e "${CYAN}Проект: https://github.com/hteppl/RemnaSetup${RESET}"
         echo -e "${YELLOW}Контакты: @KaTTuBaRa${RESET}"
         echo -e "${CYAN}Версия: 2.5${RESET}"
         echo
