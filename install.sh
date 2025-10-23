@@ -97,9 +97,3 @@ chmod +x /opt/remnasetup/scripts/remnanode/*.sh
 chmod +x /opt/remnasetup/scripts/backups/*.sh
 
 rm -rf "$TEMP_DIR"
-
-cd /opt/remnasetup || exit 1
-
-echo "Starting RemnaSetup..."
-echo "Запуск RemnaSetup..."
-bash /opt/remnasetup/remnasetup.sh 
