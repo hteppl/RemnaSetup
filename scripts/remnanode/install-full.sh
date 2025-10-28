@@ -28,59 +28,9 @@ check_components() {
         info "$(get_string "install_full_node_docker_not_installed")"
     fi
 
-    if [ -f "/opt/remnanode/docker-compose.yml" ]; then
-        info "$(get_string "install_full_node_remnanode_installed")"
-        while true; do
-            question "$(get_string "install_full_node_update_remnanode")"
-            UPDATE_NODE="$REPLY"
-            if [[ "$UPDATE_NODE" == "y" || "$UPDATE_NODE" == "Y" ]]; then
-                UPDATE_REMNANODE=true
-                break
-            elif [[ "$UPDATE_NODE" == "n" || "$UPDATE_NODE" == "N" ]]; then
-                SKIP_REMNANODE=true
-                break
-            else
-                warn "$(get_string "install_full_node_please_enter_yn")"
-            fi
-        done
-    fi
-
-    if command -v caddy >/dev/null 2>&1; then
-        info "$(get_string "install_full_node_caddy_installed")"
-        while true; do
-            question "$(get_string "install_full_node_update_caddy")"
-            UPDATE_CADDY="$REPLY"
-            if [[ "$UPDATE_CADDY" == "y" || "$UPDATE_CADDY" == "Y" ]]; then
-                UPDATE_CADDY=true
-                break
-            elif [[ "$UPDATE_CADDY" == "n" || "$UPDATE_CADDY" == "N" ]]; then
-                SKIP_CADDY=true
-                break
-            else
-                warn "$(get_string "install_full_node_please_enter_yn")"
-            fi
-        done
-    fi
-
-    if command -v wgcf >/dev/null 2>&1 && [ -f "/etc/wireguard/warp.conf" ]; then
-        info "$(get_string "warp_native_already_installed")"
-        while true; do
-            question "$(get_string "warp_native_reconfigure")"
-            RECONFIGURE="$REPLY"
-            if [[ "$RECONFIGURE" == "y" || "$RECONFIGURE" == "Y" ]]; then
-                SKIP_WARP=false
-                break
-            elif [[ "$RECONFIGURE" == "n" || "$RECONFIGURE" == "N" ]]; then
-                SKIP_WARP=true
-                info "$(get_string "warp_native_skip_installation")"
-                break
-            else
-                warn "$(get_string "warp_native_please_enter_yn")"
-            fi
-        done
-    else
-        SKIP_WARP=false
-    fi
+    UPDATE_REMNANODE=true
+    UPDATE_CADDY=true
+    SKIP_WARP=false
 
     if sysctl net.ipv4.tcp_congestion_control | grep -q bbr; then
         info "$(get_string "install_full_node_bbr_configured")"
