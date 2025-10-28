@@ -595,7 +595,7 @@ install_remnanode() {
     sudo chown $USER:$USER /opt/remnanode
     cd /opt/remnanode
 
-    echo "APP_PORT=$APP_PORT" > .env
+    echo "NODE_PORT=$APP_PORT" > .env
     echo "$SSL_CERT_FULL" >> .env
 
         info "$(get_string "install_full_node_using_standard_compose")"
