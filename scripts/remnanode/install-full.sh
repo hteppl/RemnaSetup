@@ -4,33 +4,8 @@ source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
 source "/opt/remnasetup/scripts/common/languages.sh"
 
-check_docker() {
-    if command -v docker >/dev/null 2>&1; then
-        return 0
-    else
-        return 1
-    fi
-}
-
-install_docker() {
-    info "$(get_string "install_full_node_installing_docker")"
-    sudo curl -fsSL https://get.docker.com | sh || {
-        error "$(get_string "install_full_node_docker_error")"
-        exit 1
-    }
-    success "$(get_string "install_full_node_docker_installed_success")"
-}
-
 check_components() {
-    if command -v docker >/dev/null 2>&1; then
-        info "$(get_string "install_full_node_docker_installed")"
-    else
-        info "$(get_string "install_full_node_docker_not_installed")"
-    fi
-
-    UPDATE_REMNANODE=true
-    UPDATE_CADDY=true
-    SKIP_WARP=false
+    RESTORE_DNS_REQUIRED=false
 
     if sysctl net.ipv4.tcp_congestion_control | grep -q bbr; then
         info "$(get_string "install_full_node_bbr_configured")"
@@ -39,164 +14,20 @@ check_components() {
 }
 
 request_data() {
-    if [[ "$SKIP_CADDY" != "true" ]]; then
-        while true; do
-            question "$(get_string "install_full_node_enter_domain")"
-            DOMAIN="$REPLY"
-            if [[ "$DOMAIN" == "n" || "$DOMAIN" == "N" ]]; then
-                while true; do
-                    question "$(get_string "install_full_node_confirm_skip_caddy")"
-                    CONFIRM="$REPLY"
-                    if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
-                        SKIP_CADDY=true
-                        break
-                    elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
-                        break
-                    else
-                        warn "$(get_string "install_full_node_please_enter_yn")"
-                    fi
-                done
-                if [[ "$SKIP_CADDY" == "true" ]]; then
-                    break
-                fi
-            elif [[ -n "$DOMAIN" ]]; then
-                break
-            fi
-            warn "$(get_string "install_full_node_domain_empty")"
-        done
+    question "$(get_string "install_full_node_enter_domain")"
+    DOMAIN="$REPLY"
 
-        if [[ "$SKIP_CADDY" != "true" ]]; then
-            while true; do
-                question "$(get_string "install_full_node_enter_port")"
-                MONITOR_PORT="$REPLY"
-                if [[ "$MONITOR_PORT" == "n" || "$MONITOR_PORT" == "N" ]]; then
-                    while true; do
-                        question "$(get_string "install_full_node_confirm_skip_caddy")"
-                        CONFIRM="$REPLY"
-                        if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
-                            SKIP_CADDY=true
-                            break
-                        elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
-                            break
-                        else
-                            warn "$(get_string "install_full_node_please_enter_yn")"
-                        fi
-                    done
-                    if [[ "$SKIP_CADDY" == "true" ]]; then
-                        break
-                    fi
-                fi
-                MONITOR_PORT=${MONITOR_PORT:-8443}
-                if [[ "$MONITOR_PORT" =~ ^[0-9]+$ ]]; then
-                    break
-                fi
-                warn "$(get_string "install_full_node_port_must_be_number")"
-            done
-        fi
-    fi
+    question "$(get_string "install_full_node_enter_port")"
+    MONITOR_PORT="$REPLY"
+    MONITOR_PORT=${MONITOR_PORT:-8443}
 
-    if [[ "$SKIP_REMNANODE" != "true" ]]; then
-        while true; do
-            question "$(get_string "install_full_node_enter_app_port")"
-            APP_PORT="$REPLY"
-            if [[ "$APP_PORT" == "n" || "$APP_PORT" == "N" ]]; then
-                while true; do
-                    question "$(get_string "install_full_node_confirm_skip_remnanode")"
-                    CONFIRM="$REPLY"
-                    if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
-                        SKIP_REMNANODE=true
-                        break
-                    elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
-                        break
-                    else
-                        warn "$(get_string "install_full_node_please_enter_yn")"
-                    fi
-                done
-                if [[ "$SKIP_REMNANODE" == "true" ]]; then
-                    break
-                fi
-            fi
-            APP_PORT=${APP_PORT:-3001}
-            if [[ "$APP_PORT" =~ ^[0-9]+$ ]]; then
-                break
-            fi
-            warn "$(get_string "install_full_node_port_must_be_number")"
-        done
+    question "$(get_string "install_full_node_enter_app_port")"
+    APP_PORT="$REPLY"
+    APP_PORT=${APP_PORT:-3001}
 
-        if [[ "$SKIP_REMNANODE" != "true" ]]; then
-            while true; do
-                question "$(get_string "install_full_node_enter_ssl_cert")"
-                SSL_CERT_FULL="$REPLY"
-                if [[ "$SSL_CERT_FULL" == "n" || "$SSL_CERT_FULL" == "N" ]]; then
-                    while true; do
-                        question "$(get_string "install_full_node_confirm_skip_remnanode")"
-                        CONFIRM="$REPLY"
-                        if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
-                            SKIP_REMNANODE=true
-                            break
-                        elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
-                            break
-                        else
-                            warn "$(get_string "install_full_node_please_enter_yn")"
-                        fi
-                    done
-                    if [[ "$SKIP_REMNANODE" == "true" ]]; then
-                        break
-                    fi
-                elif [[ -n "$SSL_CERT_FULL" ]]; then
-                    break
-                fi
-                warn "$(get_string "install_full_node_ssl_cert_empty")"
-            done
-        fi
-    fi
-
-    if [[ "$SKIP_WARP" != "true" ]]; then
-        while true; do
-            question "$(get_string "install_full_node_install_warp_native")"
-            INSTALL_WARP="$REPLY"
-            if [[ "$INSTALL_WARP" == "n" || "$INSTALL_WARP" == "N" ]]; then
-                while true; do
-                    question "$(get_string "install_full_node_confirm_skip_warp")"
-                    CONFIRM="$REPLY"
-                    if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
-                        SKIP_WARP=true
-                        break
-                    elif [[ "$CONFIRM" == "n" || "$CONFIRM" == "N" ]]; then
-                        break
-                    else
-                        warn "$(get_string "install_full_node_please_enter_yn")"
-                    fi
-                done
-                if [[ "$SKIP_WARP" == "true" ]]; then
-                    break
-                fi
-            elif [[ "$INSTALL_WARP" == "y" || "$INSTALL_WARP" == "Y" ]]; then
-                break
-            else
-                warn "$(get_string "install_full_node_please_enter_yn")"
-            fi
-        done
-    fi
-
-    if [[ "$SKIP_BBR" != "true" ]]; then
-        while true; do
-            question "$(get_string "install_full_node_need_bbr")"
-            BBR_ANSWER="$REPLY"
-            if [[ "$BBR_ANSWER" == "n" || "$BBR_ANSWER" == "N" ]]; then
-                SKIP_BBR=true
-                break
-            elif [[ "$BBR_ANSWER" == "y" || "$BBR_ANSWER" == "Y" ]]; then
-                SKIP_BBR=false
-                break
-            else
-                warn "$(get_string "install_full_node_please_enter_yn")"
-            fi
-        done
-    fi
+    question "$(get_string "install_full_node_install_warp_native")"
+    INSTALL_WARP="$REPLY"
 }
-
-RESTORE_DNS_REQUIRED=false
 
 restore_dns() {
     if [[ "$RESTORE_DNS_REQUIRED" == true && -f /etc/resolv.conf.backup ]]; then
@@ -566,59 +397,32 @@ main() {
     check_components
     request_data
 
-    info "$(get_string "install_full_node_updating_packages")"
-#    sudo apt update -y
-
-#    if ! check_docker; then
-#        install_docker
-#    fi
-
-    if [[ "$SKIP_WARP" != "true" ]]; then
-        if command -v wgcf >/dev/null 2>&1 && [ -f "/etc/wireguard/warp.conf" ]; then
-            uninstall_warp_native
-            echo ""
-        fi
-        install_warp
+    # warp
+    if command -v wgcf >/dev/null 2>&1 && [ -f "/etc/wireguard/warp.conf" ]; then
+        uninstall_warp_native
+        echo ""
     fi
-    
-    if [[ "$SKIP_BBR" != "true" ]]; then
-        install_bbr
-    fi
-    
-    if [[ "$SKIP_CADDY" != "true" ]]; then
-        if [[ "$UPDATE_CADDY" == "true" ]]; then
-            sudo systemctl stop caddy
-            sudo rm -f /etc/caddy/Caddyfile
-        fi
-        install_caddy
-    fi
+    install_warp
 
+    # bbr
+    install_bbr
+
+    # caddy
+    sudo systemctl stop caddy
+    sudo rm -f /etc/caddy/Caddyfile
+    install_caddy
+
+    # logs
     setup_logs_and_logrotate
     
-    if [[ "$SKIP_REMNANODE" != "true" ]]; then
-        if [[ "$UPDATE_REMNANODE" == "true" ]]; then
-            cd /opt/remnanode
-            sudo docker compose down
-            rm -f docker-compose.yml
-        fi
-        install_remnanode
-    fi
+    cd /opt/remnanode
+    sudo docker compose down
+    rm -f docker-compose.yml
+    install_remnanode
     
     success "$(get_string "install_full_node_complete")"
-
-    if [[ "$SKIP_WARP" != "true" ]]; then
-        echo ""
-        echo -e "${BOLD_CYAN}➤ $(get_string "warp_native_check_service"):${RESET} systemctl status wg-quick@warp"
-        echo -e "${BOLD_CYAN}➤ $(get_string "warp_native_show_info"):${RESET} wg show warp"
-        echo -e "${BOLD_CYAN}➤ $(get_string "warp_native_stop_interface"):${RESET} systemctl stop wg-quick@warp"
-        echo -e "${BOLD_CYAN}➤ $(get_string "warp_native_start_interface"):${RESET} systemctl start wg-quick@warp"
-        echo -e "${BOLD_CYAN}➤ $(get_string "warp_native_restart_interface"):${RESET} systemctl restart wg-quick@warp"
-        echo -e "${BOLD_CYAN}➤ $(get_string "warp_native_disable_autostart"):${RESET} systemctl disable wg-quick@warp"
-        echo -e "${BOLD_CYAN}➤ $(get_string "warp_native_enable_autostart_cmd"):${RESET} systemctl enable wg-quick@warp"
-        echo ""
-    fi
-    
     info  "$(get_string "install_full_node_press_key")"
+
     kill -9 $$
 }
 
