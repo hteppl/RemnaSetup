@@ -567,7 +567,7 @@ main() {
     request_data
 
     info "$(get_string "install_full_node_updating_packages")"
-    sudo apt update -y
+#    sudo apt update -y
 
 #    if ! check_docker; then
 #        install_docker
