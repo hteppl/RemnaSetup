@@ -420,10 +420,7 @@ main() {
     rm -f docker-compose.yml
     install_remnanode
     
-    success "$(get_string "install_full_node_complete")"
-    info  "$(get_string "install_full_node_press_key")"
-
-    kill -9 $$
+    echo "Installation completed!"
 }
 
 main
