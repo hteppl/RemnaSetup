@@ -421,6 +421,7 @@ main() {
     install_remnanode
     
     echo "Installation completed!"
+    exit 0
 }
 
 main
