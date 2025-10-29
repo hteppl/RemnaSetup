@@ -24,6 +24,9 @@ request_data() {
     question "$(get_string "install_full_node_enter_app_port")"
     APP_PORT="$REPLY"
     APP_PORT=${APP_PORT:-3001}
+
+    question "$(get_string "install_full_node_enter_ssl_cert")"
+    SSL_CERT_FULL="$REPLY"
 }
 
 restore_dns() {
