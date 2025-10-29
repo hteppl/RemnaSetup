@@ -569,9 +569,9 @@ main() {
     info "$(get_string "install_full_node_updating_packages")"
     sudo apt update -y
 
-    if ! check_docker; then
-        install_docker
-    fi
+#    if ! check_docker; then
+#        install_docker
+#    fi
 
     if [[ "$SKIP_WARP" != "true" ]]; then
         if command -v wgcf >/dev/null 2>&1 && [ -f "/etc/wireguard/warp.conf" ]; then
