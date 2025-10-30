@@ -404,7 +404,10 @@ main() {
     # caddy
     sudo systemctl stop caddy
     sudo rm -f /etc/caddy/Caddyfile
-    install_caddy
+
+    if [[ "$DOMAIN" != "none" ]]; then
+      install_caddy
+    fi
 
     # logs
     setup_logs_and_logrotate
