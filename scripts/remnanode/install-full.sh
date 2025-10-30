@@ -4,6 +4,11 @@ source "/opt/remnasetup/scripts/common/colors.sh"
 source "/opt/remnasetup/scripts/common/functions.sh"
 source "/opt/remnasetup/scripts/common/languages.sh"
 
+DOMAIN="$1"
+MONITOR_PORT="$2"
+APP_PORT="$3"
+SSL_CERT_FULL="$4"
+
 check_components() {
     RESTORE_DNS_REQUIRED=false
 
@@ -14,19 +19,8 @@ check_components() {
 }
 
 request_data() {
-    question "$(get_string "install_full_node_enter_domain")"
-    DOMAIN="$REPLY"
-
-    question "$(get_string "install_full_node_enter_port")"
-    MONITOR_PORT="$REPLY"
     MONITOR_PORT=${MONITOR_PORT:-8443}
-
-    question "$(get_string "install_full_node_enter_app_port")"
-    APP_PORT="$REPLY"
     APP_PORT=${APP_PORT:-3001}
-
-    question "$(get_string "install_full_node_enter_ssl_cert")"
-    SSL_CERT_FULL="$REPLY"
 }
 
 restore_dns() {
@@ -377,10 +371,10 @@ install_remnanode() {
     cd /opt/remnanode
 
     echo "NODE_PORT=$APP_PORT" > .env
-    echo "$SSL_CERT_FULL" >> .env
+    echo "SECRET_KEY=\"$SSL_CERT_FULL\"" >> .env
 
-        info "$(get_string "install_full_node_using_standard_compose")"
-        cp "/opt/remnasetup/data/docker/node-compose.yml" docker-compose.yml
+    info "$(get_string "install_full_node_using_standard_compose")"
+    cp "/opt/remnasetup/data/docker/node-compose.yml" docker-compose.yml
 
     sudo docker compose up -d || {
         error "$(get_string "install_full_node_remnanode_error")"
